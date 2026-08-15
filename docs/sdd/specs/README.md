@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- |
 | [DV-0001](DV-0001-sdd-foundation/spec.md) | SDD 文档系统基础 | Verified | Duoasa | 2026-08-15 |
 | [DV-0002](DV-0002-upstream-foundation/spec.md) | DeepSeek Harness 基础与 DeepViewer 改造方向 | Review | Duoasa | 2026-08-15 |
-| [DV-0003](DV-0003-desktop-packaging-spike/spec.md) | Electron 桌面打包纵向验证 | Implementing | Duoasa | 2026-08-15 |
+| [DV-0003](DV-0003-desktop-packaging-spike/spec.md) | Electron 桌面打包纵向验证 | Implementing | Duoasa | 2026-08-16 |
 
 ## 下一个编号
 
@@ -21,3 +21,5 @@
 - 被替代的目录保留在原位置，状态改为 `Superseded`。
 
 新规格从 [`_template/`](_template/spec.md) 开始，完整流程见上级 [`README.md`](../README.md)。
+
+公开版本及其资产证据见 [`releases/README.md`](../releases/README.md)。

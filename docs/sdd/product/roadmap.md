@@ -1,7 +1,7 @@
 ---
 title: DeepViewer Roadmap
 status: Draft
-updated: 2026-08-15
+updated: 2026-08-16
 ---
 
 # 路线图
@@ -26,7 +26,7 @@ updated: 2026-08-15
 
 退出条件：Apple Silicon 与 Intel 产物的架构和资源检查通过；至少 arm64 原生完成现有 Web surface 确定性测试任务，退出后不残留 Harness 进程，并且没有阻断后续 UI/功能改造的 macOS 封包问题。
 
-当前证据：arm64 原生与 Intel x64（Rosetta）自包含 `.app`/DMG 已生成，真实 Web surface 启动和退出回收通过。无密钥流式任务、特殊路径/clean environment、安全 UI 走查与真实 Intel Mac 验证仍在 DV-0003 内收尾；这些证据完成后直接进入 Phase 2，不插入 Windows 适配。
+当前证据：arm64 原生与 Intel x64（Rosetta）自包含 DMG 已作为 [`v0.0.1` 公开预览版](../releases/v0.0.1.md)发布，资产上传状态、大小和 SHA-256 已核对，真实 Web surface 启动和退出回收通过。该版本未签名、未公证，不代表 DV-0003 已完成；无密钥流式任务、特殊路径/clean environment、安全 UI 走查与真实 Intel Mac 验证仍在收尾。macOS 封包无阻断问题后，按照项目负责人后续提供并批准的方案进入 Phase 2；Windows 适配继续后置。
 
 ## Phase 2：DeepViewer macOS MVP
 

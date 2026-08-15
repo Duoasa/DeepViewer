@@ -59,7 +59,7 @@ macOS 应用，并自动管理内置本地 Runtime 的启动和退出。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | [DeepViewer-0.0.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.0.1/DeepViewer-0.0.1-macos-arm64.dmg) | `9c76101b7b7bcb8bf8cfed30b422927851e674f3092650388d58c8164ef0314` |
+| Apple Silicon（`arm64`） | [DeepViewer-0.0.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.0.1/DeepViewer-0.0.1-macos-arm64.dmg) | `9c76101b7b7b7cb8bf8cfed30b422927851e674f3092650388d58c8164ef0314` |
 | Intel（`x64`） | [DeepViewer-0.0.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.0.1/DeepViewer-0.0.1-macos-x64.dmg) | `6a24dbb6100edd804fd58167fde8c77326ddb65c09bc4497d5ed58212313681c` |
 
 > [!WARNING]

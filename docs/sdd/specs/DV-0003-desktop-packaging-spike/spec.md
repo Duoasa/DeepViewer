@@ -4,7 +4,7 @@ title: Electron desktop packaging spike
 status: Implementing
 owner: Duoasa
 created: 2026-08-15
-updated: 2026-08-15
+updated: 2026-08-16
 depends_on: [DV-0001]
 ---
 
@@ -108,6 +108,7 @@ depends_on: [DV-0001]
 - 关闭流程先停止新请求，再尝试优雅终止；超时后只强制终止由本应用创建且已验证身份的进程树。
 - 启动页不得把 Harness 原始堆栈完整呈现给普通用户，但日志应保留已脱敏的技术信息。
 - 本规格允许 macOS 测试产物未签名；系统拦截未签名应用属于已知分发限制，不得误报为 Runtime 缺陷。
+- 可为兼容性验证公开预览产物；公开发布本身不满足尚未完成的验收条件，也不自动提升规格状态。
 - 本规格不以 Windows 构建结果阻断 macOS 完成；Windows 适配必须由后续独立规格启动。
 
 ## UX 说明

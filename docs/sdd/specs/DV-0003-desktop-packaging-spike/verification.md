@@ -2,14 +2,15 @@
 id: DV-0003
 title: Electron desktop packaging spike - Verification
 status: Implementing
-updated: 2026-08-15
+updated: 2026-08-16
 ---
 
 # DV-0003：验证
 
 ## 验证环境
 
-- DeepViewer 提交：工作树实现，尚未提交
+- DeepViewer 封包基线提交：`4b4bae91a1fd75a5247a0ece26a027c8046fbdd7`
+- 公开预览：[GitHub Release `v0.0.1`](https://github.com/Duoasa/DeepViewer/releases/tag/v0.0.1)，tag 指向 `29176f8`
 - Harness：`47f943859bef60e4160492346772ded9b24f765a` / `0.1.0-rc.5`
 - Electron/Packager：Electron `43.4.0` / Node `24.18.1`；Electron Packager `20.3.0`；pnpm `11.19.0`
 - macOS：`26.5.2`，Apple Silicon；arm64 原生，x64 使用 Rosetta。真实 Intel Mac 尚未验证
@@ -71,6 +72,19 @@ SHA-256：
 - arm64：`9c76101b7b7b7cb8bf8cfed30b422927851e674f3092650388d58c8164ef0314`
 - x64：`6a24dbb6100edd804fd58167fde8c77326ddb65c09bc4497d5ed58212313681c`
 
+## 公开预览发布证据
+
+- Release：[DeepViewer 0.0.1 — macOS Packaging Preview](https://github.com/Duoasa/DeepViewer/releases/tag/v0.0.1)
+- 状态：公开、非草稿、pre-release
+- 发布时间：2026-08-16 00:54:53 +08:00
+- `DeepViewer-0.0.1-macos-arm64.dmg`：445,185,427 bytes，状态 `uploaded`，GitHub digest 与本地 SHA-256 一致
+- `DeepViewer-0.0.1-macos-x64.dmg`：468,506,506 bytes，状态 `uploaded`，GitHub digest 与本地 SHA-256 一致
+- `SHA256SUMS.txt`：196 bytes，状态 `uploaded`，GitHub digest 与本地 SHA-256 一致
+- 英文 [`README.md`](../../../../README.md) 与简体中文 [`README.zh-CN.md`](../../../../README.zh-CN.md) 已记录安装、架构选择、校验和未签名/未公证限制
+- 发布事实、资产 URL 和验证边界见 [`releases/v0.0.1.md`](../../releases/v0.0.1.md)
+
+本次公开预览只证明资产已经上传并可供兼容性测试，不补足 AC-001、AC-003、AC-005、AC-007 与 AC-008 的剩余证据，因此 DV-0003 仍保持 `Implementing`。
+
 ## 人工检查
 
 - [x] arm64 与 x64 `.app` 均通过 `open -n` 启动，无需人工执行 Node、pnpm 或 Harness 命令
@@ -93,6 +107,6 @@ SHA-256：
 
 ## 结论
 
-- 结果：Partial pass。双架构自包含 macOS 封包、真实 Web surface 启动和生命周期纵向路径通过；DV-0003 保持 `Implementing`，等待剩余验收项。
+- 结果：Partial pass。双架构自包含 macOS 封包、真实 Web surface 启动和生命周期纵向路径通过；`v0.0.1` 的两个 DMG 与 SHA-256 清单已公开上传并核验。DV-0003 保持 `Implementing`，等待剩余验收项。
 - 验证人：Codex（自动化与本机 GUI 冒烟）
-- 日期：2026-08-15
+- 日期：2026-08-16
