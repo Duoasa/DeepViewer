@@ -29,6 +29,29 @@
   <a href="README.md">English</a> · <strong>简体中文</strong>
 </p>
 
+## 未签名预览版：Gatekeeper 临时处理
+
+> [!WARNING]
+> `v0.1.1` 是项目早期的未签名、未公证预览版。通过 GitHub 下载的文件带有 quarantine
+> 属性时，即使文件内容完整，macOS 也可能提示 **“DeepViewer 已损坏，无法打开”**。
+> 以下方案会移除 Apple quarantine 属性，只能在确认下载来源和 SHA-256 后使用。
+
+1. 只从[官方 `v0.1.1` Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)
+   下载与你的 Mac 架构匹配的 DMG。
+2. 使用下方[快速开始](#快速开始)表格或官方
+   [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
+   核对 SHA-256。
+3. 打开 DMG，把 `DeepViewer.app` 复制到 `/Applications`。
+4. 在终端执行以下命令，然后重新打开 DeepViewer：
+
+```sh
+xattr -dr com.apple.quarantine /Applications/DeepViewer.app
+```
+
+该命令只移除指定 DeepViewer 应用的 quarantine 属性。不要把目标改成 `/Applications`、
+其他应用或更大的目录。如果 SHA-256 不一致，请删除下载文件且不要打开。后续版本仍计划加入
+Developer ID 签名与 Apple 公证；这个命令不能替代正式签名和公证。
+
 <p align="center">
   <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS 工作区">
 </p>
@@ -75,9 +98,8 @@ Release 同时提供
 供命令行核验。
 
 > [!WARNING]
-> 当前预览包尚未使用 Apple Developer ID 签名或公证，首次打开时可能被 macOS 拦截。如果你
-> 信任本仓库并确认文件来自上述官方 Release，可在 Finder 中使用“打开”，或前往
-> **系统设置 → 隐私与安全性**允许打开。
+> 当前预览包尚未使用 Apple Developer ID 签名或公证，首次打开时可能被 macOS 拦截或提示
+> 应用已损坏。请先核对官方 SHA-256，再按照 README 顶部的限定范围方案处理。
 
 ## 0.1.1 更新内容
 

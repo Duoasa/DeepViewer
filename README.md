@@ -29,6 +29,32 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
+## Unsigned preview: Gatekeeper workaround
+
+> [!WARNING]
+> `v0.1.1` is an early unsigned and unnotarized preview. A quarantined GitHub
+> download may be reported by macOS as **“DeepViewer is damaged and can't be
+> opened”** even when the downloaded bytes are intact. This workaround removes
+> Apple's quarantine attribute and should be used only after you verify the
+> download.
+
+1. Download the matching DMG only from the
+   [official `v0.1.1` release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1).
+2. Verify its SHA-256 against the [Quick start](#quick-start) table or the
+   published [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt).
+3. Open the DMG and copy `DeepViewer.app` to `/Applications`.
+4. Run this command in Terminal, then open DeepViewer again:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/DeepViewer.app
+```
+
+This removes quarantine only from the named DeepViewer application. Do not run
+the command against `/Applications`, another app, or a broader path. If the
+SHA-256 does not match, delete the download and do not open it. Signing and
+Apple notarization are planned for a later release; this command is not a
+substitute for them.
+
 <p align="center">
   <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS workspace">
 </p>
@@ -78,9 +104,9 @@ manifest for command-line verification.
 
 > [!WARNING]
 > These preview packages are not signed or notarized by Apple. macOS may block
-> the first launch. If you trust this repository and downloaded the package from
-> the official release above, use Finder's **Open** action or allow the app in
-> **System Settings → Privacy & Security**.
+> the first launch or report the app as damaged. Follow the scoped workaround at
+> the [top of this README](#unsigned-preview-gatekeeper-workaround) only after
+> checking the official SHA-256.
 
 ## What's new in 0.1.1
 
