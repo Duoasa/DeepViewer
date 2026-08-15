@@ -36,13 +36,26 @@
 > 属性时，即使文件内容完整，macOS 也可能提示 **“DeepViewer 已损坏，无法打开”**。
 > 以下方案会移除 Apple quarantine 属性，只能在确认下载来源和 SHA-256 后使用。
 
+使用以下任一方案前：
+
 1. 只从[官方 `v0.1.1` Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)
    下载与你的 Mac 架构匹配的 DMG。
 2. 使用下方[快速开始](#快速开始)表格或官方
    [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
    核对 SHA-256。
 3. 打开 DMG，把 `DeepViewer.app` 复制到 `/Applications`。
-4. 在终端执行以下命令，然后重新打开 DeepViewer：
+
+### 方案一：通过 macOS“隐私与安全性”允许打开
+
+1. 尝试打开一次 `/Applications/DeepViewer.app`，然后关闭系统警告。
+2. 打开 **系统设置 → 隐私与安全性**，向下滚动到“安全性”区域。
+3. 如果系统显示 DeepViewer 已被阻止，点击 **仍要打开**，按提示认证并再次确认 **打开**。
+
+如果没有出现“仍要打开”，或系统仍然提示应用已损坏，请使用方案二。
+
+### 方案二：在终端移除 quarantine 属性
+
+在终端执行以下命令，然后重新打开 DeepViewer：
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/DeepViewer.app
@@ -99,7 +112,7 @@ Release 同时提供
 
 > [!WARNING]
 > 当前预览包尚未使用 Apple Developer ID 签名或公证，首次打开时可能被 macOS 拦截或提示
-> 应用已损坏。请先核对官方 SHA-256，再按照 README 顶部的限定范围方案处理。
+> 应用已损坏。请先核对官方 SHA-256，再从 README 顶部的两种限定范围方案中选择一种。
 
 ## 0.1.1 更新内容
 
