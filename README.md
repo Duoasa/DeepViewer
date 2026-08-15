@@ -29,7 +29,13 @@ DeepViewer is intended to build upon DeepSeek Harness, which is distributed
 under the MIT License. Upstream code and third-party components retain their
 respective copyright notices and licenses.
 
+## Development
+
+DeepViewer uses a lightweight Spec-Driven Development workflow. Product
+baselines, architectural decisions, feature specifications, implementation
+tasks, and verification evidence live in the
+[SDD documentation system](docs/sdd/README.md).
+
 ## License
 
 DeepViewer's original code is released under the [MIT License](LICENSE).
-
