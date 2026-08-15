@@ -7,10 +7,13 @@
 | [DV-0001](DV-0001-sdd-foundation/spec.md) | SDD 文档系统基础 | Verified | Duoasa | 2026-08-15 |
 | [DV-0002](DV-0002-upstream-foundation/spec.md) | DeepSeek Harness 基础与 DeepViewer 改造方向 | Review | Duoasa | 2026-08-15 |
 | [DV-0003](DV-0003-desktop-packaging-spike/spec.md) | Electron 桌面打包纵向验证 | Implementing | Duoasa | 2026-08-16 |
+| [DV-0004](DV-0004-macos-integrated-titlebar/spec.md) | macOS 一体化标题栏 | Implementing | Duoasa | 2026-08-16 |
+| [DV-0005](DV-0005-desktop-app-identity/spec.md) | DeepViewer 桌面应用身份 | Verified | Duoasa | 2026-08-16 |
+| [DV-0006](DV-0006-branded-loading-surfaces/spec.md) | DeepViewer 品牌加载页面 | Implementing | Duoasa | 2026-08-16 |
 
 ## 下一个编号
 
-`DV-0004`
+`DV-0007`
 
 ## 目录规则
 

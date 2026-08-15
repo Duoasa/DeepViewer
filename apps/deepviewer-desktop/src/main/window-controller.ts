@@ -2,31 +2,74 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { BrowserWindow } from 'electron'
 import type { RuntimeStatusView } from '../shared/runtime-status.js'
+import {
+  DEEPVIEWER_APP_NAME,
+  preserveDeepViewerWindowTitle,
+} from './app-identity.js'
+import {
+  createMacosFullscreenStateScript,
+  MACOS_FULLSCREEN_EVENT_STATE,
+  MACOS_WINDOW_CHROME_CSS,
+  MACOS_WINDOW_CHROME_SCRIPT,
+} from './macos-window-chrome.js'
+import {
+  createMainWindowOptions,
+} from './window-options.js'
+import {
+  HARNESS_LOADING_BRAND_CSS,
+  HARNESS_LOADING_BRAND_SCRIPT,
+} from './harness-loading-brand.js'
+import {
+  remainingLaunchSurfaceVisibilityMs,
+  WAIT_FOR_LAUNCH_SURFACE_PAINT_SCRIPT,
+} from './launch-surface-timing.js'
+
+function delay(milliseconds: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
 
 export class WindowController {
   private window: BrowserWindow | undefined
   private runtimeOrigin: string | undefined
+  private launchSurfaceVisibleAt: number | undefined
+  private resolveInitialLaunchSurfaceVisible: (() => void) | undefined
+  private readonly initialLaunchSurfaceVisible = new Promise<void>(resolve => {
+    this.resolveInitialLaunchSurfaceVisible = resolve
+  })
   private readonly launchSurfaceUrl = pathToFileURL(join(import.meta.dirname, '../renderer/index.html')).href
 
   create(): BrowserWindow {
-    const window = new BrowserWindow({
-      width: 1440,
-      height: 920,
-      minWidth: 900,
-      minHeight: 640,
-      show: false,
-      backgroundColor: '#0b0d12',
-      title: 'DeepViewer',
-      webPreferences: {
-        preload: join(import.meta.dirname, 'preload.cjs'),
-        nodeIntegration: false,
-        contextIsolation: true,
-        sandbox: true,
-        webSecurity: true,
-      },
-    })
+    const window = new BrowserWindow(createMainWindowOptions(join(import.meta.dirname, 'preload.cjs')))
 
     window.once('ready-to-show', () => window.show())
+    window.once('show', () => {
+      void window.webContents.executeJavaScript(WAIT_FOR_LAUNCH_SURFACE_PAINT_SCRIPT)
+        .catch(() => undefined)
+        .then(() => this.markLaunchSurfaceVisible())
+    })
+    window.on('page-title-updated', event => {
+      preserveDeepViewerWindowTitle(event, title => window.setTitle(title))
+    })
+    window.setTitle(DEEPVIEWER_APP_NAME)
+    if (process.platform === 'darwin') {
+      const setFullscreenChrome = (fullscreen: boolean): void => {
+        if (window.isDestroyed()) return
+        void window.webContents.executeJavaScript(
+          createMacosFullscreenStateScript(fullscreen),
+        )
+      }
+      window.webContents.on('dom-ready', () => {
+        void window.webContents.insertCSS(MACOS_WINDOW_CHROME_CSS)
+        void window.webContents.executeJavaScript(MACOS_WINDOW_CHROME_SCRIPT)
+        setFullscreenChrome(window.isFullScreen())
+      })
+      window.on('enter-full-screen', () => {
+        setFullscreenChrome(MACOS_FULLSCREEN_EVENT_STATE['enter-full-screen'])
+      })
+      window.on('leave-full-screen', () => {
+        setFullscreenChrome(MACOS_FULLSCREEN_EVENT_STATE['leave-full-screen'])
+      })
+    }
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
     window.webContents.on('will-navigate', (event, targetUrl) => {
       if (!this.isAllowedNavigation(targetUrl)) event.preventDefault()
@@ -47,7 +90,13 @@ export class WindowController {
 
   async showRuntime(origin: string): Promise<void> {
     this.runtimeOrigin = new URL(origin).origin
-    await this.window?.loadURL(origin)
+    await this.initialLaunchSurfaceVisible
+    if (this.launchSurfaceVisibleAt !== undefined) {
+      await delay(remainingLaunchSurfaceVisibilityMs(this.launchSurfaceVisibleAt, Date.now()))
+    }
+    if (this.window === undefined || this.window.isDestroyed()) return
+    await this.window.loadURL(origin)
+    await this.installHarnessLoadingBrand(this.window)
   }
 
   async showStatus(_status: RuntimeStatusView): Promise<void> {
@@ -75,15 +124,38 @@ export class WindowController {
   private async loadLaunchSurface(): Promise<void> {
     if (this.window === undefined || this.window.isDestroyed()) return
     await this.window.loadURL(this.launchSurfaceUrl)
+    if (this.resolveInitialLaunchSurfaceVisible === undefined && this.window.isVisible()) {
+      this.markLaunchSurfaceVisible()
+    }
+  }
+
+  private markLaunchSurfaceVisible(): void {
+    this.launchSurfaceVisibleAt = Date.now()
+    this.resolveInitialLaunchSurfaceVisible?.()
+    this.resolveInitialLaunchSurfaceVisible = undefined
+  }
+
+  private async installHarnessLoadingBrand(window: BrowserWindow): Promise<void> {
+    if (window.isDestroyed() || !this.isRuntimeSurface(window.webContents.getURL())) return
+    try {
+      await window.webContents.insertCSS(HARNESS_LOADING_BRAND_CSS)
+      await window.webContents.executeJavaScript(HARNESS_LOADING_BRAND_SCRIPT)
+    } catch (error) {
+      console.error('DeepViewer failed to install the Harness loading brand', error)
+    }
+  }
+
+  private isRuntimeSurface(url: string): boolean {
+    if (this.runtimeOrigin === undefined) return false
+    try {
+      return new URL(url).origin === this.runtimeOrigin
+    } catch {
+      return false
+    }
   }
 
   private isAllowedNavigation(targetUrl: string): boolean {
     if (this.isLaunchSurface(targetUrl)) return true
-    if (this.runtimeOrigin === undefined) return false
-    try {
-      return new URL(targetUrl).origin === this.runtimeOrigin
-    } catch {
-      return false
-    }
+    return this.isRuntimeSurface(targetUrl)
   }
 }

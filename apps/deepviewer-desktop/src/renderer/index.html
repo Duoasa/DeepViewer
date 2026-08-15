@@ -3,34 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'" />
     <title>DeepViewer</title>
   </head>
   <body>
-    <main class="shell" aria-live="polite">
-      <section class="brand" aria-label="DeepViewer">
-        <div class="mark" aria-hidden="true">D</div>
-        <div>
-          <p class="eyebrow">DEEPVIEWER</p>
-          <h1>正在准备本地 Agent</h1>
-        </div>
+    <main id="launch" class="launch" data-phase="starting" aria-busy="true">
+      <section class="loading-lockup" aria-label="DeepViewer">
+        <div id="brand-logo" class="brand-logo" aria-hidden="true"></div>
+        <h1>DeepViewer</h1>
       </section>
 
-      <section class="status-card">
-        <div class="status-row">
-          <span id="indicator" class="indicator is-active" aria-hidden="true"></span>
-          <div>
-            <p id="status-label" class="status-label">正在启动 Harness</p>
-            <p id="status-detail" class="status-detail">首次启动可能需要几秒钟。</p>
-          </div>
-        </div>
+      <section id="failure-panel" class="failure-panel" aria-live="polite" hidden>
+        <p id="status-label" class="status-label">正在启动 Harness</p>
+        <p id="status-detail" class="status-detail">首次启动可能需要几秒钟。</p>
         <div id="actions" class="actions" hidden>
           <button id="retry" type="button">重试</button>
           <button id="logs" class="secondary" type="button">打开日志</button>
         </div>
       </section>
 
-      <p class="footnote">Harness 仅在本机回环地址运行，不会开放到局域网。</p>
+      <p id="accessible-status" class="visually-hidden" aria-live="polite"></p>
     </main>
     <script type="module" src="/main.ts"></script>
   </body>

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Resources/DeepViewer-Icon.png" width="160" alt="DeepViewer app icon">
+</p>
+
 <h1 align="center">DeepViewer</h1>
 
 <p align="center">
@@ -12,32 +16,35 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.0.1"><strong>Download DeepViewer v0.0.1</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1"><strong>Download DeepViewer v0.1.1</strong></a>
+  ·
+  <a href="#whats-new-in-011">What's new</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
   <a href="#build-and-test">Build from source</a>
-  ·
-  <a href="#license-and-upstream">Open source</a>
 </p>
 
 <p align="center">
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-DeepViewer is an open-source desktop agent workspace built on
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It turns
-the current npm-and-browser workflow into a self-contained macOS application
-that starts and stops its bundled local runtime for the user.
+<p align="center">
+  <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS workspace">
+</p>
+
+DeepViewer is an independent, open-source desktop agent workspace built on
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It bundles
+the pinned local runtime into a normal macOS application and provides a desktop
+shell designed for a visual, controllable agent experience.
 
 > [!NOTE]
-> DeepViewer is an independent community project. It is not affiliated with or
-> endorsed by DeepSeek.
+> DeepViewer is a community project. It is not affiliated with or endorsed by
+> DeepSeek.
 
 > [!IMPORTANT]
-> `v0.0.1` is an early, unsigned test release for validating the desktop
-> packaging foundation. The DeepViewer UI and feature redesign has not started
-> and will follow the product plan supplied by the project owner.
+> `v0.1.1` is an unsigned macOS UI preview. It has passed the maintainer's
+> initial visual acceptance, but it is not a signed, notarized, or stable release.
 
 ## Why DeepViewer
 
@@ -45,58 +52,70 @@ that starts and stops its bundled local runtime for the user.
 | --- | --- |
 | **Desktop first** | Launch the agent as a normal macOS application without manually running Node, npm, pnpm, or a Web UI command. |
 | **Self-contained runtime** | Ships the pinned Harness runtime and compatible execution environment inside the application. |
-| **Apple Silicon and Intel** | Provides separate native packages for current Apple Silicon Macs and older Intel Macs. |
+| **Native Mac packages** | Provides separate arm64 and x64 packages for Apple Silicon and Intel Macs. |
+| **Integrated macOS shell** | Uses native traffic lights inside the application, a full-width drag region, and a Codex-style collapsible sidebar. |
 | **Local by default** | Runs Harness on a random `127.0.0.1` port and does not expose the service to the LAN. |
 | **Controlled lifecycle** | Starts, health-checks, monitors, retries, and stops Harness together with the desktop application. |
-| **Inspectable failures** | Provides a launch status surface, retry path, local logs, and redaction for common credential patterns. |
-| **Built for customization** | Preserves Harness sessions, plugins, tools, and Web protocols while creating clear extension points for DeepViewer UI and features. |
-| **Spec driven** | Keeps product intent, architecture decisions, implementation tasks, and verification evidence in a committed SDD system. |
+| **Clean public artifacts** | Rebuilds each public package from allowlisted inputs and blocks releases containing developer paths, settings, or credential values. |
+| **Spec driven** | Keeps product intent, architecture, implementation tasks, and verification evidence in a committed SDD system. |
 
 ## Quick start
 
 1. Download the package that matches your Mac from the
-   [v0.0.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.0.1).
+   [v0.1.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open DeepViewer. It starts the bundled Harness automatically and loads the
    local workspace when the runtime is ready.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [DeepViewer-0.0.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.0.1/DeepViewer-0.0.1-macos-arm64.dmg) | `9c76101b7b7b7cb8bf8cfed30b422927851e674f3092650388d58c8164ef0314` |
-| Intel (`x64`) | [DeepViewer-0.0.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.0.1/DeepViewer-0.0.1-macos-x64.dmg) | `6a24dbb6100edd804fd58167fde8c77326ddb65c09bc4497d5ed58212313681c` |
+| Apple Silicon (`arm64`) | [DeepViewer-0.1.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) | `3eea789d36458272cee469a80167d09badb1abea1723abd88f118da465d406b9` |
+| Intel (`x64`) | [DeepViewer-0.1.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg) | `f7b70f7fcdf8641f7228a2df42242e444688b8ac3ec1865c27029be9624dd561` |
+
+The release also includes a
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
+manifest for command-line verification.
 
 > [!WARNING]
-> These test packages are not signed or notarized by Apple. macOS may block the
-> first launch. If you trust this repository and downloaded the package from
+> These preview packages are not signed or notarized by Apple. macOS may block
+> the first launch. If you trust this repository and downloaded the package from
 > the official release above, use Finder's **Open** action or allow the app in
-> **System Settings → Privacy & Security**. Signing and notarization are planned
-> for a later reliable-release milestone.
+> **System Settings → Privacy & Security**.
 
-## What works in 0.0.1
+## What's new in 0.1.1
 
-- A hardened Electron window with Node integration disabled, context isolation
-  enabled, sandboxing enabled, and a narrow preload API.
-- Automatic startup and readiness checks for the bundled DeepSeek Harness.
-- Loading of the existing Harness Web surface after the local runtime is ready.
-- Bounded shutdown and process-tree cleanup when DeepViewer exits.
-- Separate arm64 and x64 applications, native dependencies, and DMG images.
-- Build-time checks for the pinned Harness commit, runtime manifest, target
-  architecture, native modules, and contained symbolic links.
-- Local runtime logs with common authorization and API-key values redacted.
+<p align="center">
+  <img src="Resources/DeepViewer-Conversation.png" width="100%" alt="DeepViewer conversation workspace">
+</p>
+
+- Integrated the native macOS traffic lights into the app surface and removed
+  the separate system title bar.
+- Added a Codex-style sidebar control beside the traffic lights. Collapsing now
+  hides the entire sidebar, and the control moves left when native fullscreen
+  hides the traffic lights.
+- Reserved a full-width top safe area so window controls, page actions, and the
+  draggable region do not overlap.
+- Unified the application name and Dock identity as `DeepViewer`, using the
+  maintainer-provided macOS 26 icon.
+- Added a centered DeepViewer startup surface with a blinking cursor line and a
+  separate plugin-loading surface with a stable logo and `Loading Plugins...`
+  text shimmer.
+- Added release privacy gates: every public architecture is rebuilt from a clean
+  runtime and allowlist staging directory, then audited before its DMG is created.
+- Generated fresh, architecture-specific arm64 and x64 DMGs for 0.1.1.
 
 ## Current limitations
 
-- The application still uses the upstream Harness Web interface. DeepViewer's
-  UI, navigation, onboarding, and differentiated functions are the next phase.
-- The packages are unsigned and not notarized, so Gatekeeper warnings are
-  expected.
-- The Intel build passed architecture checks and a Rosetta GUI/runtime smoke
-  test on Apple Silicon, but still needs acceptance testing on physical Intel
-  hardware.
-- The initial runtime is intentionally complete rather than size-optimized;
-  each DMG is roughly 425–450 MB.
-- Windows packaging is deferred until the macOS UI and feature path is stable.
-- The minimum supported macOS version is not yet a release commitment.
+- The packages are unsigned and not notarized, so Gatekeeper warnings are expected.
+- The x64 build passes architecture, package, and Rosetta-based validation on
+  Apple Silicon; physical Intel Mac acceptance remains pending.
+- DeepViewer currently customizes the desktop shell around the upstream Harness
+  workspace. More navigation, onboarding, and differentiated agent features are
+  planned.
+- Windows packaging, automatic updates, crash reporting, and a stable support
+  policy are not included in this preview.
+- The complete bundled runtime keeps each DMG large; runtime size optimization is
+  deferred until the product path is stable.
 
 ## Privacy by design
 
@@ -105,10 +124,13 @@ that starts and stops its bundled local runtime for the user.
 - Harness telemetry is disabled by the desktop launch configuration.
 - The Renderer receives only an allowlisted desktop bridge; it does not receive
   general shell or filesystem access.
-- Logs redact common authorization headers, DeepSeek API-key assignments, and
-  secret-like key values.
-- DeepViewer does not upload the user's workspace, credentials, or complete
-  session history as part of the desktop shell.
+- Logs redact common authorization headers, API-key assignments, and secret-like
+  values.
+- Public packages are created from a clean allowlist staging directory. The build
+  removes package-manager workspace metadata and blocks developer home paths,
+  personal settings files, and current environment credential values.
+- DeepViewer does not add the developer's or maintainer's local sessions,
+  workspace, logs, settings, or API credentials to release assets.
 
 ## Requirements
 
@@ -116,8 +138,8 @@ For the prebuilt application:
 
 - A Mac with Apple Silicon or an Intel processor.
 - No global Node.js, npm, pnpm, or DeepSeek Harness installation is required.
-- Because this is an unsigned test release, the user must explicitly approve
-  the first launch through macOS security controls.
+- Because this is an unsigned preview, the user must explicitly approve the first
+  launch through macOS security controls.
 
 For development:
 
@@ -127,28 +149,18 @@ For development:
 
 ## Build and test
 
-Clone DeepViewer and install the workspace dependencies:
-
 ```sh
 git clone https://github.com/Duoasa/DeepViewer.git
 cd DeepViewer
 pnpm install
-```
 
-Prepare the pinned Harness baseline:
-
-```sh
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
 git -C upstream/deepseek-harness checkout 47f943859bef60e4160492346772ded9b24f765a
 pnpm --dir upstream/deepseek-harness install
 pnpm --dir upstream/deepseek-harness run build
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
 pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
-```
 
-Run checks and create both macOS packages:
-
-```sh
 pnpm typecheck
 pnpm test
 pnpm desktop:build
@@ -159,37 +171,11 @@ pnpm desktop:package:x64
 Generated applications, runtimes, and DMGs are written below `out/` and
 `.runtime/`. They are build outputs and are intentionally excluded from Git.
 
-## Production source structure
-
-```text
-apps/
-└── deepviewer-desktop/          # Electron main, preload, launch UI, tests, and packaging
-docs/sdd/
-├── product/                     # Vision, principles, and roadmap
-├── architecture/                # System boundaries, constraints, and ADRs
-├── specs/                       # Feature specifications, tasks, and verification
-└── releases/                    # Public release records and artifact evidence
-package.json                     # Workspace commands and pinned tool versions
-pnpm-workspace.yaml              # Workspace packages and dependency policy
-upstream/deepseek-harness/       # Ignored pinned build input, never the source of unique changes
-```
-
-## Roadmap
-
-1. Validate the macOS packaging foundation on Apple Silicon and Intel.
-2. Implement the approved DeepViewer UI and feature plan on macOS.
-3. Add observability, control, files, tools, permissions, and recovery flows.
-4. Adapt the proven product path to Windows.
-5. Add signing, notarization, updates, diagnostics, and reliable releases.
-
-See the [product roadmap](docs/sdd/product/roadmap.md) for the maintained
-delivery sequence.
-
 ## Spec-Driven Development
 
 DeepViewer's [SDD documentation system](docs/sdd/README.md) is the source of
 truth for product baselines, architecture decisions, specifications, tasks,
-verification, and public release evidence.
+verification, release privacy rules, and public artifact evidence.
 
 ## License and upstream
 

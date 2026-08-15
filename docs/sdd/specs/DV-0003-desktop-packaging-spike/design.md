@@ -22,6 +22,7 @@ macOS arm64 与 x64 使用独立运行时和独立安装包；arm64 在原生机
 | R-004, R-006 | WindowController、日志与诊断 | 启动/失败界面、日志与重试 |
 | R-007, NFR-001 | PlatformProcessAdapter | 共享状态机与 macOS 专有行为分离；Windows 后置 |
 | R-009 | 测试策略 | 无密钥 fixture 覆盖完整桌面路径 |
+| R-010, NFR-008 | 公开发布净化门禁 | 全新构建、allowlist staging、个人路径/凭据审计与阻断 |
 | NFR-002, NFR-003, NFR-007 | 信任边界 | loopback、隔离 Renderer、受限 IPC/导航 |
 | NFR-004, NFR-005 | 构建门禁、ResourceLocator | Node 兼容和安装路径验证 |
 | NFR-006 | RuntimeManager | 每个过渡都有超时和用户可见状态 |
@@ -145,6 +146,16 @@ interface DeepViewerDesktopApi {
 
 最终安装产物不得引用开发机绝对路径、全局 Node、pnpm store 或参考 checkout。
 
+### 公开发布净化门禁
+
+1. `build-runtime.mjs` 为目标架构删除并重建 `.runtime/<arch>/harness`，移除 pnpm 工作区元数据，并把上游编译注释中的开发机根路径替换为稳定的非个人占位路径。
+2. `package.mjs` 在每个架构开始前删除对应 staging、`.app` 输出与 DMG；随后仅把 production build、应用资产和权威 `package.json` 复制到新的 staging 目录。
+3. Electron Packager 只能从 staging 封包，不得直接遍历含未跟踪文件的开发工作区，也不得读取 Electron `userData`、日志、会话或用户工作区。
+4. 生成 `.app` 后、创建 DMG 前，审计 ASAR allowlist、内置 Runtime 路径与文本内容。审计拒绝环境文件、包管理器用户配置、SSH/云凭据路径、构建机主目录/源码根路径，以及当前进程中敏感环境变量的实际值。
+5. 审计错误只报告变量名或文件路径，绝不回显秘密值。通过后才允许创建 DMG、计算 SHA-256 和上传 GitHub Release。
+
+包管理器和 Electron 下载缓存仅作为可重复下载的依赖缓存，不是发布资产输入；缓存内容仍需通过固定版本、架构、manifest 和最终净化审计约束。
+
 ## 接口与事件
 
 ### Runtime 状态
@@ -236,6 +247,7 @@ Renderer 不接收 PID、完整命令行、凭据、环境变量或本地绝对�
 - 打包测试：从 `.app`/安装目录启动，清除 PATH 中的 Node/pnpm，验证空格/非 ASCII 路径和只读资源。
 - Harness 冒烟：固定上游 SHA，加载现有 Web surface，使用无密钥 fixture 完成流式任务。
 - 安全测试：检查 BrowserWindow 配置、导航拦截、IPC allowlist、非 loopback 绑定和日志敏感内容。
+- 发布净化测试：检查全新 staging/输出清理、ASAR allowlist、pnpm 元数据移除、个人绝对路径与当前环境凭据值未进入最终 `.app`，并验证审计失败会阻断 DMG。
 - 人工检查：启动/失败/重试/退出状态、键盘操作、日志入口和无空白窗口。
 
 ## 备选方案
