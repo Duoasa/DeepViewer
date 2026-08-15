@@ -117,6 +117,6 @@ depends_on: [DV-0003, DV-0005]
 
 ## 审批
 
-- 决策：Approved by direct project instruction；实施中
+- 决策：Approved by direct project instruction；主要启动/插件加载体验已随 `v0.1.1` 初步验收，减少动态效果与失败态仍在实施
 - 审批人：Duoasa
 - 日期：2026-08-16

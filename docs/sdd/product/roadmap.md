@@ -26,7 +26,7 @@ updated: 2026-08-16
 
 退出条件：Apple Silicon 与 Intel 产物的架构和资源检查通过；至少 arm64 原生完成现有 Web surface 确定性测试任务，退出后不残留 Harness 进程，并且没有阻断后续 UI/功能改造的 macOS 封包问题。
 
-当前证据：arm64 原生与 Intel x64（Rosetta）自包含 DMG 已作为 [`v0.0.1` 公开预览版](../releases/v0.0.1.md)发布，资产上传状态、大小和 SHA-256 已核对，真实 Web surface 启动和退出回收通过。该版本未签名、未公证，不代表 DV-0003 已完成；无密钥流式任务、特殊路径/clean environment、安全 UI 走查与真实 Intel Mac 验证仍在收尾。macOS 封包无阻断问题后，按照项目负责人后续提供并批准的方案进入 Phase 2；Windows 适配继续后置。
+当前证据：arm64 原生与 Intel x64（Rosetta）自包含 DMG 已先后作为 [`v0.0.1`](../releases/v0.0.1.md) 和 [`v0.1.1`](../releases/v0.1.1.md) 公开预览版发布。`v0.1.1` 的两个架构包均从对应源码树重新生成，通过 allowlist staging、个人路径/凭据净化审计、DMG 完整性检查和 GitHub 远端 digest 核对。版本仍未签名、未公证，DV-0003 的无密钥流式任务、特殊路径/clean environment、安全 UI 走查与真实 Intel Mac 验证继续收尾；Windows 适配继续后置。
 
 ## Phase 2：DeepViewer macOS MVP
 
@@ -36,6 +36,8 @@ updated: 2026-08-16
 - 安全保存非敏感设置，并通过系统凭据能力保存密钥
 
 退出条件：macOS 用户不借助终端即可安装、配置、完成并复查一个端到端本地任务。
+
+当前证据：`v0.1.1` 已公开交付 DeepViewer 应用身份、macOS 一体化标题栏、Codex 式侧栏与顶部安全区，以及两阶段品牌加载页面；维护者已对当前版本的主要窗口与加载体验作初步验收。减少动态效果和 Runtime 失败态仍保留专项人工验收项。
 
 ## Phase 3：可观察、可控制的 Agent 工作区
 

@@ -1,7 +1,7 @@
 ---
 id: DV-0005
 title: DeepViewer desktop app identity - Design
-status: Verified
+status: Released
 updated: 2026-08-16
 ---
 
