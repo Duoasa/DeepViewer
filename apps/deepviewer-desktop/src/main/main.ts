@@ -1,10 +1,17 @@
 import { join } from 'node:path'
-import { app, ipcMain, shell } from 'electron'
+import { app, ipcMain, nativeImage, shell } from 'electron'
+import {
+  DEEPVIEWER_APP_NAME,
+  resolveDeepViewerIconPath,
+  shouldSetDevelopmentDockIcon,
+} from './app-identity.js'
 import { FileLogger } from './logger.js'
 import { DarwinProcessAdapter } from './platform/darwin.js'
 import { resolveHarnessLaunch } from './resource-locator.js'
 import { RuntimeManager, RuntimeLaunchError } from './runtime-manager.js'
 import { WindowController } from './window-controller.js'
+
+app.setName(DEEPVIEWER_APP_NAME)
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) app.quit()
@@ -48,6 +55,10 @@ if (gotLock) {
   app.on('second-instance', () => windows.focus())
 
   void app.whenReady().then(() => {
+    if (shouldSetDevelopmentDockIcon(process.platform, app.isPackaged)) {
+      const dockIcon = nativeImage.createFromPath(resolveDeepViewerIconPath(app.getAppPath()))
+      if (!dockIcon.isEmpty()) app.dock?.setIcon(dockIcon)
+    }
     logger = new FileLogger(join(app.getPath('userData'), 'logs', 'deepviewer.log'))
     if (process.platform !== 'darwin') {
       logger.error('desktop', `unsupported platform in DV-0003: ${process.platform}`)

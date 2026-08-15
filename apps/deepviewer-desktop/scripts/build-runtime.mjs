@@ -2,7 +2,7 @@ import { execFileSync, spawn } from 'node:child_process'
 import { chmodSync, existsSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
 import { mkdir, readdir, realpath } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { dirname, join, relative, resolve, sep } from 'node:path'
+import { dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gunzipSync } from 'node:zlib'
 import { downloadArtifact } from '@electron/get'
@@ -17,6 +17,10 @@ const packRoots = [
 const electronVersion = '43.4.0'
 const expectedHarnessCommit = '47f943859bef60e4160492346772ded9b24f765a'
 const expectedHarnessVersion = '0.1.0-rc.5'
+const deepviewerVersion = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8')).version
+if (typeof deepviewerVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(deepviewerVersion)) {
+  throw new Error(`invalid DeepViewer package version: ${String(deepviewerVersion)}`)
+}
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
 if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)
@@ -167,6 +171,45 @@ function verifySelectedNativeBinary(path, arch) {
   return description
 }
 
+const releaseTextExtensions = new Set([
+  '', '.cjs', '.css', '.html', '.js', '.json', '.map', '.md', '.mjs',
+  '.sh', '.toml', '.ts', '.txt', '.xml', '.yaml', '.yml',
+])
+
+function sanitizeReleaseBuildPaths(runtimeRoot) {
+  const metadataRoot = join(runtimeRoot, 'node_modules')
+  for (const name of ['.modules.yaml', '.package-map.json', '.pnpm-workspace-state-v1.json', '.pnpm']) {
+    rmSync(join(metadataRoot, name), { recursive: true, force: true })
+  }
+
+  const replacements = [
+    [projectRoot, '/__DEEPVIEWER_SOURCE__'],
+    [homedir(), '/__DEEPVIEWER_HOME__'],
+  ].sort(([left], [right]) => right.length - left.length)
+
+  const visit = directory => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name)
+      if (entry.isSymbolicLink()) continue
+      if (entry.isDirectory()) {
+        visit(path)
+        continue
+      }
+      if (!entry.isFile() || !releaseTextExtensions.has(extname(entry.name).toLowerCase())) continue
+      const buffer = readFileSync(path)
+      if (buffer.length > 8 * 1024 * 1024 || buffer.subarray(0, 8192).includes(0)) continue
+      const original = buffer.toString('utf8')
+      const sanitized = replacements.reduce(
+        (value, [needle, replacement]) => value.replaceAll(needle, replacement),
+        original,
+      )
+      if (sanitized !== original) writeFileSync(path, sanitized)
+    }
+  }
+
+  visit(runtimeRoot)
+}
+
 const dependencies = packedDependencies()
 const upstreamCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: upstreamRoot, encoding: 'utf8' }).trim()
 if (upstreamCommit !== expectedHarnessCommit) {
@@ -182,7 +225,7 @@ for (const arch of architectures) {
     .map(([name, tarball]) => [name, `file:${relative(runtimeRoot, tarball).replaceAll('\\', '/')}`]))
   writeFileSync(join(runtimeRoot, 'package.json'), `${JSON.stringify({
     name: `deepviewer-harness-runtime-${arch}`,
-    version: '0.0.1',
+    version: deepviewerVersion,
     private: true,
     packageManager: 'pnpm@11.19.0',
     dependencies: packedSpecs,
@@ -228,7 +271,7 @@ for (const arch of architectures) {
   rmSync(join(runtimeRoot, 'pnpm-workspace.yaml'), { force: true })
   writeFileSync(join(runtimeRoot, 'package.json'), `${JSON.stringify({
     name: `deepviewer-harness-runtime-${arch}`,
-    version: '0.0.1',
+    version: deepviewerVersion,
     private: true,
   }, null, 2)}\n`)
   writeFileSync(join(runtimeRoot, 'deepviewer-runtime.json'), `${JSON.stringify({
@@ -237,8 +280,10 @@ for (const arch of architectures) {
     upstream: 'deepseek-ai/deepseek-harness',
     upstreamCommit,
     harnessVersion: expectedHarnessVersion,
+    deepviewerVersion,
     packageCount: dependencies.size,
     verifiedNativeModules,
   }, null, 2)}\n`)
+  sanitizeReleaseBuildPaths(runtimeRoot)
   process.stdout.write(`DeepViewer Harness runtime ready: ${runtimeRoot}\n`)
 }

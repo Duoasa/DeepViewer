@@ -1,7 +1,15 @@
+@font-face {
+  font-family: "DeepViewer Figtree";
+  src: url("./assets/Figtree-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: block;
+}
+
 :root {
-  color: #f4f6fb;
-  background: #0b0d12;
-  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  color: #fff;
+  background: #151517;
+  font-family: "DeepViewer Figtree", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
   font-synthesis: none;
 }
 
@@ -9,33 +17,34 @@
   box-sizing: border-box;
 }
 
+html,
 body {
+  width: 100%;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
-  background:
-    radial-gradient(circle at 50% -20%, rgba(72, 105, 255, 0.2), transparent 52%),
-    #0b0d12;
+  overflow: hidden;
+  background: #151517;
 }
 
 button {
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
-  padding: 10px 16px;
-  color: #081024;
-  background: #9bb3ff;
+  padding: 9px 15px;
+  color: #151517;
+  background: rgba(255, 255, 255, 0.92);
   font: inherit;
-  font-weight: 650;
+  font-weight: 600;
   cursor: pointer;
 }
 
 button.secondary {
-  color: #e7ebf7;
-  background: #252a36;
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 button:focus-visible {
-  outline: 3px solid #d4ddff;
+  outline: 2px solid rgba(255, 255, 255, 0.9);
   outline-offset: 3px;
 }
 
@@ -44,127 +53,118 @@ button:disabled {
   opacity: 0.6;
 }
 
-.shell {
-  display: flex;
-  width: min(620px, calc(100vw - 48px));
-  min-height: 100vh;
-  margin: 0 auto;
-  flex-direction: column;
-  justify-content: center;
-  gap: 26px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.mark {
+.launch {
+  position: relative;
   display: grid;
-  width: 52px;
-  height: 52px;
+  width: 100vw;
+  min-height: 100vh;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 15px;
-  color: #0a1020;
-  background: linear-gradient(145deg, #cbd7ff, #7695ff);
-  box-shadow: 0 16px 45px rgba(73, 103, 230, 0.28);
-  font-size: 24px;
-  font-weight: 800;
+  overflow: hidden;
+  background: #151517;
 }
 
-.eyebrow {
-  margin: 0 0 5px;
-  color: #8794b5;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.19em;
+.loading-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 80px;
+}
+
+.brand-logo {
+  width: 150.374px;
+  height: 160px;
+  flex: 0 0 auto;
+}
+
+.brand-logo > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.brand-logo [data-deepviewer-cursor-line] {
+  animation: deepviewer-cursor-blink 1s steps(1, jump-end) infinite;
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(25px, 5vw, 36px);
-  font-weight: 650;
-  letter-spacing: -0.035em;
+  color: #fff;
+  font-family: "DeepViewer Figtree", sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: 0;
 }
 
-.status-card {
-  padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  background: rgba(21, 24, 32, 0.82);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
+.failure-panel {
+  position: fixed;
+  top: calc(50% + 184px);
+  left: 50%;
+  width: min(520px, calc(100vw - 48px));
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: rgba(32, 32, 35, 0.96);
+  text-align: center;
+  transform: translateX(-50%);
 }
 
-.status-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.indicator {
-  width: 11px;
-  height: 11px;
-  margin-top: 6px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #687086;
-}
-
-.indicator.is-active {
-  background: #8ca7ff;
-  box-shadow: 0 0 0 6px rgba(140, 167, 255, 0.12);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.indicator.is-ready {
-  background: #5fd2a3;
-  box-shadow: 0 0 0 6px rgba(95, 210, 163, 0.12);
-}
-
-.indicator.is-error {
-  background: #ff7f87;
-  box-shadow: 0 0 0 6px rgba(255, 127, 135, 0.12);
-}
-
-.status-label {
-  margin: 0 0 7px;
-  font-size: 16px;
-  font-weight: 650;
-}
-
-.status-detail,
-.footnote {
-  margin: 0;
-  color: #a7afc2;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.actions {
-  display: flex;
-  margin-top: 20px;
-  gap: 10px;
-}
-
+.failure-panel[hidden],
 .actions[hidden] {
   display: none;
 }
 
-.footnote {
-  text-align: center;
-  font-size: 12px;
+.status-label {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 650;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+.status-detail {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  gap: 10px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.launch[data-phase="failed"] .brand-logo [data-deepviewer-cursor-line] {
+  animation: none;
+}
+
+@keyframes deepviewer-cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .indicator.is-active {
+  .brand-logo [data-deepviewer-cursor-line] {
     animation: none;
   }
 }
