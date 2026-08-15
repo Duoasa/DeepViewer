@@ -10,3 +10,6 @@ coverage/
 
 *.log
 
+# Local checkout of the official upstream source. The analyzed revision and
+# refresh procedure are recorded in upstream/README.md.
+upstream/deepseek-harness/

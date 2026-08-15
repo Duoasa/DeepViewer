@@ -5,10 +5,11 @@
 | ID | 标题 | 状态 | 负责人 | 更新时间 |
 | --- | --- | --- | --- | --- |
 | [DV-0001](DV-0001-sdd-foundation/spec.md) | SDD 文档系统基础 | Verified | Duoasa | 2026-08-15 |
+| [DV-0002](DV-0002-upstream-foundation/spec.md) | DeepSeek Harness 基础与 DeepViewer 改造方向 | Review | Duoasa | 2026-08-15 |
 
 ## 下一个编号
 
-`DV-0002`
+`DV-0003`
 
 ## 目录规则
 
