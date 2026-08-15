@@ -36,9 +36,21 @@ DeepViewer 必须明确是独立社区项目。名称、界面和发布材料不
 
 运行时事件到 UI 状态的转换应可在无真实模型密钥的情况下测试。真实 API 测试补充关键集成，但不替代确定性测试。
 
+### C-008：双平台目标与交付顺序
+
+DeepViewer 必须支持 macOS 和 Windows。当前先分别完成 macOS Apple Silicon（arm64）与 Intel（x64）封包，再直接进行 macOS UI 与功能改造；Windows 适配优先级后置。macOS 平台逻辑仍必须通过显式边界隔离，避免进入共享 UI 和 Runtime 状态机。
+
+### C-009：自包含桌面运行时
+
+发行版不得要求最终用户预装 Node、pnpm 或通过终端启动 Harness。Harness、兼容运行时和所需静态资源必须由安装包提供或由应用以明确、可验证的安装流程管理。
+
+### C-010：本地桌面信任边界
+
+在独立认证层完成前，Harness 只允许绑定 loopback。Renderer 必须启用隔离和沙箱、禁用 Node integration，并通过最小允许列表 IPC 请求操作系统能力。
+
 ## 待验证约束
 
-- 首发操作系统和最低版本
+- macOS 和 Windows 的最低支持版本
 - 安装包体积、冷启动和常驻内存目标
 - 离线能力和网络代理要求
 - 需要支持的 DeepSeek Harness 版本窗口

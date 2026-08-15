@@ -3,6 +3,11 @@
 node_modules/
 dist/
 coverage/
+.vite/
+.desktop/
+out/
+.runtime/
+.pnpm-store/
 
 .env
 .env.*

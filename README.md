@@ -36,6 +36,44 @@ baselines, architectural decisions, feature specifications, implementation
 tasks, and verification evidence live in the
 [SDD documentation system](docs/sdd/README.md).
 
+The current desktop spike uses Electron 43.4.0 and Electron Packager 20.3.0.
+It produces separate, self-contained macOS artifacts for Apple Silicon and
+Intel Macs. Windows packaging is intentionally deferred until the macOS UI and
+feature path is established.
+
+### Prepare the pinned Harness baseline
+
+```sh
+git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
+git -C upstream/deepseek-harness checkout 47f943859bef60e4160492346772ded9b24f765a
+pnpm --dir upstream/deepseek-harness install
+pnpm --dir upstream/deepseek-harness run build
+pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
+pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
+```
+
+The upstream checkout and generated runtime directories are build inputs and
+are not committed to DeepViewer.
+
+### Build and test
+
+```sh
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm desktop:build
+pnpm desktop:package:arm64
+pnpm desktop:package:x64
+```
+
+The macOS artifacts are written to `out/`:
+
+- `DeepViewer-0.0.1-macos-arm64.dmg`
+- `DeepViewer-0.0.1-macos-x64.dmg`
+
+These are unsigned development artifacts. Signing, notarization, runtime
+trimming, and automatic updates belong to a later release specification.
+
 ## License
 
 DeepViewer's original code is released under the [MIT License](LICENSE).

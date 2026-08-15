@@ -137,9 +137,9 @@ packages/deepviewer/
 
 ## 桌面壳建议
 
-### v0.1 暂定 Electron 优先评估
+### v0.1 采用 Electron
 
-Harness 本身依赖 Node，Electron 与现有 TypeScript/React/Node 工具链更接近，首个可运行安装包的整合成本通常低于 Tauri 加 Node sidecar。最终选择仍需一个包含体积、安全、签名、更新和跨平台验证的 ADR。
+Harness 本身依赖 Node，Electron 与现有 TypeScript/React/Node 工具链更接近，首个可运行安装包的整合成本通常低于 Tauri 加 Node sidecar。Electron 选择来自 ADR-0002，当前平台顺序由 [ADR-0003](../../architecture/decisions/ADR-0003-mac-package-before-ui-windows-deferred.md) 替代确定。
 
 ### 最小安全模型
 
@@ -153,29 +153,28 @@ Harness 本身依赖 Node，Electron 与现有 TypeScript/React/Node 工具链�
 
 ## 简化实施阶段
 
-### Phase 0：基础决策
+### Phase 0：剩余基础决策
 
 1. 选择上游集成方式，推荐当前仓库跟踪 `upstream` remote，并把 DeepViewer 改动集中在自有路径。
-2. 批准桌面框架 ADR。
-3. 列出 v0.1 必须改变的三个用户流程，冻结非目标。
+2. 列出 v0.1 必须改变的三个用户流程，冻结非目标。
 
-### Phase 1：可运行的 DeepViewer Web
+### Phase 1：macOS 桌面打包纵向验证
+
+1. Electron 主进程启动本地 Harness 并加载现有 Web surface。
+2. 打包自包含运行时，验证健康检查、日志、失败恢复和退出回收。
+3. 生成 macOS arm64 可双击产物；通过后直接进入 UI 与功能改造。
+
+### Phase 2：DeepViewer Web 与 macOS MVP
 
 1. 建立 DeepViewer app、bundle/profile 和包命名空间。
-2. 替换品牌资产、标题和主题 token。
-3. 保持上游 UI 结构，跑通无密钥 Web replay 测试。
+2. 替换品牌资产、标题和主题 token，保持上游 UI 结构并跑通无密钥回放。
+3. 完成首次启动、模型凭据配置、workspace 选择和端到端本地任务。
 
-### Phase 2：桌面安装包
-
-1. 桌面壳启动本地 Harness 并加载 Web surface。
-2. 完成首次启动、模型凭据配置、workspace 选择和退出回收。
-3. 只支持一个目标平台，验证签名/安装/升级后再扩平台。
-
-### Phase 3：DeepViewer 信息架构
+### Phase 3：DeepViewer 信息架构与差异化功能
 
 1. 根据确认的 UI 方案，先使用 slot 做增量改造。
 2. 只有存在明确证据时才替换 sidebar、conversation 或 root。
-3. 为每个替换区域保留上游行为回放和可访问性测试。
+3. 为每个替换区域保留上游行为回放和可访问性测试；Windows 平台适配由后续规格实现。
 
 ### Phase 4：差异化功能
 
@@ -191,7 +190,12 @@ Harness 本身依赖 Node，Electron 与现有 TypeScript/React/Node 工具链�
 
 ## 需要批准的决定
 
-1. 是否接受路线 B：独立 profile/bundle + 插件覆盖层。
-2. 是否以 Electron 作为 v0.1 桌面壳的首选评估对象。
-3. UI 第一阶段是否保留上游三栏信息架构，只做 DeepViewer 品牌化和局部增强。
-4. 源码集成采用 fork/upstream merge，还是独立仓库的周期性快照导入。
+### 已接受
+
+1. 采用路线 B：独立 profile/bundle + 插件覆盖层。
+2. 采用 Electron；macOS arm64 封包优先，随后进行 UI/功能改造，Windows 适配后置。
+
+### 待批准
+
+1. UI 第一阶段是否保留上游三栏信息架构，只做 DeepViewer 品牌化和局部增强。
+2. 源码集成采用 fork/upstream merge，还是独立仓库的周期性快照导入。

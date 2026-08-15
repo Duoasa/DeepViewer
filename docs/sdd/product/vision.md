@@ -28,7 +28,9 @@ DeepViewer 希望成为一个可视、可控、可定制的 Agent 工作台，�
 
 ## 当前目标
 
-- 建立独立品牌和桌面体验
+- 建立不依赖终端、Node 或包管理器的独立桌面体验
+- 采用 macOS 优先、Windows 必须支持的双平台发行路线
+- macOS 同时提供 Apple Silicon 与 Intel 架构产物
 - 提供任务、会话、工具活动和文件变更的统一视图
 - 复用 DeepSeek Harness 的插件化能力和运行时契约
 - 为 UI、插件、模型提供方和权限流程建立清晰扩展点
@@ -53,7 +55,7 @@ DeepViewer 希望成为一个可视、可控、可定制的 Agent 工作台，�
 
 ## 开放问题
 
-- 首个发行形态是桌面应用、Web UI 包装还是二者并行？
 - DeepSeek Harness 采用 fork、subtree、vendor 还是依赖方式接入？
-- 首发平台和签名/自动更新策略是什么？
+- macOS 首发支持的最低系统版本，以及稳定发行是否额外提供 Universal Build？
+- Windows 首发支持的最低版本与安装器格式是什么？
 - 哪些执行事件需要长期持久化，哪些只用于实时展示？

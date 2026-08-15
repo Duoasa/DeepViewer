@@ -6,10 +6,11 @@
 | --- | --- | --- | --- | --- |
 | [DV-0001](DV-0001-sdd-foundation/spec.md) | SDD 文档系统基础 | Verified | Duoasa | 2026-08-15 |
 | [DV-0002](DV-0002-upstream-foundation/spec.md) | DeepSeek Harness 基础与 DeepViewer 改造方向 | Review | Duoasa | 2026-08-15 |
+| [DV-0003](DV-0003-desktop-packaging-spike/spec.md) | Electron 桌面打包纵向验证 | Implementing | Duoasa | 2026-08-15 |
 
 ## 下一个编号
 
-`DV-0003`
+`DV-0004`
 
 ## 目录规则
 

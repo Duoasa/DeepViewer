@@ -6,7 +6,7 @@ updated: 2026-08-15
 
 # 架构概览
 
-本文描述当前方向，不提前锁定尚未评估的桌面框架或上游集成机制。具体选择必须由 ADR 决定。
+本文描述当前方向。桌面框架和当前平台顺序由 [ADR-0003](decisions/ADR-0003-mac-package-before-ui-windows-deferred.md) 确定，macOS 架构产物由 [ADR-0004](decisions/ADR-0004-separate-macos-arm64-x64-artifacts.md) 确定；尚未评估的上游集成机制仍需独立 ADR。
 
 ## 系统边界
 
@@ -35,11 +35,13 @@ DeepSeek Harness Runtime
 - 展示任务、会话、工具活动、权限、文件差异和产物
 - 收集用户输入和明确确认
 - 只通过稳定应用接口访问运行时，不直接读取内部数据库
+- 使用 Electron 主进程管理窗口和 Harness 生命周期，Renderer 不获得通用 Node 能力
+- 首先交付 macOS arm64，但桌面接口、资源定位和进程管理必须保留 Windows 实现边界
 
 ### DeepViewer Application Layer
 
 - 把 Harness 事件投影为 UI 可消费状态
-- 编排桌面生命周期、窗口、设置和本地集成
+- 编排桌面生命周期、窗口、设置、本地集成和平台适配
 - 实现 DeepViewer 特有的策略与呈现适配，不复制 Harness 核心能力
 
 ### DeepSeek Harness Runtime
@@ -68,10 +70,30 @@ DeepSeek Harness Runtime
 - UI 呈现契约不应让通用插件依赖某个桌面框架。
 - 修改上游 Agent 循环、会话格式或插件协议前必须新建 ADR。
 
+## 桌面进程模型
+
+```text
+DeepViewer Electron main
+├── BrowserWindow + allowlisted IPC
+├── RuntimeManager
+│   ├── shared lifecycle and health state machine
+│   ├── shared platform boundary
+│   └── macOS process adapter
+└── packaged resources
+    ├── DeepViewer Web surface
+    ├── Harness build output and profiles
+    └── compatible Node execution strategy
+```
+
+- 开发模式和安装模式使用同一 RuntimeManager 契约，只允许资源解析方式不同。
+- Harness 仅监听 loopback 随机端口；窗口等待健康检查通过后才加载应用 surface。
+- 平台差异集中在进程树、信号、Shell/PTY、路径、安装和签名层，不进入 UI 业务状态。
+- macOS 纵向验证完成后直接进入 UI 与功能改造；Windows 适配由后续独立规格实现。
+- 共享模块不得散布 macOS 路径和进程假设，但当前阶段不编写未经验证的 Windows 占位实现。
+
 ## 待决定事项
 
-- 桌面框架和前后端进程模型
 - Harness 的源码/依赖接入和上游同步策略
 - UI 与 Runtime 之间的传输协议
 - 设置、会话索引和凭据的具体存储技术
-- 自动更新、遥测和诊断导出的默认策略
+- macOS/Windows 最低版本、安装格式、签名、自动更新、遥测和诊断导出的默认策略

@@ -36,7 +36,7 @@ DeepViewer 需要在 DeepSeek Harness 上提供独立品牌、明显不同的 UI
 ## 非目标
 
 - NG-001：本规格不立即把上游源码合并进 DeepViewer 主分支。
-- NG-002：本规格不最终批准 Electron、Tauri 或其他桌面框架。
+- NG-002：本规格不实现已由 ADR-0002 选定的 Electron 桌面壳。
 - NG-003：本规格不定义尚未提出的具体业务功能。
 - NG-004：本规格不修改 Agent Loop 或会话格式。
 
@@ -79,6 +79,8 @@ DeepViewer 需要在 DeepSeek Harness 上提供独立品牌、明显不同的 UI
 ## 依赖
 
 - [ADR-0001](../../architecture/decisions/ADR-0001-sdd-as-source-of-truth.md)
+- [ADR-0002](../../architecture/decisions/ADR-0002-electron-mac-first-cross-platform.md)
+- [ADR-0003](../../architecture/decisions/ADR-0003-mac-package-before-ui-windows-deferred.md)
 - [官方架构说明](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/docs/architecture.zh.md)
 - [Web 客户端规则](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/client/AGENTS.md)
 
@@ -88,20 +90,23 @@ DeepViewer 需要在 DeepSeek Harness 上提供独立品牌、明显不同的 UI
 | --- | --- | --- |
 | 上游 RC 快速变化 | 定制代码频繁冲突 | 固定分析提交；自有包集中；按周期吸收上游 |
 | 过早重写 UI | 丢失审批、回放、流式和插件能力 | 先复用对象层与现有功能插件，逐块替换 |
-| 桌面壳与 Node 运行时打包复杂 | 安装包或升级失败 | v0.1 采用单一平台打包验证，建立进程生命周期测试 |
+| 桌面壳与 Node 运行时打包复杂 | 安装包或升级失败 | 先完成 macOS 纵向验证和进程生命周期测试；Windows 由后续独立规格适配 |
 | Web API 对外可达 | 本地数据和执行能力暴露 | 仅 loopback，随机端口，禁止任意远程导航 |
 | 自有包名与上游仓库门禁冲突 | 构建约束失败 | 单独调整 workspace/naming gate，并用最小变更记录 |
 
 ## 未决问题
 
-- Q-001：DeepViewer v0.1 的目标平台只有 macOS，还是同时支持 Windows？
 - Q-002：首版 UI 是“重新视觉设计但保留信息架构”，还是“改变主导航和任务模型”？
 - Q-003：除品牌和桌面化外，首批三个功能差异是什么？
-- Q-004：采用 Electron 的 Node 同栈便利，还是接受 Tauri 加 Node sidecar 的额外打包工作？
 - Q-005：DeepViewer 采用 GitHub fork/upstream merge，还是独立仓库内定期导入上游快照？
+
+## 已解决问题
+
+- Q-001：目标仍为 macOS 与 Windows 双平台；macOS arm64 封包通过后先进行 UI/功能改造，Windows 适配后置。
+- Q-004：采用 Electron，详见 ADR-0002。
 
 ## 审批
 
-- 决策：Pending review
-- 审批人：
-- 日期：
+- 决策：Review；路线 B、Electron 与平台顺序已批准，其余 UI 范围和上游同步策略待决定
+- 审批人：Duoasa（已批准部分）
+- 日期：2026-08-15

@@ -60,7 +60,7 @@ rg -n 'electron|tauri|desktop shell|native window|BrowserWindow|WebView' upstrea
 
 - 本次只验证源码结构和方案可行性，没有安装依赖或执行构建测试。
 - 本次没有把上游源码合并进 DeepViewer Git 历史。
-- 桌面框架和上游同步策略仍待 ADR 决定。
+- Electron 由 ADR-0002 选择，当前平台顺序由 ADR-0003 替代确定；上游同步策略仍待独立 ADR。
 
 ## 结论
 

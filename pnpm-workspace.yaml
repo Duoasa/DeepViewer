@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+
+nodeLinker: hoisted
+
+allowBuilds:
+  electron: true
+  esbuild: true

@@ -1,0 +1,32 @@
+{
+  "name": "@deepviewer/desktop",
+  "productName": "DeepViewer",
+  "version": "0.0.1",
+  "private": true,
+  "description": "DeepViewer desktop shell for DeepSeek Harness",
+  "license": "MIT",
+  "type": "module",
+  "main": ".desktop/build/main.js",
+  "scripts": {
+    "build": "vite build --config vite.main.config.ts && vite build --config vite.preload.config.ts && vite build --config vite.renderer.config.ts",
+    "start": "pnpm build && electron .",
+    "runtime": "node scripts/build-runtime.mjs",
+    "runtime:arm64": "node scripts/build-runtime.mjs --arch=arm64",
+    "runtime:x64": "node scripts/build-runtime.mjs --arch=x64",
+    "package": "pnpm build && pnpm runtime && node scripts/package.mjs",
+    "package:arm64": "pnpm build && pnpm runtime:arm64 && node scripts/package.mjs --arch=arm64",
+    "package:x64": "pnpm build && pnpm runtime:x64 && node scripts/package.mjs --arch=x64",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@electron/get": "5.1.0",
+    "@electron/packager": "20.3.0",
+    "@types/node": "24.10.1",
+    "electron": "43.4.0",
+    "pnpm": "11.19.0",
+    "typescript": "6.0.3",
+    "vite": "8.2.1",
+    "vitest": "4.1.10"
+  }
+}
