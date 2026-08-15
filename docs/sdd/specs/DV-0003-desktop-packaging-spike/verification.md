@@ -88,7 +88,7 @@ SHA-256：
 
 ## v0.1.1 全新封包与公开发布证据
 
-- Release：[DeepViewer 0.1.1 — macOS UI Preview](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)，公开、非草稿、pre-release；tag 指向 `3ecfb426634619c7464b082ebaa3928a8b7e1db5`。
+- Release：[DeepViewer 0.1.1 — macOS UI Preview](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)，公开、非草稿、正式发布并标记为 Latest；tag 指向 `3ecfb426634619c7464b082ebaa3928a8b7e1db5`。
 - 构建输入提交 `a1cd702` 与 tag 提交的 Git tree 均为 `68e0dd3e2190b4b347ade99e176bfc5bb57fe5ca`。
 - `pnpm typecheck`、6 个测试文件/27 项测试、main/preload/renderer production build 全部通过。
 - arm64 与 x64 封包分别清理并重新生成 Runtime、allowlist staging、`.app`、DMG 和校验清单；没有复用 `v0.0.1` 资产。
