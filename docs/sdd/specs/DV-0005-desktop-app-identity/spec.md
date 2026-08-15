@@ -1,7 +1,7 @@
 ---
 id: DV-0005
 title: DeepViewer desktop app identity
-status: Verified
+status: Released
 owner: Duoasa
 created: 2026-08-16
 updated: 2026-08-16

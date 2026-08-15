@@ -1,7 +1,7 @@
 ---
 id: DV-0004
 title: macOS integrated title bar - Design
-status: Implementing
+status: Released
 updated: 2026-08-16
 ---
 

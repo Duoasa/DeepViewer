@@ -1,7 +1,7 @@
 ---
 id: DV-0005
 title: DeepViewer desktop app identity - Verification
-status: Verified
+status: Released
 updated: 2026-08-16
 ---
 
@@ -19,13 +19,20 @@ updated: 2026-08-16
 ## 产物
 
 - ARM64 应用：`out/DeepViewer-darwin-arm64/DeepViewer.app`
-- ARM64 DMG：`out/DeepViewer-0.0.1-macos-arm64.dmg`
-- 二进制：`Mach-O 64-bit executable arm64`
+- x64 应用：`out/DeepViewer-darwin-x64/DeepViewer.app`
+- 公开 DMG：[arm64](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) / [x64](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg)
+- 二进制：`Mach-O 64-bit executable arm64` / `Mach-O 64-bit executable x86_64`
 - 图标源：`apps/deepviewer-desktop/assets/deepviewer-icon-macos26-1024.png`
 - 打包图标：`apps/deepviewer-desktop/assets/DeepViewer.icns`
 
+## 发布证据
+
+- `v0.1.1` 的两个架构包均验证 `CFBundleDisplayName=DeepViewer`、`CFBundleShortVersionString=0.1.1`。
+- 应用图标、README 产品图和下载入口随 [GitHub Release `v0.1.1`](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1) 公开。
+- 完整资产大小、SHA-256 与发布隐私审计见 [`releases/v0.1.1.md`](../../releases/v0.1.1.md)。
+
 ## 结论
 
-- 结果：Verified；AC-001 至 AC-004 全部通过
+- 结果：Released；AC-001 至 AC-004 全部通过并随 `v0.1.1` 公开发布
 - 验证人：Codex
 - 日期：2026-08-16

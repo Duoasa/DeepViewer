@@ -1,7 +1,7 @@
 ---
 id: DV-0004
 title: macOS integrated title bar
-status: Implementing
+status: Released
 owner: Duoasa
 created: 2026-08-16
 updated: 2026-08-16
@@ -118,6 +118,6 @@ DV-0003 的预览版使用 Electron 默认 macOS 标题栏。用户截图显示�
 
 ## 审批
 
-- 决策：Approved by direct project instruction；全宽顶部安全区增强正在实施
+- 决策：Released in `v0.1.1`；维护者已完成当前窗口外壳与全宽顶部安全区的手动验收
 - 审批人：Duoasa
 - 日期：2026-08-16
