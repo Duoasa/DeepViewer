@@ -29,13 +29,11 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-## Signed and notarized for macOS
+## Apple notarization
 
-DeepViewer `v0.1.1` is signed with **Developer ID Application: Chenchen Xu
-(BUUH229D5Q)** and notarized by Apple. Both architecture-specific DMGs include a
-stapled notarization ticket and pass Gatekeeper assessment as `Notarized
-Developer ID`. Download only from the official Release and verify SHA-256 before
-opening it. If a checksum does not match, delete the file and do not run it.
+DeepViewer `v0.1.1` has passed Apple notarization. Download only from the official
+Release and verify SHA-256 before opening it. If a checksum does not match,
+delete the file and do not run it.
 
 <p align="center">
   <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS workspace">
@@ -86,9 +84,8 @@ The release also includes a
 manifest for command-line verification.
 
 > [!NOTE]
-> Both official DMGs are signed and Apple-notarized. macOS should identify them
-> as `Notarized Developer ID`; an unexpected signing warning or checksum mismatch
-> should be treated as a failed download.
+> Both official DMGs have passed Apple notarization. An unexpected security
+> warning or checksum mismatch should be treated as a failed download.
 
 ## What's new in 0.1.1
 
@@ -111,8 +108,7 @@ manifest for command-line verification.
 - Added release privacy gates: every public architecture is rebuilt from a clean
   runtime and allowlist staging directory, then audited before its DMG is created.
 - Generated fresh, architecture-specific arm64 and x64 DMGs for 0.1.1.
-- Signed both applications and DMGs with Developer ID, enabled Hardened Runtime,
-  completed Apple notarization, and stapled the tickets to the public packages.
+- Both architecture packages have passed Apple notarization.
 
 ## Current limitations
 

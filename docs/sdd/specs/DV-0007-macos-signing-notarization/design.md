@@ -106,9 +106,11 @@ clean build → app signed → app verified → privacy audit
 
 ## 可观察性
 
-- 输出架构、阶段、公开签名身份名称、submission ID 和 Apple 状态。
+- 本地发布终端可输出架构、阶段与 Apple 状态；具体签名身份、证书指纹、公证提交标识
+  和 Keychain profile 不进入公开文档或 Release notes。
 - 公证原始 JSON/日志写入被忽略的 `out/notarization/`；终端不输出认证值。
-- SDD 只记录可公开证据，不记录 Apple ID 邮箱、Keychain 内容或本地个人路径。
+- SDD 只记录“已通过 Apple 公证”和可公开校验值，不记录签名身份、Team ID、证书指纹、
+  公证提交标识、Apple ID 邮箱、Keychain profile/内容或本地个人路径。
 
 ## 兼容、迁移与回滚
 

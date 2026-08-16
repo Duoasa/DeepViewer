@@ -29,12 +29,10 @@
   <a href="README.md">English</a> · <strong>简体中文</strong>
 </p>
 
-## macOS 签名与公证
+## Apple 公证
 
-DeepViewer `v0.1.1` 已使用 **Developer ID Application: Chenchen Xu
-(BUUH229D5Q)** 签名并通过 Apple 公证。两个架构的 DMG 都已附加公证票据，Gatekeeper
-评估结果为 `Notarized Developer ID`。请只从官方 Release 下载并在打开前核对 SHA-256；
-校验不一致时请删除文件，不要运行。
+DeepViewer `v0.1.1` 已通过 Apple 公证。请只从官方 Release 下载并在打开前核对
+SHA-256；校验不一致时请删除文件，不要运行。
 
 <p align="center">
   <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS 工作区">
@@ -82,8 +80,8 @@ Release 同时提供
 供命令行核验。
 
 > [!NOTE]
-> 两个官方 DMG 均已签名并通过 Apple 公证。macOS 应将其识别为 `Notarized Developer ID`；
-> 如果出现异常签名警告或 SHA-256 不一致，应视为下载失败。
+> 两个官方 DMG 均已通过 Apple 公证。如果出现异常安全警告或 SHA-256 不一致，应视为
+> 下载失败。
 
 ## 0.1.1 更新内容
 
@@ -101,8 +99,7 @@ Release 同时提供
 - 加入发布隐私门禁：每个公开架构均从干净 Runtime 和 allowlist staging 重建，DMG 创建前
   自动检查个人路径、设置与凭据值。
 - 为 0.1.1 全新生成彼此独立的 arm64 与 x64 DMG。
-- 使用 Developer ID 签署应用与 DMG，启用 Hardened Runtime，完成 Apple 公证并把票据
-  staple 到公开安装包。
+- 两个架构的安装包均已通过 Apple 公证。
 
 ## 当前限制
 
