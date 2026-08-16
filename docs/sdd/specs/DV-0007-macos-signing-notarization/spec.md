@@ -56,7 +56,9 @@ depends_on: [DV-0003, ADR-0004, ADR-0005]
 - R-004：arm64 与 x64 必须分别从 `v0.1.1` 对应应用源码和固定依赖重新生成 Runtime、allowlist staging、`.app`、DMG 与 SHA-256 清单，继续通过 DV-0003 AC-011 隐私门禁。
 - R-005：签名私钥必须只由 Keychain 持有；公证只允许引用 Keychain profile，禁止在仓库、命令参数、日志或 Release 文本中保存 Apple 密码、API 私钥和认证值。
 - R-006：只有两个架构全部通过本地验证后才可改变公开 Release；替换前必须保留当前远端资产和 digest 作为回滚输入，替换后必须重新下载并核对 SHA-256。
-- R-007：README 与 SDD 发布记录必须在新资产通过后移除“未签名”事实描述，并保留签名主体、公证提交 ID、校验值、验证命令和剩余限制。
+- R-007：README 与 SDD 发布记录必须在新资产通过后移除“未签名”事实描述，只公开
+  “已通过 Apple 公证”、校验值和剩余限制；不得公开签名身份、Team ID、证书指纹、
+  公证提交标识、Keychain profile 或系统内部状态字符串。
 
 ## 非功能需求
 
@@ -90,7 +92,8 @@ depends_on: [DV-0003, ADR-0004, ADR-0005]
 
 - 签名证书私钥与公证凭据只存在于维护者 Keychain，不复制到项目目录、临时 staging 或 GitHub。
 - 公证会把最终 DMG 上传至 Apple Notary Service；上传内容仅为拟公开的安装资产。
-- 公证 JSON 与日志保存在被忽略的 `out/notarization/`，提交进 SDD 的只有非秘密 submission ID、状态与问题摘要。
+- 公证 JSON、提交标识与日志只保存在被忽略的 `out/notarization/`，不提交进 README、
+  Release notes、SDD 或其他公开文件；公开记录只保留是否通过 Apple 公证。
 - 发布资产继续执行 DV-0003 AC-011 的个人路径、敏感文件名和当前环境凭据值扫描。
 
 ## 依赖
