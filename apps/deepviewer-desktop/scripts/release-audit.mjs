@@ -1,6 +1,6 @@
-import { readdir, readFile, stat } from 'node:fs/promises'
+import { readdir, readFile, readlink, realpath, rm, stat, symlink } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { basename, extname, join, relative, resolve } from 'node:path'
+import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { extractFile, listPackage } from '@electron/asar'
 
 const MAX_TEXT_BYTES = 8 * 1024 * 1024
@@ -12,6 +12,50 @@ const SENSITIVE_ENVIRONMENT_NAME = /(?:API_?KEY|AUTHORIZATION|CREDENTIAL|PASSWOR
 
 function normalizedPath(path) {
   return path.replaceAll('\\', '/').replace(/^\/+|\/+$/gu, '')
+}
+
+function isContainedPath(root, candidate) {
+  const path = relative(root, candidate)
+  return path === '' || (!isAbsolute(path) && path !== '..' && !path.startsWith(`..${sep}`))
+}
+
+export async function normalizeCopiedRuntimeSymlinks({ sourceRoot, copiedRoot }) {
+  const resolvedSourceRoot = await realpath(resolve(sourceRoot))
+  const resolvedCopiedRoot = await realpath(resolve(copiedRoot))
+  let normalizedCount = 0
+
+  const visit = async directory => {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name)
+      if (entry.isSymbolicLink()) {
+        const originalTarget = await readlink(path)
+        let copiedTarget = resolve(dirname(path), originalTarget)
+        if (isAbsolute(originalTarget)) {
+          const resolvedOriginalTarget = await realpath(originalTarget)
+          if (!isContainedPath(resolvedSourceRoot, resolvedOriginalTarget)) {
+            throw new Error(`${path}: copied symbolic link points outside its source Runtime`)
+          }
+          copiedTarget = resolve(resolvedCopiedRoot, relative(resolvedSourceRoot, resolvedOriginalTarget))
+          const relativeTarget = relative(dirname(path), copiedTarget)
+          await rm(path)
+          await symlink(relativeTarget, path)
+          normalizedCount += 1
+        }
+        if (!isContainedPath(resolvedCopiedRoot, copiedTarget)) {
+          throw new Error(`${path}: symbolic link escapes the copied Runtime`)
+        }
+        const realTarget = await realpath(path)
+        if (!isContainedPath(resolvedCopiedRoot, realTarget)) {
+          throw new Error(`${path}: symbolic link resolves outside the copied Runtime`)
+        }
+        continue
+      }
+      if (entry.isDirectory()) await visit(path)
+    }
+  }
+
+  await visit(resolvedCopiedRoot)
+  return normalizedCount
 }
 
 function hasSensitivePath(path) {
@@ -51,12 +95,30 @@ function inspectText(path, buffer, forbiddenRoots, environmentValues, findings) 
 }
 
 async function inspectDirectory(root, forbiddenRoots, environmentValues, findings) {
+  const resolvedRoot = await realpath(root)
   const visit = async directory => {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name)
-      const displayPath = relative(root, path)
+      const displayPath = relative(resolvedRoot, path)
       if (hasSensitivePath(displayPath)) findings.push(`${displayPath}: sensitive file path`)
-      if (entry.isSymbolicLink()) continue
+      if (entry.isSymbolicLink()) {
+        const target = await readlink(path)
+        const resolvedTarget = resolve(dirname(path), target)
+        if (isAbsolute(target)) findings.push(`${displayPath}: absolute symbolic link target`)
+        if (!isContainedPath(resolvedRoot, resolvedTarget)) {
+          findings.push(`${displayPath}: symbolic link escapes the packaged Runtime`)
+        } else {
+          try {
+            const realTarget = await realpath(path)
+            if (!isContainedPath(resolvedRoot, realTarget)) {
+              findings.push(`${displayPath}: symbolic link resolves outside the packaged Runtime`)
+            }
+          } catch {
+            findings.push(`${displayPath}: broken symbolic link`)
+          }
+        }
+        continue
+      }
       if (entry.isDirectory()) {
         await visit(path)
         continue
@@ -67,7 +129,7 @@ async function inspectDirectory(root, forbiddenRoots, environmentValues, finding
       inspectText(displayPath, await readFile(path), forbiddenRoots, environmentValues, findings)
     }
   }
-  await visit(root)
+  await visit(resolvedRoot)
 }
 
 function inspectAsar(archivePath, forbiddenRoots, environmentValues, findings) {

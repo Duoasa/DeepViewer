@@ -29,41 +29,12 @@
   <a href="README.md">English</a> · <strong>简体中文</strong>
 </p>
 
-## 未签名预览版：Gatekeeper 临时处理
+## macOS 签名与公证
 
-> [!WARNING]
-> `v0.1.1` 是项目早期的未签名、未公证预览版。通过 GitHub 下载的文件带有 quarantine
-> 属性时，即使文件内容完整，macOS 也可能提示 **“DeepViewer 已损坏，无法打开”**。
-> 以下方案会移除 Apple quarantine 属性，只能在确认下载来源和 SHA-256 后使用。
-
-使用以下任一方案前：
-
-1. 只从[官方 `v0.1.1` Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)
-   下载与你的 Mac 架构匹配的 DMG。
-2. 使用下方[快速开始](#快速开始)表格或官方
-   [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
-   核对 SHA-256。
-3. 打开 DMG，把 `DeepViewer.app` 复制到 `/Applications`。
-
-### 方案一：通过 macOS“隐私与安全性”允许打开
-
-1. 尝试打开一次 `/Applications/DeepViewer.app`，然后关闭系统警告。
-2. 打开 **系统设置 → 隐私与安全性**，向下滚动到“安全性”区域。
-3. 如果系统显示 DeepViewer 已被阻止，点击 **仍要打开**，按提示认证并再次确认 **打开**。
-
-如果没有出现“仍要打开”，或系统仍然提示应用已损坏，请使用方案二。
-
-### 方案二：在终端移除 quarantine 属性
-
-在终端执行以下命令，然后重新打开 DeepViewer：
-
-```sh
-xattr -dr com.apple.quarantine /Applications/DeepViewer.app
-```
-
-该命令只移除指定 DeepViewer 应用的 quarantine 属性。不要把目标改成 `/Applications`、
-其他应用或更大的目录。如果 SHA-256 不一致，请删除下载文件且不要打开。后续版本仍计划加入
-Developer ID 签名与 Apple 公证；这个命令不能替代正式签名和公证。
+DeepViewer `v0.1.1` 已使用 **Developer ID Application: Chenchen Xu
+(BUUH229D5Q)** 签名并通过 Apple 公证。两个架构的 DMG 都已附加公证票据，Gatekeeper
+评估结果为 `Notarized Developer ID`。请只从官方 Release 下载并在打开前核对 SHA-256；
+校验不一致时请删除文件，不要运行。
 
 <p align="center">
   <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS 工作区">
@@ -78,8 +49,8 @@ Agent 体验设计的桌面外壳。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> `v0.1.1` 是未签名的 macOS UI 预览版，已通过维护者的初步视觉验收，但不是已签名、
-> 已公证或稳定发行版本。
+> `v0.1.1` 是已完成 Developer ID 签名和 Apple 公证的 macOS UI 预览版，已通过维护者的
+> 初步视觉验收，但仍属于项目早期预览，并非稳定版本。
 
 ## 为什么选择 DeepViewer
 
@@ -103,16 +74,16 @@ Agent 体验设计的桌面外壳。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | [DeepViewer-0.1.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) | `3eea789d36458272cee469a80167d09badb1abea1723abd88f118da465d406b9` |
-| Intel（`x64`） | [DeepViewer-0.1.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg) | `f7b70f7fcdf8641f7228a2df42242e444688b8ac3ec1865c27029be9624dd561` |
+| Apple Silicon（`arm64`） | [DeepViewer-0.1.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) | `1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf` |
+| Intel（`x64`） | [DeepViewer-0.1.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg) | `d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec` |
 
 Release 同时提供
 [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
 供命令行核验。
 
-> [!WARNING]
-> 当前预览包尚未使用 Apple Developer ID 签名或公证，首次打开时可能被 macOS 拦截或提示
-> 应用已损坏。请先核对官方 SHA-256，再从 README 顶部的两种限定范围方案中选择一种。
+> [!NOTE]
+> 两个官方 DMG 均已签名并通过 Apple 公证。macOS 应将其识别为 `Notarized Developer ID`；
+> 如果出现异常签名警告或 SHA-256 不一致，应视为下载失败。
 
 ## 0.1.1 更新内容
 
@@ -130,10 +101,11 @@ Release 同时提供
 - 加入发布隐私门禁：每个公开架构均从干净 Runtime 和 allowlist staging 重建，DMG 创建前
   自动检查个人路径、设置与凭据值。
 - 为 0.1.1 全新生成彼此独立的 arm64 与 x64 DMG。
+- 使用 Developer ID 签署应用与 DMG，启用 Hardened Runtime，完成 Apple 公证并把票据
+  staple 到公开安装包。
 
 ## 当前限制
 
-- 安装包未签名、未公证，预计会出现 Gatekeeper 提示。
 - x64 版本已通过架构、包体和 Apple Silicon + Rosetta 基础验证；真实 Intel Mac 验收仍待完成。
 - 当前主要是在上游 Harness 工作区外增加 DeepViewer 桌面外壳；更多导航、首次启动和
   差异化 Agent 功能仍在规划中。
@@ -157,7 +129,7 @@ Release 同时提供
 
 - 配备 Apple Silicon 或 Intel 处理器的 Mac。
 - 无需全局安装 Node.js、npm、pnpm 或 DeepSeek Harness。
-- 由于当前为未签名预览版，首次启动需要用户通过 macOS 安全设置明确允许。
+- 建议使用 macOS 10.15 或更高版本，以走标准的 Developer ID 公证安装路径。
 
 参与开发：
 

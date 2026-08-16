@@ -17,6 +17,7 @@ ADR 记录影响多个功能、难以逆转或会持续影响上游同步的架�
 | [ADR-0002](ADR-0002-electron-mac-first-cross-platform.md) | Electron 桌面壳与 macOS 优先的双平台路线 | Superseded | 2026-08-15 |
 | [ADR-0003](ADR-0003-mac-package-before-ui-windows-deferred.md) | macOS 封包优先，UI/功能紧随，Windows 后置 | Accepted | 2026-08-15 |
 | [ADR-0004](ADR-0004-separate-macos-arm64-x64-artifacts.md) | 分别发布 macOS Apple Silicon 与 Intel 产物 | Accepted | 2026-08-15 |
+| [ADR-0005](ADR-0005-developer-id-notarized-macos-dmgs.md) | 使用 Developer ID 签名并公证 macOS DMG | Accepted | 2026-08-16 |
 
 ## 模板
 

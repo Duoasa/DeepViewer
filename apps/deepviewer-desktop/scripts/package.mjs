@@ -5,7 +5,14 @@ import { dirname, join, resolve } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { packager } from '@electron/packager'
-import { auditPackagedApp } from './release-audit.mjs'
+import { auditPackagedApp, normalizeCopiedRuntimeSymlinks } from './release-audit.mjs'
+import {
+  createOsxSignOptions,
+  resolveDeveloperIdApplication,
+  signDiskImage,
+  verifySignedApp,
+  verifySignedDiskImage,
+} from './macos-signing.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
@@ -19,11 +26,19 @@ if (typeof appVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(appVersion)) {
 }
 const expectedHarnessCommit = '47f943859bef60e4160492346772ded9b24f765a'
 const expectedHarnessVersion = '0.1.0-rc.5'
+const shouldSign = process.argv.includes('--sign')
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
 if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)
 }
 const architectures = architectureOption === undefined ? ['arm64', 'x64'] : [architectureOption]
+const signingKeychain = process.env.DEEPVIEWER_CODESIGN_KEYCHAIN
+const signingIdentity = shouldSign
+  ? await resolveDeveloperIdApplication({
+      requestedIdentity: process.env.DEEPVIEWER_CODESIGN_IDENTITY,
+      keychain: signingKeychain,
+    })
+  : undefined
 await mkdir(outputRoot, { recursive: true })
 if (!existsSync(appIcon)) throw new Error(`missing macOS app icon: ${appIcon}`)
 
@@ -89,12 +104,29 @@ for (const arch of architectures) {
     appVersion,
     asar: true,
     extraResource: [runtimeRoot],
+    afterCopyExtraResources: [async ({ buildPath }) => {
+      const temporaryAppPath = resolve(buildPath, 'DeepViewer.app')
+      const copiedRuntimeRoot = resolve(temporaryAppPath, 'Contents', 'Resources', 'harness')
+      const normalizedCount = await normalizeCopiedRuntimeSymlinks({
+        sourceRoot: runtimeRoot,
+        copiedRoot: copiedRuntimeRoot,
+      })
+      await run('xattr', ['-cr', temporaryAppPath])
+      process.stdout.write(`Normalized ${normalizedCount} copied Runtime symbolic links for ${arch}\n`)
+    }],
     prune: false,
+    ...(signingIdentity === undefined ? {} : {
+      osxSign: createOsxSignOptions({ identity: signingIdentity, keychain: signingKeychain }),
+    }),
   })
   const packagedOutputRoot = paths[0]
   if (packagedOutputRoot === undefined) throw new Error(`Electron Packager returned no ${arch} output path`)
   const appPath = resolve(packagedOutputRoot, 'DeepViewer.app')
   await auditPackagedApp({ appPath, projectRoot })
+  if (signingIdentity !== undefined) {
+    const verified = await verifySignedApp(appPath)
+    process.stdout.write(`Developer ID application signature verified for ${arch}: ${verified.machoCount} Mach-O files\n`)
+  }
   await run('hdiutil', [
     'create',
     '-volname', 'DeepViewer',
@@ -103,5 +135,15 @@ for (const arch of architectures) {
     '-format', 'UDZO',
     dmgPath,
   ])
+  if (signingIdentity !== undefined) {
+    await signDiskImage({
+      dmgPath,
+      identity: signingIdentity,
+      arch,
+      keychain: signingKeychain,
+    })
+    await verifySignedDiskImage(dmgPath)
+    process.stdout.write(`Developer ID disk image signature verified for ${arch}\n`)
+  }
   process.stdout.write(`${appPath}\n${dmgPath}\n`)
 }

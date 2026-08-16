@@ -8,7 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
-| `v0.1.1` | Public pre-release | 2026-08-16 | DV-0003, DV-0004, DV-0005, DV-0006 | [DeepViewer v0.1.1](v0.1.1.md) |
+| `v0.1.1` | Public release / Latest | 2026-08-16 | DV-0003, DV-0004, DV-0005, DV-0006, DV-0007 | [DeepViewer v0.1.1](v0.1.1.md) |
 | `v0.0.1` | Public pre-release | 2026-08-16 | DV-0003 | [DeepViewer v0.0.1](v0.0.1.md) |
 
 ## 记录要求

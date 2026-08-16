@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { mkdir, mkdtemp, readlink, rm, symlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+
+// @ts-expect-error The checked JavaScript release helper has no separate declaration file.
+const { normalizeCopiedRuntimeSymlinks } = await import('../scripts/release-audit.mjs')
 
 const scriptsRoot = resolve(import.meta.dirname, '../scripts')
 const packageScript = readFileSync(resolve(scriptsRoot, 'package.mjs'), 'utf8')
@@ -17,6 +22,7 @@ describe('public release privacy gate (DV-0003 AC-011)', () => {
     expect(packageScript).toContain("await cp(resolve(appRoot, 'assets')")
     expect(packageScript).toContain("await cp(resolve(appRoot, 'package.json')")
     expect(packageScript).toContain('dir: stagingAppRoot')
+    expect(packageScript).toContain("await run('xattr', ['-cr', temporaryAppPath])")
   })
 
   it('removes package-manager metadata and normalizes developer paths', () => {
@@ -33,6 +39,29 @@ describe('public release privacy gate (DV-0003 AC-011)', () => {
     expect(auditScript).toContain("new Set(['.desktop', 'assets', 'package.json'])")
     expect(auditScript).toContain('SENSITIVE_ENVIRONMENT_NAME')
     expect(auditScript).toContain('contains a developer-machine path')
+    expect(auditScript).toContain('absolute symbolic link target')
     expect(auditScript).not.toContain('console.log(environment.value)')
+  })
+
+  it('rewrites copied Runtime links as self-contained relative links', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'deepviewer-runtime-links-'))
+    try {
+      const sourceRoot = join(root, 'source')
+      const copiedRoot = join(root, 'copied')
+      const sourceTarget = join(sourceRoot, 'node_modules', 'pkg', 'cli.js')
+      const copiedTarget = join(copiedRoot, 'node_modules', 'pkg', 'cli.js')
+      const copiedLink = join(copiedRoot, 'node_modules', '.bin', 'pkg-cli')
+      await mkdir(join(sourceRoot, 'node_modules', 'pkg'), { recursive: true })
+      await mkdir(join(copiedRoot, 'node_modules', '.bin'), { recursive: true })
+      await mkdir(join(copiedRoot, 'node_modules', 'pkg'), { recursive: true })
+      await writeFile(sourceTarget, 'source')
+      await writeFile(copiedTarget, 'copied')
+      await symlink(sourceTarget, copiedLink)
+
+      await expect(normalizeCopiedRuntimeSymlinks({ sourceRoot, copiedRoot })).resolves.toBe(1)
+      await expect(readlink(copiedLink)).resolves.toBe('../pkg/cli.js')
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
   })
 })

@@ -39,8 +39,8 @@ updated: 2026-08-16
 | 本地资产 | Pass | ASAR 包含 Figtree 字体；主进程内嵌同源 Logo/字体；包含 `assets/licenses/Figtree-OFL.txt` |
 | 应用图标 | Pass | 包内 `electron.icns` 与 `assets/DeepViewer.icns` SHA-256 相同 |
 | DMG | Pass | `hdiutil verify`：checksum VALID |
-| ARM64 DMG SHA-256 | Pass | `3eea789d36458272cee469a80167d09badb1abea1723abd88f118da465d406b9`；GitHub 远端 digest 一致 |
-| x64 DMG SHA-256 | Pass | `f7b70f7fcdf8641f7228a2df42242e444688b8ac3ec1865c27029be9624dd561`；GitHub 远端 digest 一致 |
+| ARM64 DMG SHA-256 | Pass | 签名公证刷新包：`1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf`；GitHub 远端 digest 一致 |
+| x64 DMG SHA-256 | Pass | 签名公证刷新包：`d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec`；GitHub 远端 digest 一致 |
 
 ## 人工检查
 

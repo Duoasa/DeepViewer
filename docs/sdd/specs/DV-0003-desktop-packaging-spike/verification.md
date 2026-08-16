@@ -81,21 +81,21 @@ SHA-256：
 - `DeepViewer-0.0.1-macos-arm64.dmg`：445,185,427 bytes，状态 `uploaded`，GitHub digest 与本地 SHA-256 一致
 - `DeepViewer-0.0.1-macos-x64.dmg`：468,506,506 bytes，状态 `uploaded`，GitHub digest 与本地 SHA-256 一致
 - `SHA256SUMS.txt`：196 bytes，状态 `uploaded`，GitHub digest 与本地 SHA-256 一致
-- 英文 [`README.md`](../../../../README.md) 与简体中文 [`README.zh-CN.md`](../../../../README.zh-CN.md) 已记录安装、架构选择、校验和未签名/未公证限制
+- 英文 [`README.md`](../../../../README.md) 与简体中文 [`README.zh-CN.md`](../../../../README.zh-CN.md) 已记录安装、架构选择、校验和 Developer ID/Apple 公证状态
 - 发布事实、资产 URL 和验证边界见 [`releases/v0.0.1.md`](../../releases/v0.0.1.md)
 
 本次公开预览只证明资产已经上传并可供兼容性测试，不补足 AC-001、AC-003、AC-005、AC-007 与 AC-008 的剩余证据，因此 DV-0003 仍保持 `Implementing`。
 
 ## v0.1.1 全新封包与公开发布证据
 
-- Release：[DeepViewer 0.1.1 — macOS UI Preview](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)，公开、非草稿、pre-release；tag 指向 `3ecfb426634619c7464b082ebaa3928a8b7e1db5`。
+- Release：[DeepViewer 0.1.1 — macOS UI Preview](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1)，公开、非草稿、正式发布并标记为 Latest；tag 指向 `3ecfb426634619c7464b082ebaa3928a8b7e1db5`。
 - 构建输入提交 `a1cd702` 与 tag 提交的 Git tree 均为 `68e0dd3e2190b4b347ade99e176bfc5bb57fe5ca`。
 - `pnpm typecheck`、6 个测试文件/27 项测试、main/preload/renderer production build 全部通过。
 - arm64 与 x64 封包分别清理并重新生成 Runtime、allowlist staging、`.app`、DMG 和校验清单；没有复用 `v0.0.1` 资产。
 - `release-audit.mjs` 对两个最终 `.app` 均报告通过：ASAR 共 19 个条目且只有 `.desktop`、`assets`、`package.json` 顶层输入；没有个人设置、工作区、会话、日志、敏感文件名、开发机/主目录绝对路径或当前环境凭据值。
-- `DeepViewer-0.1.1-macos-arm64.dmg`：447,398,592 bytes；本地与 GitHub digest 均为 `3eea789d36458272cee469a80167d09badb1abea1723abd88f118da465d406b9`。
-- `DeepViewer-0.1.1-macos-x64.dmg`：462,527,510 bytes；本地与 GitHub digest 均为 `f7b70f7fcdf8641f7228a2df42242e444688b8ac3ec1865c27029be9624dd561`。
-- `SHA256SUMS.txt`：196 bytes；本地与 GitHub digest 均为 `3354300bcde8ef5434dae3b2aa8bd4c370b71718da50303c5681b40f0a1e1fbc`；`shasum -a 256 -c` 通过。
+- `DeepViewer-0.1.1-macos-arm64.dmg`：456,147,049 bytes；签名公证刷新包 SHA-256 为 `1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf`。
+- `DeepViewer-0.1.1-macos-x64.dmg`：472,654,669 bytes；签名公证刷新包 SHA-256 为 `d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec`。
+- `SHA256SUMS.txt`：196 bytes；SHA-256 为 `af329f7434ab10a22b99d865ac6918013519dedc1362cedf3611311de6122c95`；三个 GitHub 远端 digest 与独立重新下载核验均由 DV-0007 完成并通过。
 - 两个 DMG 均通过 `hdiutil verify`；主二进制分别为原生 `arm64` 与 `x86_64`；Bundle 名称为 `DeepViewer`，版本为 `0.1.1`。
 - GitHub Release 最终只保留两个完整 DMG 和校验清单，不包含临时上传分片。
 - 完整历史记录见 [`releases/v0.1.1.md`](../../releases/v0.1.1.md)。
