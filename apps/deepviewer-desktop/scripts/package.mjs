@@ -5,7 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { packager } from '@electron/packager'
-import { auditPackagedApp } from './release-audit.mjs'
+import { auditPackagedApp, normalizeCopiedRuntimeSymlinks } from './release-audit.mjs'
 import {
   createOsxSignOptions,
   resolveDeveloperIdApplication,
@@ -104,6 +104,16 @@ for (const arch of architectures) {
     appVersion,
     asar: true,
     extraResource: [runtimeRoot],
+    afterCopyExtraResources: [async ({ buildPath }) => {
+      const temporaryAppPath = resolve(buildPath, 'DeepViewer.app')
+      const copiedRuntimeRoot = resolve(temporaryAppPath, 'Contents', 'Resources', 'harness')
+      const normalizedCount = await normalizeCopiedRuntimeSymlinks({
+        sourceRoot: runtimeRoot,
+        copiedRoot: copiedRuntimeRoot,
+      })
+      await run('xattr', ['-cr', temporaryAppPath])
+      process.stdout.write(`Normalized ${normalizedCount} copied Runtime symbolic links for ${arch}\n`)
+    }],
     prune: false,
     ...(signingIdentity === undefined ? {} : {
       osxSign: createOsxSignOptions({ identity: signingIdentity, keychain: signingKeychain }),

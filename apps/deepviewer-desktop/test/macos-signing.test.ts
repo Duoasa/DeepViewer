@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 const signingModule = await import('../scripts/macos-signing.mjs')
 const {
   createOsxSignOptions,
+  isMacCodePath,
   needsJitEntitlement,
   parseDeveloperIdApplicationIdentities,
 } = signingModule
@@ -41,8 +42,13 @@ describe('macOS Developer ID release gate (DV-0007)', () => {
     const options = createOsxSignOptions({
       identity: { hash: 'B'.repeat(40), name: 'Developer ID Application: Example (TEAM123456)' },
     })
+    expect(options.identity).toBe('B'.repeat(40))
     expect(options.preAutoEntitlements).toBe(false)
     expect(options.preEmbedProvisioningProfile).toBe(false)
+    expect(options.continueOnError).toBe(false)
+    expect(options.ignore('/tmp/font.woff2')).toBe(true)
+    expect(options.ignore('/tmp/DeepViewer.app')).toBe(false)
+    expect(isMacCodePath('/tmp/not-present.bin')).toBe(false)
     expect(options.optionsForFile('/tmp/DeepViewer.app/Contents/MacOS/DeepViewer').entitlements).toContain('darwin-jit.plist')
     expect(options.optionsForFile('/tmp/DeepViewer.app/Contents/Resources/harness/native.node').entitlements).toContain('darwin-empty.plist')
   })

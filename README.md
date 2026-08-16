@@ -29,47 +29,13 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-## Unsigned preview: Gatekeeper workaround
+## Signed and notarized for macOS
 
-> [!WARNING]
-> `v0.1.1` is an early unsigned and unnotarized preview. A quarantined GitHub
-> download may be reported by macOS as **“DeepViewer is damaged and can't be
-> opened”** even when the downloaded bytes are intact. This workaround removes
-> Apple's quarantine attribute and should be used only after you verify the
-> download.
-
-Before using either option:
-
-1. Download the matching DMG only from the
-   [official `v0.1.1` release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1).
-2. Verify its SHA-256 against the [Quick start](#quick-start) table or the
-   published [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt).
-3. Open the DMG and copy `DeepViewer.app` to `/Applications`.
-
-### Option 1 — macOS Privacy & Security
-
-1. Try to open `/Applications/DeepViewer.app` once, then close the warning.
-2. Open **System Settings → Privacy & Security** and scroll to the Security
-   section.
-3. If macOS shows that DeepViewer was blocked, click **Open Anyway**, authenticate
-   if requested, and confirm **Open**.
-
-If **Open Anyway** is not available or macOS continues to show the damaged-app
-message, use Option 2.
-
-### Option 2 — Terminal quarantine removal
-
-Run the following command in Terminal, then open DeepViewer again:
-
-```sh
-xattr -dr com.apple.quarantine /Applications/DeepViewer.app
-```
-
-This removes quarantine only from the named DeepViewer application. Do not run
-the command against `/Applications`, another app, or a broader path. If the
-SHA-256 does not match, delete the download and do not open it. Signing and
-Apple notarization are planned for a later release; this command is not a
-substitute for them.
+DeepViewer `v0.1.1` is signed with **Developer ID Application: Chenchen Xu
+(BUUH229D5Q)** and notarized by Apple. Both architecture-specific DMGs include a
+stapled notarization ticket and pass Gatekeeper assessment as `Notarized
+Developer ID`. Download only from the official Release and verify SHA-256 before
+opening it. If a checksum does not match, delete the file and do not run it.
 
 <p align="center">
   <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS workspace">
@@ -85,8 +51,9 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.1.1` is an unsigned macOS UI preview. It has passed the maintainer's
-> initial visual acceptance, but it is not a signed, notarized, or stable release.
+> `v0.1.1` is a Developer ID signed and Apple-notarized macOS UI preview. It has
+> passed the maintainer's initial visual acceptance, but it is still an early
+> preview rather than a stable release.
 
 ## Why DeepViewer
 
@@ -111,18 +78,17 @@ shell designed for a visual, controllable agent experience.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [DeepViewer-0.1.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) | `3eea789d36458272cee469a80167d09badb1abea1723abd88f118da465d406b9` |
-| Intel (`x64`) | [DeepViewer-0.1.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg) | `f7b70f7fcdf8641f7228a2df42242e444688b8ac3ec1865c27029be9624dd561` |
+| Apple Silicon (`arm64`) | [DeepViewer-0.1.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) | `1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf` |
+| Intel (`x64`) | [DeepViewer-0.1.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg) | `d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec` |
 
 The release also includes a
 [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
 manifest for command-line verification.
 
-> [!WARNING]
-> These preview packages are not signed or notarized by Apple. macOS may block
-> the first launch or report the app as damaged. After checking the official
-> SHA-256, choose one of the two scoped solutions at the
-> [top of this README](#unsigned-preview-gatekeeper-workaround).
+> [!NOTE]
+> Both official DMGs are signed and Apple-notarized. macOS should identify them
+> as `Notarized Developer ID`; an unexpected signing warning or checksum mismatch
+> should be treated as a failed download.
 
 ## What's new in 0.1.1
 
@@ -145,10 +111,11 @@ manifest for command-line verification.
 - Added release privacy gates: every public architecture is rebuilt from a clean
   runtime and allowlist staging directory, then audited before its DMG is created.
 - Generated fresh, architecture-specific arm64 and x64 DMGs for 0.1.1.
+- Signed both applications and DMGs with Developer ID, enabled Hardened Runtime,
+  completed Apple notarization, and stapled the tickets to the public packages.
 
 ## Current limitations
 
-- The packages are unsigned and not notarized, so Gatekeeper warnings are expected.
 - The x64 build passes architecture, package, and Rosetta-based validation on
   Apple Silicon; physical Intel Mac acceptance remains pending.
 - DeepViewer currently customizes the desktop shell around the upstream Harness
@@ -180,8 +147,8 @@ For the prebuilt application:
 
 - A Mac with Apple Silicon or an Intel processor.
 - No global Node.js, npm, pnpm, or DeepSeek Harness installation is required.
-- Because this is an unsigned preview, the user must explicitly approve the first
-  launch through macOS security controls.
+- macOS 10.15 or later is recommended for the standard notarized Developer ID
+  installation path.
 
 For development:
 

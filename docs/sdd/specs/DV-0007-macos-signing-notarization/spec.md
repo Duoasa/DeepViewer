@@ -109,9 +109,10 @@ depends_on: [DV-0003, ADR-0004, ADR-0005]
 | Release 资产替换不是原子操作 | 短暂不一致或部分上传 | 替换前保留旧资产；本地双架构全部通过后再执行；远端逐项核验并支持回滚 |
 | 公证服务延迟或拒绝 | 发布被延后 | 保存 submission ID 与完整日志，区分超时和拒绝，修复后重新全量验证 |
 
-## 未决问题
+## 已解决问题
 
-- Q-001：维护者需要安装有效 Developer ID Application 证书并创建 `notarytool` Keychain profile；完成前 T-004 之后的发布步骤保持阻断。
+- Q-001：维护者已安装有效 Developer ID Application 证书并创建可用的 `notarytool`
+  Keychain profile；双架构签名和公证已于 2026-08-16 完成。
 
 ## 审批
 

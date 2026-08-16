@@ -13,20 +13,21 @@ updated: 2026-08-16
 - 平台：macOS 26.5.2，Apple Silicon
 - Xcode：`/Applications/Xcode.app/Contents/Developer`
 - notarytool：`1.1.2 (41)`
-- 当前签名身份：`security find-identity -v -p codesigning` 报告 `0 valid identities found`
-- 公证凭据：尚未配置可用 Keychain profile
+- 当前签名身份：`Developer ID Application: Chenchen Xu (BUUH229D5Q)`，证书
+  SHA-1 `E52D0A9C7C377AF77C484155CC0CFCFB27D949D3`
+- 公证凭据：Keychain profile `deepviewer-notary` 可用；文档与日志不保存认证值
 
 ## 验收证据
 
 | 验收条件 | 方法 | 结果 | 证据 |
 | --- | --- | --- | --- |
-| AC-001 | codesign 深度/严格验证 | Blocked | 本机缺少 Developer ID Application 身份 |
-| AC-002 | entitlement 自动检查与最终包枚举 | Partial | 最小 plist 与选择器自动测试通过；等待有证书后的最终 Mach-O 枚举 |
-| AC-003 | notarytool + stapler | Blocked | 证书与 Keychain profile 尚未配置 |
-| AC-004 | GitHub 新下载 + quarantine + spctl | Pending | 等待公证资产 |
-| AC-005 | AC-011 隐私审计 + SHA/远端 digest | Pending | 等待全新双架构构建 |
+| AC-001 | codesign 深度/严格验证 | Pass | 两个 `.app` 的 30 个 Mach-O 均由同一 Developer ID 签署并通过严格验证 |
+| AC-002 | entitlement 自动检查与最终包枚举 | Pass | JIT/空 entitlement 选择器测试及最终 30 个 Mach-O 枚举通过；无禁止权限 |
+| AC-003 | notarytool + stapler | Pass | arm64 `f8726eaa-cc78-4a9d-81e1-a26e0b6754af`、x64 `6e159a13-49ef-40a6-ab1f-f7121786d6f4` 均 Accepted、0 error、staple 有效 |
+| AC-004 | quarantine + spctl | Partial | 本地最终 DMG 加 quarantine 后均为 `accepted / Notarized Developer ID`；等待 GitHub 重新下载复核 |
+| AC-005 | AC-011 隐私审计 + SHA/远端 digest | Partial | 双架构全新包各 22 个 ASAR 条目通过隐私审计；本地 SHA/大小已固定，等待远端 digest |
 | AC-006 | 缺凭据失败门禁测试 | Pass | `package.mjs --sign` 在清理/构建前因无 Developer ID 退出；`notarize.mjs` 在访问 DMG/网络前因无 Keychain profile 退出 |
-| AC-007 | README/SDD/GitHub 一致性 | Pending | 等待资产替换 |
+| AC-007 | README/SDD/GitHub 一致性 | Pending | README/SDD 已准备新事实；等待 Release 资产与说明替换 |
 
 ## 执行的命令
 
@@ -42,10 +43,18 @@ pnpm test
 pnpm desktop:build
 plutil -lint apps/deepviewer-desktop/entitlements/darwin-jit.plist apps/deepviewer-desktop/entitlements/darwin-empty.plist
 node apps/deepviewer-desktop/scripts/package.mjs --sign --arch=arm64
-node apps/deepviewer-desktop/scripts/notarize.mjs --arch=arm64
+node apps/deepviewer-desktop/scripts/notarize.mjs --keychain-profile=deepviewer-notary
+xcrun stapler validate /absolute/path/to/DeepViewer-0.1.1-macos-{arm64,x64}.dmg
+spctl --assess --type open --context context:primary-signature --verbose=4 /absolute/path/to/DeepViewer-0.1.1-macos-{arm64,x64}.dmg
 ```
 
-结果：Xcode 与 notarytool 可用；语法、TypeScript、7 个测试文件/31 项测试、三个 Vite production build 与两个 entitlement plist 全部通过。RuntimeManager 测试在受限沙箱内因 loopback `EPERM` 失败，按既有测试需求在沙箱外复跑后 31/31 通过。Keychain 中没有有效代码签名身份；签名与公证命令均在任何产物清理、Apple 上传或 GitHub 变更前以明确缺失项失败。未尝试 ad-hoc 或其他证书降级。
+结果：语法、TypeScript、7 个测试文件/32 项测试、三个 Vite production build 与两个 entitlement plist 全部通过。RuntimeManager 测试在受限沙箱内因本地进程/loopback 限制失败，按既有测试需求在沙箱外复跑后 32/32 通过。arm64 与 x64 Runtime、应用和 DMG 均为全新构建；每个应用的 27 个内部 Runtime 链接被规范化为包内相对链接，非 Mach-O 资源不会被误签。两个架构均通过隐私、架构、严格签名、DMG 完整性、公证、staple 和 Gatekeeper 基础验证。
+
+本地最终资产：
+
+- arm64：456,147,049 bytes；`1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf`
+- x64：472,654,669 bytes；`d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec`
+- `SHA256SUMS.txt`：196 bytes；`af329f7434ab10a22b99d865ac6918013519dedc1362cedf3611311de6122c95`
 
 ## 人工检查
 
@@ -56,11 +65,11 @@ node apps/deepviewer-desktop/scripts/notarize.mjs --arch=arm64
 
 ## 残余风险
 
-- 本机尚缺 Developer ID Application 身份和 notarytool Keychain profile，Apple 流程无法开始。
+- GitHub Release 资产尚待替换和重新下载复核；完成前 AC-004、AC-005、AC-007 保持未关闭。
 - x64 最终交互仍需真实 Intel Mac 或维护者接受的 Rosetta 验收边界。
 
 ## 结论
 
-- 结果：Implementing；Apple 账户前置条件阻断最终签名与公证
+- 结果：Implementing；本地双架构签名与公证完成，等待 GitHub 资产替换和维护者人工验收
 - 验证人：Codex（代码和基础验证）；Duoasa（后续人工安装/交互）
 - 日期：2026-08-16

@@ -85,7 +85,7 @@ swift /tmp/deepviewer-window-qa.swift <pid> drag
 ## 残余风险
 
 - 桌面壳通过 Harness 插件样式标签发现 CSS module 当前类名；未来上游重命名样式资源时需要重新运行 DV-0004 验收。
-- `v0.1.1` 仍未签名、公证；该分发限制由 DV-0003/后续可靠发行规格负责，不影响本规格窗口行为验收。
+- `v0.1.1` 已由 DV-0007 完成 Developer ID 签名与 Apple 公证；本规格仍只负责窗口行为验收。
 
 ## 结论
 

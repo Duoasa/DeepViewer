@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process'
+import { closeSync, openSync, readSync } from 'node:fs'
 import { open, readdir } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -83,13 +84,30 @@ export function needsJitEntitlement(filePath) {
     || /\/DeepViewer Helper(?: \([^)]+\))?\.app$/u.test(normalized)
 }
 
+export function isMacCodePath(filePath) {
+  if (/\.(?:app|framework)$/u.test(filePath)) return true
+  let descriptor
+  try {
+    descriptor = openSync(filePath, 'r')
+    const header = Buffer.alloc(4)
+    return readSync(descriptor, header, 0, header.length, 0) === header.length
+      && machoMagics.has(header.toString('hex'))
+  } catch {
+    return false
+  } finally {
+    if (descriptor !== undefined) closeSync(descriptor)
+  }
+}
+
 export function createOsxSignOptions({ identity, keychain }) {
   return {
-    identity: identity.name,
+    identity: identity.hash,
     platform: 'darwin',
     ...(typeof keychain === 'string' && keychain !== '' ? { keychain } : {}),
     preAutoEntitlements: false,
     preEmbedProvisioningProfile: false,
+    continueOnError: false,
+    ignore: filePath => !isMacCodePath(filePath),
     strictVerify: true,
     optionsForFile: filePath => ({
       entitlements: needsJitEntitlement(filePath) ? jitEntitlements : emptyEntitlements,

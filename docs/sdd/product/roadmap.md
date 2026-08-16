@@ -26,7 +26,7 @@ updated: 2026-08-16
 
 退出条件：Apple Silicon 与 Intel 产物的架构和资源检查通过；至少 arm64 原生完成现有 Web surface 确定性测试任务，退出后不残留 Harness 进程，并且没有阻断后续 UI/功能改造的 macOS 封包问题。
 
-当前证据：arm64 原生与 Intel x64（Rosetta）自包含 DMG 已先后作为 [`v0.0.1`](../releases/v0.0.1.md) 和 [`v0.1.1`](../releases/v0.1.1.md) 公开预览版发布。`v0.1.1` 的两个架构包均从对应源码树重新生成，通过 allowlist staging、个人路径/凭据净化审计、DMG 完整性检查和 GitHub 远端 digest 核对。版本仍未签名、未公证，DV-0003 的无密钥流式任务、特殊路径/clean environment、安全 UI 走查与真实 Intel Mac 验证继续收尾；Windows 适配继续后置。
+当前证据：arm64 原生与 Intel x64（Rosetta）自包含 DMG 已先后作为 [`v0.0.1`](../releases/v0.0.1.md) 和 [`v0.1.1`](../releases/v0.1.1.md) 公开预览版发布。`v0.1.1` 的两个架构包均从对应源码树重新生成，通过 allowlist staging、个人路径/凭据净化审计、Developer ID 签名、Apple 公证、staple、Gatekeeper 和 DMG 完整性检查。DV-0003 的无密钥流式任务、特殊路径/clean environment、安全 UI 走查与真实 Intel Mac 验证继续收尾；Windows 适配继续后置。
 
 ## Phase 2：DeepViewer macOS MVP
 

@@ -26,8 +26,11 @@ updated: 2026-08-16
 
 ### `scripts/macos-signing.mjs`
 
-- 解析 `security find-identity` 输出，只接受 Developer ID Application。
+- 解析 `security find-identity` 输出，只接受 Developer ID Application；存在多个有效身份时
+  必须用证书 SHA-1 或完整名称显式消歧，签名实际使用 SHA-1，避免同名证书歧义。
 - 提供 Electron Packager 的 `osxSign` 配置和最小 entitlement 选择器。
+- 用 Mach-O magic 判断真正的 macOS 代码，只签署 `.app`、`.framework` 与 Mach-O；字体、
+  图片、Windows 二进制、source map、WASM 等资源明确跳过，防止资源 xattr 形成 detached signature。
 - 对 DMG 使用同一身份、独立 identifier 与安全时间戳签名。
 - 验证应用/DMG 签名和禁止的 entitlement。
 
@@ -35,6 +38,8 @@ updated: 2026-08-16
 
 - 保持未签名开发封包兼容；只有显式 `--sign` 才访问 Keychain。
 - 在每个架构继续清理 staging、应用输出与 DMG并执行隐私审计。
+- 在签名前将 Packager `extraResource` 复制形成的绝对 `.bin` 链接重写为应用内相对链接，
+  拒绝越界或断链目标；随后清理构建输入扩展属性。
 - 签名应用后创建 DMG，再签名与验证 DMG；任一步失败则不生成可上传完成标记。
 
 ### `scripts/notarize.mjs`
