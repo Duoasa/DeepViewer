@@ -95,7 +95,7 @@ SHA-256：
 - `release-audit.mjs` 对两个最终 `.app` 均报告通过：ASAR 共 19 个条目且只有 `.desktop`、`assets`、`package.json` 顶层输入；没有个人设置、工作区、会话、日志、敏感文件名、开发机/主目录绝对路径或当前环境凭据值。
 - `DeepViewer-0.1.1-macos-arm64.dmg`：456,147,049 bytes；签名公证刷新包 SHA-256 为 `1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf`。
 - `DeepViewer-0.1.1-macos-x64.dmg`：472,654,669 bytes；签名公证刷新包 SHA-256 为 `d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec`。
-- `SHA256SUMS.txt`：196 bytes；SHA-256 为 `af329f7434ab10a22b99d865ac6918013519dedc1362cedf3611311de6122c95`；远端替换与重新下载核验由 DV-0007 完成。
+- `SHA256SUMS.txt`：196 bytes；SHA-256 为 `af329f7434ab10a22b99d865ac6918013519dedc1362cedf3611311de6122c95`；三个 GitHub 远端 digest 与独立重新下载核验均由 DV-0007 完成并通过。
 - 两个 DMG 均通过 `hdiutil verify`；主二进制分别为原生 `arm64` 与 `x86_64`；Bundle 名称为 `DeepViewer`，版本为 `0.1.1`。
 - GitHub Release 最终只保留两个完整 DMG 和校验清单，不包含临时上传分片。
 - 完整历史记录见 [`releases/v0.1.1.md`](../../releases/v0.1.1.md)。

@@ -16,7 +16,7 @@ depends_on: [DV-0003, ADR-0004, ADR-0005]
 
 ## 背景与问题
 
-当前 `v0.1.1` 是 GitHub Latest 正式 Release，但安装资产仍未签名、未公证。带 quarantine 的下载文件会被 Gatekeeper 拒绝，README 中的“仍要打开”和 `xattr` 方法只是早期测试过渡方案。直接补签历史 DMG 会违反公开发布必须全新构建的安全基线，因此必须从版本源码和固定依赖重新生成 Runtime、应用与 DMG。
+`v0.1.1` 最初作为未签名、未公证的 GitHub Latest Release 发布。带 quarantine 的下载文件会被 Gatekeeper 拒绝，README 中曾使用“仍要打开”和 `xattr` 作为早期测试过渡方案。直接补签历史 DMG 会违反公开发布必须全新构建的安全基线，因此本规格从版本源码和固定依赖重新生成 Runtime、应用与 DMG，并用通过公证的全新资产替换原包。
 
 ## 目标
 

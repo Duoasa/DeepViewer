@@ -24,10 +24,10 @@ updated: 2026-08-16
 | AC-001 | codesign 深度/严格验证 | Pass | 两个 `.app` 的 30 个 Mach-O 均由同一 Developer ID 签署并通过严格验证 |
 | AC-002 | entitlement 自动检查与最终包枚举 | Pass | JIT/空 entitlement 选择器测试及最终 30 个 Mach-O 枚举通过；无禁止权限 |
 | AC-003 | notarytool + stapler | Pass | arm64 `f8726eaa-cc78-4a9d-81e1-a26e0b6754af`、x64 `6e159a13-49ef-40a6-ab1f-f7121786d6f4` 均 Accepted、0 error、staple 有效 |
-| AC-004 | quarantine + spctl | Partial | 本地最终 DMG 加 quarantine 后均为 `accepted / Notarized Developer ID`；等待 GitHub 重新下载复核 |
-| AC-005 | AC-011 隐私审计 + SHA/远端 digest | Partial | 双架构全新包各 22 个 ASAR 条目通过隐私审计；本地 SHA/大小已固定，等待远端 digest |
+| AC-004 | GitHub 新下载 + quarantine + spctl | Pass | 从 Release 重新下载的两个 DMG 加 quarantine 后均为 `accepted / Notarized Developer ID` |
+| AC-005 | AC-011 隐私审计 + SHA/远端 digest | Pass | 双架构全新包各 22 个 ASAR 条目通过隐私审计；重新下载 SHA、大小、清单与 GitHub API digest 完全一致 |
 | AC-006 | 缺凭据失败门禁测试 | Pass | `package.mjs --sign` 在清理/构建前因无 Developer ID 退出；`notarize.mjs` 在访问 DMG/网络前因无 Keychain profile 退出 |
-| AC-007 | README/SDD/GitHub 一致性 | Pending | README/SDD 已准备新事实；等待 Release 资产与说明替换 |
+| AC-007 | README/SDD/GitHub 一致性 | Pass | README、双语 Release notes、SDD、三个公开资产及校验值一致；Release 为 non-draft、non-prerelease、Latest |
 
 ## 执行的命令
 
@@ -56,6 +56,16 @@ spctl --assess --type open --context context:primary-signature --verbose=4 /abso
 - x64：472,654,669 bytes；`d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec`
 - `SHA256SUMS.txt`：196 bytes；`af329f7434ab10a22b99d865ac6918013519dedc1362cedf3611311de6122c95`
 
+GitHub 远端验收：旧资产先下载到独立临时目录并核对原 SHA，随后通过浏览器上传三个完整
+新资产。GitHub API 报告全部 `uploaded`，大小与上述结果一致，digest 分别为：
+
+- `sha256:1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf`
+- `sha256:d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec`
+- `sha256:af329f7434ab10a22b99d865ac6918013519dedc1362cedf3611311de6122c95`
+
+新下载目录中的 `shasum -a 256 -c SHA256SUMS.txt`、两个 `stapler validate` 及带
+quarantine 的两个 `spctl` 评估全部通过。
+
 ## 人工检查
 
 - [ ] 维护者从全新 GitHub 下载完成标准安装与首次打开
@@ -65,11 +75,10 @@ spctl --assess --type open --context context:primary-signature --verbose=4 /abso
 
 ## 残余风险
 
-- GitHub Release 资产尚待替换和重新下载复核；完成前 AC-004、AC-005、AC-007 保持未关闭。
 - x64 最终交互仍需真实 Intel Mac 或维护者接受的 Rosetta 验收边界。
 
 ## 结论
 
-- 结果：Implementing；本地双架构签名与公证完成，等待 GitHub 资产替换和维护者人工验收
+- 结果：Implementing；全部技术验收条件通过，等待维护者完成 T-009 安装与交互验收
 - 验证人：Codex（代码和基础验证）；Duoasa（后续人工安装/交互）
 - 日期：2026-08-16

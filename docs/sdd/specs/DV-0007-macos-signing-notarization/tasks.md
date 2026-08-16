@@ -21,8 +21,8 @@ updated: 2026-08-16
 - [x] T-004 `[AC-002, AC-006]` 增加签名配置、最小 entitlement 和禁止明文凭据路径的自动测试。
 - [x] T-005 `[R-004, AC-001, AC-005]` 从 `v0.1.1` 应用源码重新生成双架构 Runtime、签名应用/DMG并完成隐私、架构和校验和验证。
 - [x] T-006 `[AC-003]` 提交两个 DMG 公证，保存 Accepted submission ID/日志并 staple。
-- [ ] T-007 `[R-006, AC-004, AC-005]` 备份旧资产，替换 GitHub Release，重新下载并完成 quarantine、spctl、SHA-256 与远端 digest 验证。
-- [ ] T-008 `[R-007, AC-007]` 更新 README、Release notes、版本发布记录和最终验证证据。
+- [x] T-007 `[R-006, AC-004, AC-005]` 备份旧资产，替换 GitHub Release，重新下载并完成 quarantine、spctl、SHA-256 与远端 digest 验证。
+- [x] T-008 `[R-007, AC-007]` 更新 README、Release notes、版本发布记录和最终验证证据。
 - [ ] T-009 `[NFR-004]` 由维护者手动验收安装、首次打开和核心交互，代理记录结果但不代替执行。
 
 ## 延后事项
