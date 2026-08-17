@@ -16,9 +16,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1"><strong>Download DeepViewer v0.1.1</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2"><strong>Download DeepViewer v0.1.2</strong></a>
   ·
-  <a href="#whats-new-in-the-012-release-candidate">0.1.2 candidate</a>
+  <a href="#whats-new-in-012">What’s new</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
@@ -29,34 +29,22 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-## Apple notarization
-
-DeepViewer `v0.1.1` has passed Apple notarization. Download only from the official
-Release and verify SHA-256 before opening it. If a checksum does not match,
-delete the file and do not run it.
-
-<p align="center">
-  <img src="Resources/DeepViewer-App.png" width="100%" alt="DeepViewer macOS workspace">
-</p>
-
 DeepViewer is an independent, open-source desktop agent workspace built on
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It bundles
 the pinned local runtime into a normal macOS application and provides a desktop
 shell designed for a visual, controllable agent experience.
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="100%" alt="DeepViewer 0.1.2 in dark mode">
+</p>
 
 > [!NOTE]
 > DeepViewer is a community project. It is not affiliated with or endorsed by
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.1.1` is a Developer ID signed and Apple-notarized macOS UI preview. It has
-> passed the maintainer's initial visual acceptance, but it is still an early
-> preview rather than a stable release.
-
-> [!NOTE]
-> The source tree is being prepared as the `v0.1.2` release candidate. Its new
-> installers, signatures, notarization, checksums, tag, and GitHub Release do not
-> exist yet; `v0.1.1` remains the latest verified public download.
+> `v0.1.2` is the latest macOS UI preview. It has passed the maintainer's visual
+> acceptance, but it is still an early preview rather than a stable release.
 
 ## Why DeepViewer
 
@@ -74,25 +62,21 @@ shell designed for a visual, controllable agent experience.
 ## Quick start
 
 1. Download the package that matches your Mac from the
-   [v0.1.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1).
+   [v0.1.2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open DeepViewer. It starts the bundled Harness automatically and loads the
    local workspace when the runtime is ready.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [DeepViewer-0.1.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-arm64.dmg) | `1f1a946558ebd3e9b6988b6ce9c8570717e4b7e5a8ec7b43ce51b27ce03dd3bf` |
-| Intel (`x64`) | [DeepViewer-0.1.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/DeepViewer-0.1.1-macos-x64.dmg) | `d8cb6983e2bf7d9cef414eca94eabb406f75098dffe863a4f8d9dc27b4331cec` |
+| Apple Silicon (`arm64`) | [DeepViewer-0.1.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/DeepViewer-0.1.2-macos-arm64.dmg) | `f2315577d51c091bf6ad4754a46ee03a6cbc16a4f1a19d466beb182f3b1a75e2` |
+| Intel (`x64`) | [DeepViewer-0.1.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/DeepViewer-0.1.2-macos-x64.dmg) | `72470ddf2d0e03552a93590f9688de4f57462565c900987b798e8d582dd1544e` |
 
 The release also includes a
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.1/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/SHA256SUMS.txt)
 manifest for command-line verification.
 
-> [!NOTE]
-> Both official DMGs have passed Apple notarization. An unexpected security
-> warning or checksum mismatch should be treated as a failed download.
-
-## What's new in the 0.1.2 release candidate
+## What's new in 0.1.2
 
 <p align="center">
   <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 in dark mode">
@@ -111,10 +95,12 @@ manifest for command-line verification.
   control readability.
 - Added tracked upstream UI overrides with deterministic sync/build checks, plus
   isolated development, local ARM preview, and explicit release workflow tiers.
+- Rebuilt separate arm64 and x64 DMGs from allowlisted inputs. Both packages are
+  Developer ID signed, Apple-notarized, stapled, privacy-audited, and published
+  with reproducible SHA-256 checksums.
 
-This section describes the candidate source only. See the
-[`v0.1.2` preparation record](docs/sdd/releases/v0.1.2.md) for remaining release
-gates; do not treat it as an installer or notarization announcement.
+See the [`v0.1.2` release record](docs/sdd/releases/v0.1.2.md) for the complete
+asset and verification evidence.
 
 ## What's new in 0.1.1
 
@@ -136,8 +122,8 @@ gates; do not treat it as an installer or notarization announcement.
   text shimmer.
 - Added release privacy gates: every public architecture is rebuilt from a clean
   runtime and allowlist staging directory, then audited before its DMG is created.
-- Generated fresh, architecture-specific arm64 and x64 DMGs for 0.1.1.
-- Both architecture packages have passed Apple notarization.
+- Generated fresh, architecture-specific arm64 and x64 DMGs for 0.1.1. Both
+  packages are Developer ID signed and passed Apple notarization.
 
 ## Current limitations
 
