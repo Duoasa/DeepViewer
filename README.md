@@ -94,6 +94,11 @@ manifest for command-line verification.
 
 ## What's new in the 0.1.2 release candidate
 
+<p align="center">
+  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 in dark mode">
+  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 in light mode">
+</p>
+
 - Restructured the macOS window as two visual columns—sidebar and Chat—with
   structural safe areas inside each column instead of a separate full-width bar.
 - Moved model usage statistics into the centered Chat safe area and fixed the

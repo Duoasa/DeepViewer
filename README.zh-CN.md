@@ -89,6 +89,11 @@ Release 同时提供
 
 ## 0.1.2 候选版本更新内容
 
+<p align="center">
+  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 深色模式">
+  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 浅色模式">
+</p>
+
 - 将 macOS 窗口整理为侧栏和 Chat 两个视觉列，系统安全区进入对应列内部，不再形成独立的
   全宽顶栏。
 - 把模型使用统计移动到 Chat 顶部安全区居中显示；新会话、思考、流式输出和完成状态的
