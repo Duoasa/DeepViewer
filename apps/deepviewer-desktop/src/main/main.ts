@@ -69,7 +69,8 @@ if (gotLock) {
       const dockIcon = nativeImage.createFromPath(resolveDeepViewerIconPath(app.getAppPath()))
       if (!dockIcon.isEmpty()) app.dock?.setIcon(dockIcon)
     }
-    logger = new FileLogger(join(app.getPath('userData'), 'logs', 'deepviewer.log'))
+    const logDirectory = join(app.getPath('userData'), 'logs')
+    logger = new FileLogger(join(logDirectory, 'deepviewer.log'))
     if (process.platform !== 'darwin') {
       logger.error('desktop', `unsupported platform in DV-0003: ${process.platform}`)
     }
@@ -90,7 +91,7 @@ if (gotLock) {
     })
     ipcMain.handle('desktop:open-log-directory', async (event) => {
       assertLaunchSurface(event)
-      const error = await shell.openPath(join(app.getPath('userData'), 'logs'))
+      const error = await shell.openPath(logDirectory)
       if (error !== '') throw new Error(error)
     })
     ipcMain.on('desktop:set-native-theme', (event, source: unknown) => {
@@ -99,7 +100,10 @@ if (gotLock) {
       nativeTheme.themeSource = source
     })
 
-    windows.create()
+    windows.create({
+      logDirectory,
+      locale: app.getLocale(),
+    })
     void startRuntime()
   })
 

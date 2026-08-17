@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, clipboard, Menu, shell } from 'electron'
+import type { MenuItemConstructorOptions } from 'electron'
 import type { RuntimeStatusView } from '../shared/runtime-status.js'
 import {
   DEEPVIEWER_APP_NAME,
@@ -25,6 +26,12 @@ import {
   remainingLaunchSurfaceVisibilityMs,
   WAIT_FOR_LAUNCH_SURFACE_PAINT_SCRIPT,
 } from './launch-surface-timing.js'
+import { openExternalWebUrl } from './external-navigation.js'
+import {
+  getContextLinkTarget,
+  getDesktopContextMenuLabels,
+} from './desktop-context-menu.js'
+import type { DesktopContextMenuOptions } from './desktop-context-menu.js'
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -40,7 +47,7 @@ export class WindowController {
   })
   private readonly launchSurfaceUrl = pathToFileURL(join(import.meta.dirname, '../renderer/index.html')).href
 
-  create(): BrowserWindow {
+  create(contextMenuOptions: DesktopContextMenuOptions): BrowserWindow {
     const window = new BrowserWindow(createMainWindowOptions(join(import.meta.dirname, 'preload.cjs')))
 
     window.once('ready-to-show', () => window.show())
@@ -90,10 +97,16 @@ export class WindowController {
         setFullscreenChrome(MACOS_FULLSCREEN_EVENT_STATE['leave-full-screen'])
       })
     }
-    window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
-    window.webContents.on('will-navigate', (event, targetUrl) => {
-      if (!this.isAllowedNavigation(targetUrl)) event.preventDefault()
+    window.webContents.setWindowOpenHandler(({ url }) => {
+      if (!this.isAllowedNavigation(url)) this.openExternalNavigation(url)
+      return { action: 'deny' }
     })
+    window.webContents.on('will-navigate', (event, targetUrl) => {
+      if (this.isAllowedNavigation(targetUrl)) return
+      event.preventDefault()
+      this.openExternalNavigation(targetUrl)
+    })
+    this.installContextMenu(window, contextMenuOptions)
     window.on('closed', () => {
       if (this.window === window) this.window = undefined
     })
@@ -178,5 +191,75 @@ export class WindowController {
   private isAllowedNavigation(targetUrl: string): boolean {
     if (this.isLaunchSurface(targetUrl)) return true
     return this.isRuntimeSurface(targetUrl)
+  }
+
+  private openExternalNavigation(targetUrl: string): void {
+    void openExternalWebUrl(targetUrl, url => shell.openExternal(url)).catch(() => {
+      console.error('DeepViewer failed to open an external web link')
+    })
+  }
+
+  private installContextMenu(
+    window: BrowserWindow,
+    options: DesktopContextMenuOptions,
+  ): void {
+    const labels = getDesktopContextMenuLabels(options.locale)
+    window.webContents.on('context-menu', (event, params) => {
+      event.preventDefault()
+      const template: MenuItemConstructorOptions[] = []
+      const target = getContextLinkTarget(params.linkURL, params.titleText)
+      if (target?.kind === 'web') {
+        template.push(
+          {
+            label: labels.openWebLink,
+            click: () => this.openExternalNavigation(target.url),
+          },
+          {
+            label: labels.copyLinkAddress,
+            click: () => clipboard.writeText(target.url),
+          },
+          { type: 'separator' },
+        )
+      } else if (target?.kind === 'file') {
+        template.push(
+          {
+            label: labels.revealFile,
+            click: () => shell.showItemInFolder(target.path),
+          },
+          {
+            label: labels.copyFilePath,
+            click: () => clipboard.writeText(target.path),
+          },
+          { type: 'separator' },
+        )
+      }
+
+      template.push(
+        {
+          label: labels.openLogs,
+          click: () => this.openDirectory(options.logDirectory),
+        },
+        { type: 'separator' },
+      )
+
+      if (params.isEditable) {
+        template.push({ role: 'cut', enabled: params.editFlags.canCut })
+      }
+      template.push({ role: 'copy', enabled: params.editFlags.canCopy })
+      if (params.isEditable) {
+        template.push({ role: 'paste', enabled: params.editFlags.canPaste })
+      }
+      template.push({ role: 'selectAll', enabled: params.editFlags.canSelectAll })
+
+      Menu.buildFromTemplate(template).popup({ window })
+    })
+  }
+
+  private openDirectory(directory: string): void {
+    void shell.openPath(directory).then(error => {
+      if (error !== '') console.error('DeepViewer failed to open a support directory')
+    }).catch(() => {
+      console.error('DeepViewer failed to open a support directory')
+    })
   }
 }
