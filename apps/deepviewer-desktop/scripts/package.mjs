@@ -187,6 +187,7 @@ for (const arch of architectures) {
     '-format', 'UDZO',
     dmgPath,
   ])
+  await run('hdiutil', ['verify', dmgPath])
   if (signingIdentity !== undefined) {
     await signDiskImage({
       dmgPath,

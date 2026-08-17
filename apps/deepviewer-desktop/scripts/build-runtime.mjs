@@ -230,10 +230,11 @@ for (const arch of architectures) {
     packageManager: 'pnpm@11.19.0',
     dependencies: packedSpecs,
   }, null, 2)}\n`)
+  const skipKoffiInstall = arch !== process.arch
   writeFileSync(join(runtimeRoot, '.pnpmfile.cjs'), `'use strict'\nconst packedSpecs = ${JSON.stringify(packedSpecs, null, 2)}\nmodule.exports = {\n  hooks: {\n    readPackage(manifest) {\n      for (const field of ['dependencies', 'optionalDependencies']) {\n        const values = manifest[field]\n        if (values === undefined) continue\n        for (const name of Object.keys(values)) {\n          if (packedSpecs[name] !== undefined) values[name] = packedSpecs[name]\n        }\n      }\n      return manifest\n    },\n  },\n}\n`)
 
   const manuallyHandledBuild = `@deepseek-ai/dsh-subprocess-local@${packedSpecs['@deepseek-ai/dsh-subprocess-local']}`
-  writeFileSync(join(runtimeRoot, 'pnpm-workspace.yaml'), `packages:\n  - .\nnodeLinker: hoisted\nautoInstallPeers: false\nsupportedArchitectures:\n  os:\n    - darwin\n  cpu:\n    - ${arch}\nallowBuilds:\n${allowedBuildPackages.map(name => `  ${JSON.stringify(name)}: true`).join('\n')}\n  ${JSON.stringify(manuallyHandledBuild)}: true\n`)
+  writeFileSync(join(runtimeRoot, 'pnpm-workspace.yaml'), `packages:\n  - .\nnodeLinker: hoisted\nautoInstallPeers: false\nsupportedArchitectures:\n  os:\n    - darwin\n  cpu:\n    - ${arch}\nallowBuilds:\n${allowedBuildPackages.map(name => `  ${JSON.stringify(name)}: ${name === 'koffi' && skipKoffiInstall ? 'false' : 'true'}`).join('\n')}\n  ${JSON.stringify(manuallyHandledBuild)}: true\n`)
 
   await installRuntimeDependencies(runtimeRoot, arch, [
     'install',

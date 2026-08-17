@@ -39,6 +39,13 @@ describe('public release privacy gate (DV-0003 AC-011)', () => {
     expect(runtimeScript).toContain("'/__DEEPVIEWER_HOME__'")
   })
 
+  it('uses the verified Koffi prebuild during cross-architecture assembly', () => {
+    expect(runtimeScript).toContain("const skipKoffiInstall = arch !== process.arch")
+    expect(runtimeScript).toContain("name === 'koffi' && skipKoffiInstall ? 'false' : 'true'")
+    expect(runtimeScript).toContain("@koromix', `koffi-darwin-${arch}`")
+    expect(runtimeScript).toContain('verifySelectedNativeBinary(path, arch)')
+  })
+
   it('audits final application content before creating the DMG', () => {
     expect(packageScript.indexOf('await auditPackagedApp')).toBeLessThan(
       packageScript.indexOf("await run('hdiutil'"),
@@ -50,6 +57,12 @@ describe('public release privacy gate (DV-0003 AC-011)', () => {
     expect(auditScript).toContain('contains a developer-machine path')
     expect(auditScript).toContain('absolute symbolic link target')
     expect(auditScript).not.toContain('console.log(environment.value)')
+  })
+
+  it('verifies DMG integrity before applying its final signature', () => {
+    const verifyIndex = packageScript.indexOf("await run('hdiutil', ['verify', dmgPath])")
+    expect(verifyIndex).toBeGreaterThan(packageScript.indexOf("'create',"))
+    expect(verifyIndex).toBeLessThan(packageScript.indexOf('await signDiskImage'))
   })
 
   it('rewrites copied Runtime links as self-contained relative links', async () => {
