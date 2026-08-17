@@ -9,7 +9,7 @@ updated: 2026-08-17
 
 ## 验证环境
 
-- 提交：Pending
+- 提交：`66547a6`
 - 平台：macOS Apple Silicon
 - 配置：本地开发 profile；现有 arm64 Runtime
 - 外部依赖：固定 DeepSeek Harness checkout
@@ -25,7 +25,7 @@ updated: 2026-08-17
 | AC-005 | 静态检查 | Pass | release alias 先同步受控上游覆盖，再包含双架构 Runtime、文件级 staging/ASAR 隐私门禁、签名与公证，且不包含上传 |
 | AC-006 | 文档检查 | Pass | 根命令、README、governance 与规格已同步三个层级和默认触发规则 |
 | AC-007 | 总规范检查 | Pass | `AGENTS.md` 与 governance 已允许同一里程碑小改动只改代码和基础验证，并定义批量同步边界 |
-| AC-008 | 本地配置/远端 CI | Partial | workflow YAML、只读权限、冻结安装和命令边界已检查；本地 52 项测试与 production build 通过，首次 GitHub Actions 运行待推送后确认 |
+| AC-008 | 本地配置/远端 CI | Pass | workflow YAML、只读权限、冻结安装和命令边界已检查；提交 `66547a6` 的 [GitHub Actions CI #1](https://github.com/Duoasa/DeepViewer/actions/runs/32013698404) 在 `main` 上通过，9 个测试文件、52 项测试全部通过，production build 完成且未产生发布制品 |
 
 ## 执行的命令
 
@@ -45,7 +45,8 @@ ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/ci.yml")'
   回环后同一命令通过，确认不是代码失败。
 - Vite：main、preload、renderer 三个 production build 全部通过。
 - GitHub Actions：YAML 可解析；workflow 只有 `contents: read`，checkout 关闭凭据持久化，
-  仅调用冻结安装、typecheck、test 与 build；首次远端运行待推送后回填。
+  仅调用冻结安装、typecheck、test 与 build；[CI #1](https://github.com/Duoasa/DeepViewer/actions/runs/32013698404)
+  在提交 `66547a6` 上于 31 秒内通过，远端测试报告为 9 个文件、52/52 项通过，Artifacts 为空。
 - 活跃 runner 的 restart：受限沙箱首次拒绝连接项目 socket；允许本机 socket 后同一命令成功
   排队，未影响其他 Electron 应用。
 - 代理未代替维护者操作应用；维护者使用开发版完成本轮 UI 交互验收。未运行 preview/release，
@@ -56,7 +57,7 @@ ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/ci.yml")'
 - [x] 维护者运行开发模式并确认修改后应用自动重启
 - [x] 维护者运行显式 restart；当前项目控制 socket 成功接收请求且实现禁止按进程名杀死应用
 - [ ] 维护者打开 ARM 预览 `.app` 并确认与正式数据隔离
-- [x] 维护者确认本轮日常开发未产生 DMG、签名、公证或 GitHub 变更
+- [x] 维护者确认本轮日常开发与 CI 未产生 DMG，未执行签名、公证或发布上传
 
 ## 残余风险
 
@@ -64,7 +65,7 @@ ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/ci.yml")'
 
 ## 结论
 
-- 结果：开发 runner 与受控 restart 已通过；CI 本地配置通过、首次远端运行待确认；ARM 预览
-  包体仍为 `Pending Manual`，保持 Implementing
+- 结果：开发 runner 与受控 restart 已通过；CI 本地与首次远端运行均通过；ARM 预览包体仍为
+  `Pending Manual`，保持 Implementing
 - 验证人：Codex（代码和基础验证）；Duoasa（交互验收）
 - 日期：2026-08-17
