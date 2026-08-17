@@ -25,7 +25,7 @@ updated: 2026-08-17
 | AC-005 | 维护者人工 + 窗口测试 | Pass | 维护者分别反馈浅色/深色断层和遮罩问题并确认当前里程碑；窗口样式使用单层原生材质、失焦纯色和透明淡出 |
 | AC-006 | 维护者人工 + 窗口测试 | Pass | 收起/展开按钮跳动修复后进入当前里程碑；测试固定正常坐标并保留全屏补位 |
 | AC-007 | 维护者人工 + IPC/窗口测试 | Pass | 浅色红绿灯可读性修复进入当前里程碑；preload 与 main 双侧限制主题枚举 |
-| AC-008 | 同步 build + 类型/测试 | Pass | 覆盖同步/build 为 current；TypeScript、9 个 Vitest 文件/49 项测试和三段 Vite production build 全部通过 |
+| AC-008 | 同步 build + 类型/测试 | Pass | 覆盖同步/build 为 current；TypeScript、9 个 Vitest 文件/50 项测试和三段 Vite production build 全部通过 |
 
 ## 执行的命令
 
@@ -43,7 +43,7 @@ git diff --check
 
 - 受控上游覆盖和对应 build 均为 current。
 - TypeScript 无错误；Electron main、preload、renderer production build 全部通过。
-- Vitest：9 个测试文件、49 项测试全部通过；RuntimeManager 测试获准使用本机 loopback。
+- Vitest：9 个测试文件、50 项测试全部通过；RuntimeManager 测试获准使用本机 loopback。
 - 开发 restart 在受限沙箱中按预期被项目 socket 的 `EPERM` 阻断，允许本机 socket 后同一命令
   成功排队，未按进程名终止其他 Electron 应用。
 - `git diff --check` 通过；桌面 manifest 版本断言为 `0.1.2`。

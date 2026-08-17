@@ -39,7 +39,7 @@ git diff --check
 ```
 
 - TypeScript：通过。
-- Vitest：9 个测试文件、49 项测试全部通过。受限沙箱阻止 Runtime 回环端口时，在允许本机
+- Vitest：9 个测试文件、50 项测试全部通过。受限沙箱阻止 Runtime 回环端口时，在允许本机
   回环后同一命令通过，确认不是代码失败。
 - Vite：main、preload、renderer 三个 production build 全部通过。
 - 活跃 runner 的 restart：受限沙箱首次拒绝连接项目 socket；允许本机 socket 后同一命令成功
