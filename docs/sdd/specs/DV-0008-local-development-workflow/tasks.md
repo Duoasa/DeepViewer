@@ -21,6 +21,8 @@ updated: 2026-08-17
 - [x] T-004 `[R-005, AC-005]` 增加显式正式发布入口，确认不包含 GitHub 上传。
 - [x] T-005 `[R-006, R-007, AC-006, AC-007]` 更新 governance、package aliases、文档批处理规则和开发文档。
 - [x] T-006 `[AC-001..AC-007]` 运行基础验证并记录证据；交互项保留维护者人工验收。
+- [x] T-007 `[R-008, NFR-005, AC-008]` 增加只读 GitHub Actions CI，执行冻结安装、类型检查、
+  测试和 production build，并同步 README 与验证证据。
 
 ## 延后事项
 

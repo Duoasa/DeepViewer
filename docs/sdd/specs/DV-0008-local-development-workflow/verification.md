@@ -25,6 +25,7 @@ updated: 2026-08-17
 | AC-005 | 静态检查 | Pass | release alias 先同步受控上游覆盖，再包含双架构 Runtime、文件级 staging/ASAR 隐私门禁、签名与公证，且不包含上传 |
 | AC-006 | 文档检查 | Pass | 根命令、README、governance 与规格已同步三个层级和默认触发规则 |
 | AC-007 | 总规范检查 | Pass | `AGENTS.md` 与 governance 已允许同一里程碑小改动只改代码和基础验证，并定义批量同步边界 |
+| AC-008 | 本地配置/远端 CI | Partial | workflow YAML、只读权限、冻结安装和命令边界已检查；本地 52 项测试与 production build 通过，首次 GitHub Actions 运行待推送后确认 |
 
 ## 执行的命令
 
@@ -36,12 +37,15 @@ CI=true pnpm test
 CI=true pnpm desktop:build
 CI=true pnpm desktop:dev:restart
 git diff --check
+ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/ci.yml")'
 ```
 
 - TypeScript：通过。
-- Vitest：9 个测试文件、50 项测试全部通过。受限沙箱阻止 Runtime 回环端口时，在允许本机
+- Vitest：9 个测试文件、52 项测试全部通过。受限沙箱阻止 Runtime 回环端口时，在允许本机
   回环后同一命令通过，确认不是代码失败。
 - Vite：main、preload、renderer 三个 production build 全部通过。
+- GitHub Actions：YAML 可解析；workflow 只有 `contents: read`，checkout 关闭凭据持久化，
+  仅调用冻结安装、typecheck、test 与 build；首次远端运行待推送后回填。
 - 活跃 runner 的 restart：受限沙箱首次拒绝连接项目 socket；允许本机 socket 后同一命令成功
   排队，未影响其他 Electron 应用。
 - 代理未代替维护者操作应用；维护者使用开发版完成本轮 UI 交互验收。未运行 preview/release，
@@ -60,6 +64,7 @@ git diff --check
 
 ## 结论
 
-- 结果：开发 runner 与受控 restart 已通过；ARM 预览包体仍为 `Pending Manual`，保持 Implementing
+- 结果：开发 runner 与受控 restart 已通过；CI 本地配置通过、首次远端运行待确认；ARM 预览
+  包体仍为 `Pending Manual`，保持 Implementing
 - 验证人：Codex（代码和基础验证）；Duoasa（交互验收）
 - 日期：2026-08-17

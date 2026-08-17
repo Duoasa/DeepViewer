@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="最新版本" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
+  <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="支持 Apple Silicon 和 Intel Mac" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-111111?logo=apple">
   <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
   <a href="LICENSE"><img alt="MIT 许可证" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
@@ -165,6 +166,9 @@ pnpm typecheck
 pnpm test
 pnpm desktop:build
 ```
+
+GitHub Actions 会在每个 Pull Request 和 `main` 推送中执行冻结锁文件安装、类型检查、测试与
+production build。工作流只有仓库只读权限，不会调用本地预览封包、正式封包、签名、公证或上传。
 
 根据任务选择最轻量的显式迭代层级：
 

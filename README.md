@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
+  <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="macOS Apple Silicon and Intel" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-111111?logo=apple">
   <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
@@ -185,6 +186,11 @@ pnpm typecheck
 pnpm test
 pnpm desktop:build
 ```
+
+GitHub Actions runs the frozen-lockfile install, typecheck, test suite, and
+production build for every pull request and push to `main`. The workflow has
+read-only repository access and never invokes preview packaging, release
+packaging, signing, notarization, or uploads.
 
 Use the lightest explicit iteration tier that matches the task:
 

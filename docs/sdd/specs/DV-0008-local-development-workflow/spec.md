@@ -30,6 +30,7 @@ depends_on: [DV-0003, DV-0007]
 - G-003：需要验证封包行为时，只生成本机 ARM 开发 `.app`，不生成 DMG 或公开资产。
 - G-004：正式双架构签名、公证流程保持显式、完整且不被日常命令隐式触发。
 - G-005：同一已批准里程碑内的小改动不重复创建或更新 Markdown，文档在明确边界批量同步。
+- G-006：Pull Request 与 `main` 推送自动执行可复现的基础代码验证，不触发封包或外部发布。
 
 ## 非目标
 
@@ -37,6 +38,7 @@ depends_on: [DV-0003, DV-0007]
 - NG-002：不自动执行应用点击、视觉或交互验收。
 - NG-003：不自动创建版本号、GitHub Release 或上传公开资产。
 - NG-004：不改变正式安装包的数据目录、Bundle ID 或安全门禁。
+- NG-005：不在 CI 中构建 Runtime、应用包或 DMG，也不读取签名、公证与发布凭据。
 
 ## 用户与用例
 
@@ -62,6 +64,13 @@ depends_on: [DV-0003, DV-0007]
 - 主流程：显式运行正式命令，重建双架构 Runtime 和安装资产，完成现有安全门禁。
 - 失败/退出流程：任一步失败即停止；上传和 Release 变更仍需要独立的明确发布指令。
 
+### UC-004：持续集成
+
+- 参与者：GitHub Actions。
+- 前置条件：Pull Request、`main` 推送或维护者手动触发工作流。
+- 主流程：以冻结锁文件安装依赖，执行类型检查、Vitest 和 production build，报告状态检查。
+- 失败/退出流程：返回非零状态并阻止该次检查通过；不得提交代码、修改 Release 或生成安装包。
+
 ## 功能需求
 
 - R-001：系统必须提供 `desktop:dev`，初次执行 production build 后启动 Electron，并在受控
@@ -78,6 +87,8 @@ depends_on: [DV-0003, DV-0007]
   使用“本地验收包”“正式发布”或等价指令时，才允许进入对应打包层级。
 - R-007：同一已批准规格范围内的日常代码切片不得强制逐项更新 SDD 或 README；只有明确
   文档同步、里程碑验收、正式发布或实质性范围变化才触发批量同步。
+- R-008：系统必须提供 GitHub Actions CI，在 Pull Request、`main` 推送和手动触发时使用
+  Node.js 24 与 manifest 固定的 pnpm，依次执行冻结锁文件安装、类型检查、测试和 production build。
 
 ## 非功能需求
 
@@ -86,6 +97,8 @@ depends_on: [DV-0003, DV-0007]
 - NFR-003：预览封包继续使用 allowlist staging、Runtime 链接规范化和隐私审计，但不声称代表
   正式签名发行物。
 - NFR-004：开发与预览数据不得进入 Git、正式 staging 或公开安装资产。
+- NFR-005：CI 必须使用仓库只读权限，不持久化 checkout 凭据，不读取发布秘密，且不得调用
+  runtime、preview、package、release、sign、notarize 或 upload 流程。
 
 ## 验收条件
 
@@ -103,6 +116,9 @@ depends_on: [DV-0003, DV-0007]
   层级可以双向追踪。
 - AC-007：Given 同一已批准里程碑，When 进行小功能或缺陷修复，Then 总规范允许只修改代码
   和运行基础验证，并要求在明确同步边界前补齐累计文档。
+- AC-008：Given GitHub 上的 Pull Request、`main` 推送或手动触发，When CI 运行，Then 冻结锁
+  文件安装、类型检查、52 项测试和三个 Vite production build 全部执行，且工作流不具备写入
+  仓库或发布安装包的能力。
 
 ## 边界与失败行为
 
@@ -136,6 +152,7 @@ depends_on: [DV-0003, DV-0007]
 | 开发数据误用正式路径 | 污染正式设置 | 在 `app.setName` 和 single-instance lock 前显式设置开发 userData |
 | 预览命令被误认为正式发行 | 绕过签名与发布门禁 | 使用 `DeepViewer Dev` 名称、开发 Bundle ID、独立输出，并在文档标记仅供本机验收 |
 | 正式命令被日常脚本间接调用 | 产生昂贵或外部操作 | 三层命令不互相隐式升级；正式命令只能显式调用 |
+| PR 中的不可信代码借 CI 扩大权限 | 仓库或发布资产被修改 | `contents: read`、关闭 checkout 凭据持久化、不注入发布秘密且不运行封包发布命令 |
 
 ## 未决问题
 

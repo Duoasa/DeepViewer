@@ -12,7 +12,8 @@ updated: 2026-08-17
 新增无第三方依赖的 Node 开发 runner，复用现有快速 Vite production build 并管理单个
 Electron 子进程；受控源码变化或本项目 Unix socket 的 restart 指令触发串行重建。现有
 `package.mjs` 增加严格隔离的 `--preview` 分支，只生成 arm64 `DeepViewer Dev.app`。
-正式发布入口继续调用既有双架构签名、公证脚本，GitHub 上传保持独立授权。
+正式发布入口继续调用既有双架构签名、公证脚本，GitHub 上传保持独立授权。GitHub Actions
+只复现基础代码验证，不进入 Runtime、封包或发布层。
 
 ## 需求映射
 
@@ -24,6 +25,7 @@ Electron 子进程；受控源码变化或本项目 Unix socket 的 restart 指�
 | R-005 | 正式发布入口 | 显式串联现有 runtime/sign/notarize，不含上传 |
 | R-006, AC-006 | 治理与文档 | governance 默认触发规则和命令说明 |
 | R-007, AC-007 | 文档批处理 | 同一里程碑复用规格，只在明确边界集中同步 |
+| R-008, NFR-005, AC-008 | GitHub Actions CI | 只读 checkout、固定工具链、冻结安装和基础验证 |
 
 ## 组件与职责
 
@@ -47,6 +49,14 @@ Electron 子进程；受控源码变化或本项目 Unix socket 的 restart 指�
 - 使用独立 staging、`DeepViewer Dev` 名称、`com.deepviewer.desktop.dev` Bundle ID 和输出。
 - 保留 allowlist、链接规范化、xattr 清理和隐私审计。
 - 在 `.app` 审计通过后结束；不进入 DMG、签名或公证分支。
+
+### `.github/workflows/ci.yml`
+
+- 在 Pull Request、`main` 推送和 `workflow_dispatch` 时运行单个 Linux 验证 job。
+- 使用 Node.js 24；pnpm 版本由根 manifest 的 `packageManager` 字段固定。
+- 使用 pnpm store cache，并以 `--frozen-lockfile` 阻止 CI 隐式改写依赖解析。
+- 依次执行 `pnpm typecheck`、`pnpm test` 和 `pnpm desktop:build`。
+- 设置 `permissions: contents: read` 与 `persist-credentials: false`；不注入签名、公证或发布秘密。
 
 ## 接口与事件
 
@@ -93,6 +103,13 @@ runner 最多持有一个 build 和一个 Electron 子进程，不持久化任�
 只有显式 `desktop:release` 才依次执行 build、双架构 Runtime、签名封包和 Apple 公证。
 上传和 GitHub Release 修改不在命令内。
 
+### 持续集成
+
+1. 以只读权限 checkout 当前提交，不持久化 GitHub 凭据。
+2. 安装固定 Node.js 与 pnpm，并从锁文件恢复依赖。
+3. 运行类型检查、Vitest 与 main/preload/renderer production build。
+4. 只报告 GitHub 状态检查；runner 结束后丢弃 `.desktop/` 与依赖缓存之外的临时产物。
+
 ### 文档同步
 
 日常代码切片不把 Markdown 当作逐次工作日志。代码和基础测试可以连续推进；维护者明确要求、
@@ -105,17 +122,20 @@ runner 最多持有一个 build 和一个 Electron 子进程，不持久化任�
 - 开发 runner 不读取或传输 API key；Electron/Harness 仍按既有逻辑读取本地环境。
 - 预览产物位于忽略的 `out/`，不会成为公开资产。
 - 正式发布安全门禁不因新增命令而降低。
+- CI 只有 `contents: read`，checkout 不保留写入凭据，工作流不使用仓库或环境发布秘密。
 
 ## 可观察性
 
 - runner 输出 build/restart 原因、Electron PID 和构建失败摘要。
 - 不输出环境变量值、用户设置或 Harness 内容。
 - preview 输出唯一 `.app` 路径和“未生成 DMG”的提示。
+- CI 在提交和 Pull Request 页面显示 typecheck、test、build 的统一状态。
 
 ## 兼容、迁移与回滚
 
 - 现有 `desktop:start`、package 和 release 脚本保持兼容。
 - 删除新脚本和 package aliases 即可回滚；正式数据目录不迁移。
+- 删除 CI workflow 即可回滚远端状态检查；不会迁移或删除任何安装资产。
 - 首次启用会新建 `DeepViewer Dev` 数据目录，不读取或复制正式目录。
 
 ## 测试策略
@@ -123,6 +143,7 @@ runner 最多持有一个 build 和一个 Electron 子进程，不持久化任�
 - 单元：开发 profile 判定、userData 路径、watch 路径过滤、socket 路径隔离。
 - 静态：package aliases、preview/release 边界、禁止 upload/killall。
 - 基础：TypeScript、Vitest、三个 Vite production build、Node 语法。
+- CI：YAML 语法、只读权限、冻结安装、工具链版本和 GitHub 首次远端运行。
 - 人工：维护者后续实际运行 dev、restart 和 preview 并验收应用交互；代理不代替。
 
 ## 备选方案
