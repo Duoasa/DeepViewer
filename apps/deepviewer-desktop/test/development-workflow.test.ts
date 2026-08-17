@@ -122,7 +122,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(appManifest.scripts.release).toContain('sync-upstream-overrides.mjs --build')
     expect(appManifest.scripts.preview).not.toContain('runtime')
     expect(appManifest.scripts.preview).not.toContain('notarize')
-    expect(appManifest.scripts.release).toContain('pnpm runtime')
+    expect(appManifest.scripts.release).toContain('pnpm run runtime')
     expect(appManifest.scripts.release).toContain('package.mjs --sign')
     expect(appManifest.scripts.release).toContain('notarize.mjs')
     expect(appManifest.scripts.release).not.toContain('upload')
