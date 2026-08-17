@@ -17,9 +17,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2"><strong>Download DeepViewer v0.1.2</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2"><strong>Download DeepViewer 0.1.2 (Build 2)</strong></a>
   ·
-  <a href="#whats-new-in-012">What’s new</a>
+  <a href="#whats-new-in-012-build-2">What’s new</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
@@ -44,8 +44,9 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.1.2` is the latest macOS UI preview. It has passed the maintainer's visual
-> acceptance, but it is still an early preview rather than a stable release.
+> `v0.1.2-build.2` is the latest macOS UI preview (app version `0.1.2`, build
+> `2`). It has passed the maintainer's visual and package acceptance, but it is
+> still an early preview rather than a stable release.
 
 ## Why DeepViewer
 
@@ -63,27 +64,33 @@ shell designed for a visual, controllable agent experience.
 ## Quick start
 
 1. Download the package that matches your Mac from the
-   [v0.1.2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2).
+   [0.1.2 Build 2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open DeepViewer. It starts the bundled Harness automatically and loads the
    local workspace when the runtime is ready.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [DeepViewer-0.1.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/DeepViewer-0.1.2-macos-arm64.dmg) | `f2315577d51c091bf6ad4754a46ee03a6cbc16a4f1a19d466beb182f3b1a75e2` |
-| Intel (`x64`) | [DeepViewer-0.1.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/DeepViewer-0.1.2-macos-x64.dmg) | `72470ddf2d0e03552a93590f9688de4f57462565c900987b798e8d582dd1544e` |
+| Apple Silicon (`arm64`) | [DeepViewer-0.1.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/DeepViewer-0.1.2-macos-arm64.dmg) | `e7385a3de4b912fadf6154b0ffe682173efa293e4171234ff20566a8c6e30eea` |
+| Intel (`x64`) | [DeepViewer-0.1.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/DeepViewer-0.1.2-macos-x64.dmg) | `02f2dca62d68431db60f355837709d9bc02b0de9522f6254cd6d9e2eb514cc08` |
 
 The release also includes a
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/SHA256SUMS.txt)
 manifest for command-line verification.
 
-## What's new in 0.1.2
+## What's new in 0.1.2 (Build 2)
 
 <p align="center">
   <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 in dark mode">
   <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 in light mode">
 </p>
 
+- Opens `http` and `https` links in the system browser while continuing to deny
+  unexpected navigation inside the privileged desktop window.
+- Adds a native context menu for local artifact paths, including `finder中显示`
+  / `Show in Finder`, which reveals the containing folder and selects the file.
+- Advances the macOS bundle build number to `2` and fixes release Runtime script
+  invocation for the pinned pnpm 11 toolchain.
 - Restructured the macOS window as two visual columns—sidebar and Chat—with
   structural safe areas inside each column instead of a separate full-width bar.
 - Moved model usage statistics into the centered Chat safe area and fixed the
@@ -100,7 +107,7 @@ manifest for command-line verification.
   Developer ID signed, Apple-notarized, stapled, privacy-audited, and published
   with reproducible SHA-256 checksums.
 
-See the [`v0.1.2` release record](docs/sdd/releases/v0.1.2.md) for the complete
+See the [`0.1.2 Build 2` release record](docs/sdd/releases/v0.1.2.md) for the complete
 asset and verification evidence.
 
 ## What's new in 0.1.1

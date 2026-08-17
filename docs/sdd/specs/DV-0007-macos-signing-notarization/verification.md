@@ -2,7 +2,7 @@
 id: DV-0007
 title: macOS Developer ID signing and notarization - Verification
 status: Implementing
-updated: 2026-08-16
+updated: 2026-08-17
 ---
 
 # DV-0007：验证
@@ -65,12 +65,32 @@ GitHub 远端验收：旧资产先下载到独立临时目录并核对原 SHA，
 新下载目录中的 `shasum -a 256 -c SHA256SUMS.txt`、两个 `stapler validate` 及带
 quarantine 的两个 `spctl` 评估全部通过。
 
+## v0.1.2 build 2 热修复复验
+
+`v0.1.2-build.2` 的 arm64 与 x64 包均从固定依赖和 allowlist staging 全新构建，应用版本为
+`0.1.2`、bundle build number 为 `2`。两个包完成隐私审计、严格签名验证、Apple 公证
+`Accepted`、ticket staple、Gatekeeper 与 `hdiutil verify`，维护者在上传前手动验收完整包。
+
+公开资产通过 GitHub 网页上传到独立的 build 2 Release；原 `v0.1.2` 资产保留。GitHub API
+报告的大小与服务器端 digest 如下：
+
+- arm64：451,342,321 bytes；`sha256:e7385a3de4b912fadf6154b0ffe682173efa293e4171234ff20566a8c6e30eea`
+- x64：464,970,614 bytes；`sha256:02f2dca62d68431db60f355837709d9bc02b0de9522f6254cd6d9e2eb514cc08`
+- `SHA256SUMS.txt`：196 bytes；`sha256:8732c524567284f7ccca5d78477eb9d79417e04ca7ea94c00d10e9354f5b58fb`
+
+发布后将三个公开资产重新下载到独立目录；清单校验、逐文件 SHA-256、带 quarantine 的两个
+Gatekeeper 评估和两个 DMG 的 `hdiutil verify` 全部通过。公开文档不记录签名身份、证书
+指纹、公证提交标识或 Keychain profile。
+
 ## 人工检查
 
 - [ ] 维护者从全新 GitHub 下载完成标准安装与首次打开
 - [ ] 维护者确认核心界面与 Runtime 在 Hardened Runtime 下正常
 - [ ] 维护者确认不再需要“仍要打开”或 `xattr` 绕过
 - [ ] 维护者确认签名展示的开发者名称符合预期
+
+维护者已完成 build 2 上传前完整软件包验收；以上清单仍保留“从全新 GitHub 下载”的独立
+终端用户路径，不用上传前验收代替。
 
 ## 残余风险
 

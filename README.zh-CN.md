@@ -17,9 +17,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2"><strong>下载 DeepViewer v0.1.2</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2"><strong>下载 DeepViewer 0.1.2（Build 2）</strong></a>
   ·
-  <a href="#012-更新内容">版本更新</a>
+  <a href="#012-build-2-更新内容">版本更新</a>
   ·
   <a href="#隐私设计">隐私</a>
   ·
@@ -43,8 +43,8 @@ Agent 体验设计的桌面外壳。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> `v0.1.2` 是当前最新的 macOS UI 预览版，已通过维护者的视觉验收，但仍属于项目早期
-> 预览，并非稳定版本。
+> `v0.1.2-build.2` 是当前最新的 macOS UI 预览版（应用版本 `0.1.2`、构建号 `2`），已通过
+> 维护者的视觉与完整软件包验收，但仍属于项目早期预览，并非稳定版本。
 
 ## 为什么选择 DeepViewer
 
@@ -61,27 +61,30 @@ Agent 体验设计的桌面外壳。
 
 ## 快速开始
 
-1. 从 [v0.1.2 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2)
+1. 从 [0.1.2 Build 2 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2)
    下载与你的 Mac 处理器匹配的版本。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开 DeepViewer。应用会自动启动内置 Harness，并在 Runtime 就绪后进入本地工作区。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | [DeepViewer-0.1.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/DeepViewer-0.1.2-macos-arm64.dmg) | `f2315577d51c091bf6ad4754a46ee03a6cbc16a4f1a19d466beb182f3b1a75e2` |
-| Intel（`x64`） | [DeepViewer-0.1.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/DeepViewer-0.1.2-macos-x64.dmg) | `72470ddf2d0e03552a93590f9688de4f57462565c900987b798e8d582dd1544e` |
+| Apple Silicon（`arm64`） | [DeepViewer-0.1.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/DeepViewer-0.1.2-macos-arm64.dmg) | `e7385a3de4b912fadf6154b0ffe682173efa293e4171234ff20566a8c6e30eea` |
+| Intel（`x64`） | [DeepViewer-0.1.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/DeepViewer-0.1.2-macos-x64.dmg) | `02f2dca62d68431db60f355837709d9bc02b0de9522f6254cd6d9e2eb514cc08` |
 
 Release 同时提供
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/SHA256SUMS.txt)
 供命令行核验。
 
-## 0.1.2 更新内容
+## 0.1.2 Build 2 更新内容
 
 <p align="center">
   <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 深色模式">
   <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 浅色模式">
 </p>
 
+- 在继续拒绝特权桌面窗口内非预期导航的同时，将 `http` / `https` 外链交给系统默认浏览器。
+- 为本地交付物路径增加原生右键菜单；`finder中显示` 会打开文件所在文件夹并选中该文件。
+- 将 macOS bundle 构建号提升为 `2`，并修复 pnpm 11 下正式 Runtime 脚本的显式调用。
 - 将 macOS 窗口整理为侧栏和 Chat 两个视觉列，系统安全区进入对应列内部，不再形成独立的
   全宽顶栏。
 - 把模型使用统计移动到 Chat 顶部安全区居中显示；新会话、思考、流式输出和完成状态的
@@ -95,7 +98,7 @@ Release 同时提供
 - 从允许列表输入重新构建彼此独立的 arm64 与 x64 DMG；两个安装包均完成 Developer ID
   签名、Apple 公证、票据装订和隐私审计，并发布可复现的 SHA-256 校验值。
 
-完整资产与验证证据见 [`v0.1.2` 发布记录](docs/sdd/releases/v0.1.2.md)。
+完整资产与验证证据见 [`0.1.2 Build 2` 发布记录](docs/sdd/releases/v0.1.2.md)。
 
 ## 0.1.1 更新内容
 

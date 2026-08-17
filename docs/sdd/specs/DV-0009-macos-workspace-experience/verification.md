@@ -9,7 +9,7 @@ updated: 2026-08-17
 
 ## 验证环境
 
-- 提交：Pending release commit
+- 发布包源码提交：`4afb8549733ff4f3cc2cc17e676c4c05df52e66f`
 - 平台：macOS Apple Silicon
 - 配置：隔离的 `DeepViewer Dev` profile；固定 Harness checkout
 - 外部依赖：DeepSeek Harness `47f943859bef60e4160492346772ded9b24f765a`
@@ -25,7 +25,7 @@ updated: 2026-08-17
 | AC-005 | 维护者人工 + 窗口测试 | Pass | 维护者分别反馈浅色/深色断层和遮罩问题并确认当前里程碑；窗口样式使用单层原生材质、失焦纯色和透明淡出 |
 | AC-006 | 维护者人工 + 窗口测试 | Pass | 收起/展开按钮跳动修复后进入当前里程碑；测试固定正常坐标并保留全屏补位 |
 | AC-007 | 维护者人工 + IPC/窗口测试 | Pass | 浅色红绿灯可读性修复进入当前里程碑；preload 与 main 双侧限制主题枚举 |
-| AC-008 | 同步 build + 类型/测试 | Pass | 覆盖同步/build 为 current；TypeScript、9 个 Vitest 文件/50 项测试和三段 Vite production build 全部通过 |
+| AC-008 | 同步 build + 类型/测试 | Pass | 覆盖同步/build 为 current；TypeScript、11 个 Vitest 文件/71 项测试和三段 Vite production build 全部通过 |
 
 ## 执行的命令
 
@@ -43,7 +43,7 @@ git diff --check
 
 - 受控上游覆盖和对应 build 均为 current。
 - TypeScript 无错误；Electron main、preload、renderer production build 全部通过。
-- Vitest：9 个测试文件、50 项测试全部通过；RuntimeManager 测试获准使用本机 loopback。
+- Vitest：11 个测试文件、71 项测试全部通过；RuntimeManager 测试获准使用本机 loopback。
 - 开发 restart 在受限沙箱中按预期被项目 socket 的 `EPERM` 阻断，允许本机 socket 后同一命令
   成功排队，未按进程名终止其他 Electron 应用。
 - `git diff --check` 通过；桌面 manifest 版本断言为 `0.1.2`。
@@ -51,7 +51,8 @@ git diff --check
   执行 allowlist，防止本地未跟踪、source map 或“ 2”重复文件进入候选包。
 - 依赖检查曾要求重建根 `node_modules`；随后只从现有 pnpm 内容寻址缓存恢复 98 个锁定包，
   未修改 lockfile 或依赖版本。
-- 未运行 preview、正式双架构 Runtime、package、签名、公证或上传。
+- 本规格实现切片当时未运行 preview、正式双架构 Runtime、package、签名、公证或上传；这些
+  发布门禁随后已由 `v0.1.2-build.2` 发布记录补齐。
 
 ## 人工检查
 
@@ -60,15 +61,16 @@ git diff --check
 - [x] 欢迎内容、文案、品牌和按钮位置
 - [x] 浅色/深色及聚焦/失焦侧栏表现
 - [x] 维护者确认当前状态建立 `v0.1.2` 里程碑
-- [ ] 正式 arm64/x64 安装包验收（发布阶段）
+- [x] 正式 arm64/x64 安装包验收（`v0.1.2-build.2`，维护者手动通过）
 
 ## 残余风险
 
 - 固定上游 checkout 更新时，覆盖锚点需要重新验证。
-- 真实 Intel Mac、签名、公证、Gatekeeper 和最终 DMG 仍属于正式发布门禁。
+- 真实 Intel Mac 交互仍是既有验证边界；签名、公证、Gatekeeper、最终 DMG 与远端回读已由
+  `v0.1.2-build.2` 发布门禁通过。
 
 ## 结论
 
-- 结果：Verified；AC-001 至 AC-008 全部通过，正式发行资产继续由 `v0.1.2` 发布门禁验证
+- 结果：Verified；AC-001 至 AC-008 全部通过，正式发行资产已由 `v0.1.2-build.2` 发布门禁验证
 - 验证人：Duoasa（交互）；Codex（代码与自动验证）
 - 日期：2026-08-17
