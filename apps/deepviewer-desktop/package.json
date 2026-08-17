@@ -2,6 +2,7 @@
   "name": "@deepviewer/desktop",
   "productName": "DeepViewer",
   "version": "0.1.2",
+  "buildNumber": 2,
   "private": true,
   "description": "DeepViewer desktop shell for DeepSeek Harness",
   "license": "MIT",

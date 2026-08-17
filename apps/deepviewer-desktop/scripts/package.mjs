@@ -34,6 +34,11 @@ const appVersion = appManifest.version
 if (typeof appVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(appVersion)) {
   throw new Error(`invalid DeepViewer package version: ${String(appVersion)}`)
 }
+const appBuildNumber = appManifest.buildNumber
+if (!Number.isSafeInteger(appBuildNumber) || appBuildNumber < 1) {
+  throw new Error(`invalid DeepViewer build number: ${String(appBuildNumber)}`)
+}
+const appBuildVersion = String(appBuildNumber)
 const expectedHarnessCommit = '47f943859bef60e4160492346772ded9b24f765a'
 const expectedHarnessVersion = '0.1.0-rc.5'
 const shouldSign = process.argv.includes('--sign')
@@ -146,6 +151,7 @@ for (const arch of architectures) {
     icon: appIcon,
     appBundleId: isPreview ? 'com.deepviewer.desktop.dev' : 'com.deepviewer.desktop',
     appVersion,
+    buildVersion: appBuildVersion,
     asar: true,
     extraResource: [runtimeRoot],
     afterCopyExtraResources: [async ({ buildPath }) => {
