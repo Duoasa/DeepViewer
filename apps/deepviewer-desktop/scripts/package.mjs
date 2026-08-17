@@ -1,5 +1,5 @@
 import { existsSync, readdirSync } from 'node:fs'
-import { cp, mkdir, readFile, rm } from 'node:fs/promises'
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
 import { dirname, join, resolve } from 'node:path'
 import { homedir } from 'node:os'
@@ -18,7 +18,17 @@ const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
 const outputRoot = resolve(projectRoot, 'out')
 const releaseStagingRoot = resolve(outputRoot, '.release-staging')
+const previewStagingRoot = resolve(outputRoot, '.preview-staging')
 const appIcon = resolve(appRoot, 'assets', 'DeepViewer.icns')
+const rendererAssetPattern = /^[A-Za-z0-9._-]+\.(?:css|js|ttf)$/u
+const fixedApplicationFiles = [
+  '.desktop/build/main.js',
+  '.desktop/build/preload.cjs',
+  '.desktop/renderer/index.html',
+  'assets/DeepViewer.icns',
+  'assets/deepviewer-icon-macos26-1024.png',
+  'assets/licenses/Figtree-OFL.txt',
+]
 const appManifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
 const appVersion = appManifest.version
 if (typeof appVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(appVersion)) {
@@ -27,11 +37,18 @@ if (typeof appVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(appVersion)) {
 const expectedHarnessCommit = '47f943859bef60e4160492346772ded9b24f765a'
 const expectedHarnessVersion = '0.1.0-rc.5'
 const shouldSign = process.argv.includes('--sign')
+const isPreview = process.argv.includes('--preview')
+if (shouldSign && isPreview) throw new Error('--preview cannot be combined with --sign')
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
 if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)
 }
-const architectures = architectureOption === undefined ? ['arm64', 'x64'] : [architectureOption]
+if (isPreview && architectureOption !== undefined && architectureOption !== 'arm64') {
+  throw new Error('DeepViewer Dev preview supports only arm64')
+}
+const architectures = isPreview
+  ? ['arm64']
+  : architectureOption === undefined ? ['arm64', 'x64'] : [architectureOption]
 const signingKeychain = process.env.DEEPVIEWER_CODESIGN_KEYCHAIN
 const signingIdentity = shouldSign
   ? await resolveDeveloperIdApplication({
@@ -65,18 +82,45 @@ function run(command, args) {
   })
 }
 
+async function copyAllowlistedApplicationFiles(stagingAppRoot) {
+  for (const relativePath of fixedApplicationFiles) {
+    const destination = resolve(stagingAppRoot, relativePath)
+    await mkdir(dirname(destination), { recursive: true })
+    await cp(resolve(appRoot, relativePath), destination)
+  }
+  const rendererAssetsRoot = resolve(appRoot, '.desktop', 'renderer', 'assets')
+  const rendererAssets = readdirSync(rendererAssetsRoot, { withFileTypes: true })
+    .filter(entry => entry.isFile() && rendererAssetPattern.test(entry.name))
+    .map(entry => entry.name)
+    .sort()
+  if (!rendererAssets.some(name => name.endsWith('.js'))
+    || !rendererAssets.some(name => name.endsWith('.css'))
+    || !rendererAssets.some(name => name.endsWith('.ttf'))) {
+    throw new Error('allowlisted Renderer build is incomplete')
+  }
+  const destinationRoot = resolve(stagingAppRoot, '.desktop', 'renderer', 'assets')
+  await mkdir(destinationRoot, { recursive: true })
+  for (const name of rendererAssets) {
+    await cp(resolve(rendererAssetsRoot, name), resolve(destinationRoot, name))
+  }
+}
+
 for (const arch of architectures) {
+  const packagedName = isPreview ? 'DeepViewer Dev' : 'DeepViewer'
+  const outputName = packagedName.replaceAll(' ', '-')
   const runtimeRoot = resolve(appRoot, '..', '..', '.runtime', arch, 'harness')
-  const appOutputRoot = resolve(outputRoot, `DeepViewer-darwin-${arch}`)
+  const appOutputRoot = resolve(outputRoot, `${outputName}-darwin-${arch}`)
   const dmgPath = resolve(outputRoot, `DeepViewer-${appVersion}-macos-${arch}.dmg`)
-  const stagingAppRoot = resolve(releaseStagingRoot, arch, 'app')
+  const stagingAppRoot = resolve(isPreview ? previewStagingRoot : releaseStagingRoot, arch, 'app')
   await rm(stagingAppRoot, { recursive: true, force: true })
   await rm(appOutputRoot, { recursive: true, force: true })
-  await rm(dmgPath, { force: true })
+  if (!isPreview) await rm(dmgPath, { force: true })
   await mkdir(stagingAppRoot, { recursive: true })
-  await cp(resolve(appRoot, '.desktop'), resolve(stagingAppRoot, '.desktop'), { recursive: true })
-  await cp(resolve(appRoot, 'assets'), resolve(stagingAppRoot, 'assets'), { recursive: true })
-  await cp(resolve(appRoot, 'package.json'), resolve(stagingAppRoot, 'package.json'))
+  await copyAllowlistedApplicationFiles(stagingAppRoot)
+  await writeFile(
+    resolve(stagingAppRoot, 'package.json'),
+    `${JSON.stringify(isPreview ? { ...appManifest, productName: packagedName } : appManifest, null, 2)}\n`,
+  )
   const runtimeManifest = JSON.parse(await readFile(join(runtimeRoot, 'deepviewer-runtime.json'), 'utf8'))
   if (
     runtimeManifest.platform !== 'darwin'
@@ -97,15 +141,15 @@ for (const arch of architectures) {
     arch,
     electronVersion: '43.4.0',
     ...(electronZipDir === undefined ? {} : { electronZipDir }),
-    name: 'DeepViewer',
-    executableName: 'DeepViewer',
+    name: packagedName,
+    executableName: packagedName,
     icon: appIcon,
-    appBundleId: 'com.deepviewer.desktop',
+    appBundleId: isPreview ? 'com.deepviewer.desktop.dev' : 'com.deepviewer.desktop',
     appVersion,
     asar: true,
     extraResource: [runtimeRoot],
     afterCopyExtraResources: [async ({ buildPath }) => {
-      const temporaryAppPath = resolve(buildPath, 'DeepViewer.app')
+      const temporaryAppPath = resolve(buildPath, `${packagedName}.app`)
       const copiedRuntimeRoot = resolve(temporaryAppPath, 'Contents', 'Resources', 'harness')
       const normalizedCount = await normalizeCopiedRuntimeSymlinks({
         sourceRoot: runtimeRoot,
@@ -121,8 +165,16 @@ for (const arch of architectures) {
   })
   const packagedOutputRoot = paths[0]
   if (packagedOutputRoot === undefined) throw new Error(`Electron Packager returned no ${arch} output path`)
-  const appPath = resolve(packagedOutputRoot, 'DeepViewer.app')
-  await auditPackagedApp({ appPath, projectRoot })
+  const appPath = resolve(packagedOutputRoot, `${packagedName}.app`)
+  await auditPackagedApp({
+    appPath,
+    projectRoot,
+    expectedAppName: `${packagedName}.app`,
+  })
+  if (isPreview) {
+    process.stdout.write(`${appPath}\nDeepViewer Dev preview created without DMG, signing, notarization, or upload.\n`)
+    continue
+  }
   if (signingIdentity !== undefined) {
     const verified = await verifySignedApp(appPath)
     process.stdout.write(`Developer ID application signature verified for ${arch}: ${verified.machoCount} Mach-O files\n`)

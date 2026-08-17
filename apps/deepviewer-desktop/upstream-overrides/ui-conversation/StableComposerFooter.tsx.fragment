@@ -1,0 +1,5 @@
+{variant === 'composer' && (
+  <div className={css.footer} data-composer-footer>
+    {footer}
+  </div>
+)}

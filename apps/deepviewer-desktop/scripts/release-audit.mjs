@@ -132,13 +132,31 @@ async function inspectDirectory(root, forbiddenRoots, environmentValues, finding
   await visit(resolvedRoot)
 }
 
+function isAllowedAsarPath(path) {
+  const allowedExactPaths = new Set([
+    '.desktop',
+    '.desktop/build',
+    '.desktop/build/main.js',
+    '.desktop/build/preload.cjs',
+    '.desktop/renderer',
+    '.desktop/renderer/assets',
+    '.desktop/renderer/index.html',
+    'assets',
+    'assets/DeepViewer.icns',
+    'assets/deepviewer-icon-macos26-1024.png',
+    'assets/licenses',
+    'assets/licenses/Figtree-OFL.txt',
+    'package.json',
+  ])
+  return allowedExactPaths.has(path)
+    || /^\.desktop\/renderer\/assets\/[A-Za-z0-9._-]+\.(?:css|js|ttf)$/u.test(path)
+}
+
 function inspectAsar(archivePath, forbiddenRoots, environmentValues, findings) {
   const entries = listPackage(archivePath, { isPack: false })
-  const allowedRoots = new Set(['.desktop', 'assets', 'package.json'])
   for (const entry of entries) {
     const path = normalizedPath(entry)
-    const root = path.split('/')[0]
-    if (!allowedRoots.has(root)) findings.push(`${path}: outside the application ASAR allowlist`)
+    if (!isAllowedAsarPath(path)) findings.push(`${path}: outside the application ASAR allowlist`)
     if (hasSensitivePath(path)) findings.push(`${path}: sensitive file path`)
     try {
       const buffer = extractFile(archivePath, path)
@@ -150,7 +168,7 @@ function inspectAsar(archivePath, forbiddenRoots, environmentValues, findings) {
   return entries.length
 }
 
-export async function auditPackagedApp({ appPath, projectRoot }) {
+export async function auditPackagedApp({ appPath, projectRoot, expectedAppName = 'DeepViewer.app' }) {
   const resolvedAppPath = resolve(appPath)
   const contentsRoot = join(resolvedAppPath, 'Contents')
   const resourcesRoot = join(contentsRoot, 'Resources')
@@ -161,7 +179,7 @@ export async function auditPackagedApp({ appPath, projectRoot }) {
   const environmentValues = sensitiveEnvironmentValues()
   const findings = []
 
-  if (basename(resolvedAppPath) !== 'DeepViewer.app') findings.push('unexpected application bundle name')
+  if (basename(resolvedAppPath) !== expectedAppName) findings.push('unexpected application bundle name')
   const asarEntries = inspectAsar(archivePath, forbiddenRoots, environmentValues, findings)
   await inspectDirectory(runtimeRoot, forbiddenRoots, environmentValues, findings)
 
@@ -169,6 +187,6 @@ export async function auditPackagedApp({ appPath, projectRoot }) {
     throw new Error(`release privacy audit failed:\n${findings.map(finding => `- ${finding}`).join('\n')}`)
   }
   process.stdout.write(
-    `Release privacy audit passed: ${relative(projectRoot, resolvedAppPath)} (${asarEntries} ASAR entries, no personal paths or credential values)\n`,
+    `Package privacy audit passed: ${relative(projectRoot, resolvedAppPath)} (${asarEntries} allowlisted ASAR entries, no personal paths or credential values)\n`,
   )
 }

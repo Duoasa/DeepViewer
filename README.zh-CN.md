@@ -18,7 +18,7 @@
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1"><strong>下载 DeepViewer v0.1.1</strong></a>
   ·
-  <a href="#011-更新内容">更新内容</a>
+  <a href="#012-候选版本更新内容">0.1.2 候选版本</a>
   ·
   <a href="#隐私设计">隐私</a>
   ·
@@ -49,6 +49,10 @@ Agent 体验设计的桌面外壳。
 > [!IMPORTANT]
 > `v0.1.1` 是已完成 Developer ID 签名和 Apple 公证的 macOS UI 预览版，已通过维护者的
 > 初步视觉验收，但仍属于项目早期预览，并非稳定版本。
+
+> [!NOTE]
+> 当前源码正在准备为 `v0.1.2` 候选版本。新的安装包、签名、公证、校验值、tag 和
+> GitHub Release 尚不存在；`v0.1.1` 仍是最新且具有完整验证证据的公开下载版本。
 
 ## 为什么选择 DeepViewer
 
@@ -82,6 +86,22 @@ Release 同时提供
 > [!NOTE]
 > 两个官方 DMG 均已通过 Apple 公证。如果出现异常安全警告或 SHA-256 不一致，应视为
 > 下载失败。
+
+## 0.1.2 候选版本更新内容
+
+- 将 macOS 窗口整理为侧栏和 Chat 两个视觉列，系统安全区进入对应列内部，不再形成独立的
+  全宽顶栏。
+- 把模型使用统计移动到 Chat 顶部安全区居中显示；新会话、思考、流式输出和完成状态的
+  输入框统一固定在距离底部 32px 的基准位置。
+- 新增以完整 Chat 画布为基准居中的欢迎内容：48px、50% 透明度的动画 DeepViewer 图形和
+  本地化“让我们做点什么”文案。
+- 精修侧栏内联品牌、聚焦时原生材质、失焦纯色、浅色/深色淡出连续性、固定侧栏按钮和
+  原生窗口控件可读性。
+- 增加可跟踪的上游 UI 覆盖与确定性同步/build 检查，以及隔离开发、ARM 本地预览和显式
+  正式发布三个工作流层级。
+
+本节只描述候选源码。剩余发布门禁见
+[`v0.1.2` 准备记录](docs/sdd/releases/v0.1.2.md)，不代表安装包或公证已经完成。
 
 ## 0.1.1 更新内容
 
@@ -151,9 +171,19 @@ pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/de
 pnpm typecheck
 pnpm test
 pnpm desktop:build
-pnpm desktop:package:arm64
-pnpm desktop:package:x64
 ```
+
+根据任务选择最轻量的显式迭代层级：
+
+```sh
+pnpm desktop:dev          # 构建、监听并重启独立的开发应用
+pnpm desktop:dev:restart  # 请求当前开发 runner 重建并重启一次
+pnpm desktop:preview      # 生成未签名的本地 arm64 DeepViewer Dev.app
+pnpm desktop:release      # 重建、签名并公证双架构；不上传
+```
+
+开发与预览层使用隔离的 `DeepViewer Dev` 数据目录。除非维护者明确要求同步文档、本地验收包或
+正式发布，日常迭代默认只修改代码并运行相关检查。GitHub Release 上传仍是需要单独授权的操作。
 
 生成的应用、Runtime 和 DMG 位于 `out/` 与 `.runtime/`，它们属于构建产物，默认不会提交到 Git。
 

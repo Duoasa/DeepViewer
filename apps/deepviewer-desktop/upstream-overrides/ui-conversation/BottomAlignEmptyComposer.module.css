@@ -1,0 +1,25 @@
+/* Match Codex's new-task posture: keep the empty composer near the viewport
+   floor while preserving the stack's existing 32px bottom breathing room.
+   An auto margin collapses when the stack is taller than the viewport, so the
+   scroll body's beginning remains reachable on short windows. */
+.root {
+  --deepviewer-composer-bottom-offset: 32px;
+}
+
+.root[data-phase='hero'] .scrollBody {
+  position: relative;
+  justify-content: flex-start;
+}
+
+.root[data-phase='hero'] .composerSeat {
+  margin-top: auto;
+}
+
+.composerHero {
+  padding-bottom: var(--deepviewer-composer-bottom-offset);
+}
+
+/* The empty composer no longer carries the upstream blue backdrop ellipse. */
+.heroGlow {
+  display: none;
+}

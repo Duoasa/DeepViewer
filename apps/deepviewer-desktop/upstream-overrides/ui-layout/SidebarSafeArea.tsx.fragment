@@ -1,0 +1,3 @@
+<div className={css.desktopSafeArea} data-deepviewer-macos-sidebar-safe-area>
+  <div id="deepviewer-macos-sidebar-toggle-host" />
+</div>

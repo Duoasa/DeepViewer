@@ -1,0 +1,10 @@
+function CenterColumn(props: { children?: ReactNode }) {
+  return (
+    <div className={css.centerCol}>
+      <div className={css.desktopSafeArea} data-deepviewer-macos-main-safe-area>
+        <div id="deepviewer-macos-session-stats" hidden aria-hidden="true" />
+      </div>
+      <div className={css.centerBody}>{props.children}</div>
+    </div>
+  )
+}

@@ -11,10 +11,12 @@
 | [DV-0005](DV-0005-desktop-app-identity/spec.md) | DeepViewer 桌面应用身份 | Released | Duoasa | 2026-08-16 |
 | [DV-0006](DV-0006-branded-loading-surfaces/spec.md) | DeepViewer 品牌加载页面 | Implementing | Duoasa | 2026-08-16 |
 | [DV-0007](DV-0007-macos-signing-notarization/spec.md) | macOS Developer ID 签名与公证 | Implementing | Duoasa | 2026-08-16 |
+| [DV-0008](DV-0008-local-development-workflow/spec.md) | 本地快速迭代与分级发布工作流 | Implementing | Duoasa | 2026-08-17 |
+| [DV-0009](DV-0009-macos-workspace-experience/spec.md) | macOS 工作区体验精修 | Verified | Duoasa | 2026-08-17 |
 
 ## 下一个编号
 
-`DV-0008`
+`DV-0010`
 
 ## 目录规则
 

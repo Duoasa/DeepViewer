@@ -18,7 +18,7 @@
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.1"><strong>Download DeepViewer v0.1.1</strong></a>
   ·
-  <a href="#whats-new-in-011">What's new</a>
+  <a href="#whats-new-in-the-012-release-candidate">0.1.2 candidate</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
@@ -53,6 +53,11 @@ shell designed for a visual, controllable agent experience.
 > passed the maintainer's initial visual acceptance, but it is still an early
 > preview rather than a stable release.
 
+> [!NOTE]
+> The source tree is being prepared as the `v0.1.2` release candidate. Its new
+> installers, signatures, notarization, checksums, tag, and GitHub Release do not
+> exist yet; `v0.1.1` remains the latest verified public download.
+
 ## Why DeepViewer
 
 | | |
@@ -86,6 +91,25 @@ manifest for command-line verification.
 > [!NOTE]
 > Both official DMGs have passed Apple notarization. An unexpected security
 > warning or checksum mismatch should be treated as a failed download.
+
+## What's new in the 0.1.2 release candidate
+
+- Restructured the macOS window as two visual columns—sidebar and Chat—with
+  structural safe areas inside each column instead of a separate full-width bar.
+- Moved model usage statistics into the centered Chat safe area and fixed the
+  composer to the same 32px bottom baseline in new, thinking, streaming, and
+  completed states.
+- Added a full-Chat-canvas welcome surface with a 48px half-opacity animated
+  DeepViewer mark and the localized “What shall we build?” headline.
+- Refined the inline sidebar wordmark, native focused-window material, solid
+  unfocused state, light/dark fade continuity, fixed sidebar toggle, and native
+  control readability.
+- Added tracked upstream UI overrides with deterministic sync/build checks, plus
+  isolated development, local ARM preview, and explicit release workflow tiers.
+
+This section describes the candidate source only. See the
+[`v0.1.2` preparation record](docs/sdd/releases/v0.1.2.md) for remaining release
+gates; do not treat it as an installer or notarization announcement.
 
 ## What's new in 0.1.1
 
@@ -169,9 +193,22 @@ pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/de
 pnpm typecheck
 pnpm test
 pnpm desktop:build
-pnpm desktop:package:arm64
-pnpm desktop:package:x64
 ```
+
+Use the lightest explicit iteration tier that matches the task:
+
+```sh
+pnpm desktop:dev          # build, watch, and restart an isolated development app
+pnpm desktop:dev:restart  # request one rebuild/restart from the active dev runner
+pnpm desktop:preview      # create an unsigned local arm64 DeepViewer Dev.app
+pnpm desktop:release      # rebuild, sign, and notarize both architectures; no upload
+```
+
+The development and preview tiers use the isolated `DeepViewer Dev` data
+directory. Unless a maintainer explicitly requests documentation sync, a local
+preview, or a formal release, normal iteration changes code and runs relevant
+checks only. GitHub release uploads remain a separate, explicitly authorized
+operation.
 
 Generated applications, runtimes, and DMGs are written below `out/` and
 `.runtime/`. They are build outputs and are intentionally excluded from Git.

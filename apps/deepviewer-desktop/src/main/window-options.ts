@@ -7,10 +7,16 @@ export function createMainWindowOptions(
   preload: string,
   platform: NodeJS.Platform = process.platform,
 ): BrowserWindowConstructorOptions {
-  const macosChrome: Pick<BrowserWindowConstructorOptions, 'titleBarStyle' | 'trafficLightPosition'> = platform === 'darwin'
+  const macosChrome: Pick<
+    BrowserWindowConstructorOptions,
+    'titleBarStyle' | 'trafficLightPosition' | 'transparent' | 'vibrancy' | 'visualEffectState'
+  > = platform === 'darwin'
     ? {
         titleBarStyle: 'hiddenInset',
         trafficLightPosition: MACOS_TRAFFIC_LIGHT_POSITION,
+        transparent: true,
+        vibrancy: 'sidebar',
+        visualEffectState: 'followWindow',
       }
     : {}
 
@@ -20,7 +26,7 @@ export function createMainWindowOptions(
     minWidth: 900,
     minHeight: 640,
     show: false,
-    backgroundColor: '#0b0d12',
+    backgroundColor: platform === 'darwin' ? '#00000000' : '#0b0d12',
     title: DEEPVIEWER_APP_NAME,
     ...macosChrome,
     webPreferences: {

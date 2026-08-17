@@ -1,0 +1,62 @@
+/* Center the welcome against the whole Chat canvas. It is independent of the
+   bottom composer, so the composer's height never shifts this midpoint. */
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: 48px;
+  flex: none;
+  overflow: visible;
+  color: var(--dsw-alias-label-primary);
+  opacity: 0.5;
+}
+
+.logoCursor {
+  animation: deepviewer-hero-cursor-blink 1s steps(1, jump-end) infinite;
+}
+
+.prompt {
+  margin: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 36px;
+  text-align: center;
+}
+
+@keyframes deepviewer-hero-cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logoCursor {
+    animation: none;
+  }
+}

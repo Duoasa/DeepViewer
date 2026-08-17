@@ -1,16 +1,19 @@
 import { join } from 'node:path'
-import { app, ipcMain, nativeImage, shell } from 'electron'
+import { app, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
 import {
   DEEPVIEWER_APP_NAME,
   resolveDeepViewerIconPath,
   shouldSetDevelopmentDockIcon,
 } from './app-identity.js'
+import { shouldQuitWhenAllWindowsClosed } from './app-lifecycle.js'
+import { configureDevelopmentProfile } from './development-profile.js'
 import { FileLogger } from './logger.js'
 import { DarwinProcessAdapter } from './platform/darwin.js'
 import { resolveHarnessLaunch } from './resource-locator.js'
 import { RuntimeManager, RuntimeLaunchError } from './runtime-manager.js'
 import { WindowController } from './window-controller.js'
 
+configureDevelopmentProfile(app)
 app.setName(DEEPVIEWER_APP_NAME)
 
 const gotLock = app.requestSingleInstanceLock()
@@ -26,6 +29,12 @@ function assertLaunchSurface(event: Electron.IpcMainInvokeEvent): void {
   const frameUrl = event.senderFrame?.url
   if (frameUrl === undefined) throw new Error('IPC sender frame is unavailable')
   if (!windows.isLaunchSurface(frameUrl)) throw new Error('IPC is only available to the DeepViewer launch surface')
+}
+
+function assertRuntimeSurface(event: Electron.IpcMainEvent): void {
+  const frameUrl = event.senderFrame?.url
+  if (frameUrl === undefined) throw new Error('IPC sender frame is unavailable')
+  if (!windows.isRuntimeSurface(frameUrl)) throw new Error('IPC is only available to the Harness runtime surface')
 }
 
 async function startRuntime(): Promise<void> {
@@ -53,6 +62,7 @@ async function startRuntime(): Promise<void> {
 
 if (gotLock) {
   app.on('second-instance', () => windows.focus())
+  app.on('activate', () => windows.focus())
 
   void app.whenReady().then(() => {
     if (shouldSetDevelopmentDockIcon(process.platform, app.isPackaged)) {
@@ -83,12 +93,19 @@ if (gotLock) {
       const error = await shell.openPath(join(app.getPath('userData'), 'logs'))
       if (error !== '') throw new Error(error)
     })
+    ipcMain.on('desktop:set-native-theme', (event, source: unknown) => {
+      assertRuntimeSurface(event)
+      if (source !== 'light' && source !== 'dark') return
+      nativeTheme.themeSource = source
+    })
 
     windows.create()
     void startRuntime()
   })
 
-  app.on('window-all-closed', () => app.quit())
+  app.on('window-all-closed', () => {
+    if (shouldQuitWhenAllWindowsClosed(process.platform)) app.quit()
+  })
   app.on('before-quit', (event) => {
     if (quitting || runtime === undefined) return
     event.preventDefault()

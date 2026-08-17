@@ -1,6 +1,6 @@
 # Release Records
 
-本目录记录已经发生的 DeepViewer 公开发布，包括版本元数据、源代码提交、下载资产、校验值、验证范围和已知限制。
+本目录记录 DeepViewer 的公开发布与正在准备的候选版本，包括版本元数据、源代码提交、下载资产、校验值、验证范围和已知限制。
 
 发布记录是历史事实，不替代功能规格的验收流程。预发布版本可以关联仍处于 `Implementing` 的规格；只有全部验收条件具备证据后，规格才可按治理规则进入 `Verified` 或 `Released`。
 
@@ -8,6 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
+| `v0.1.2` | Release candidate / Preparing | — | DV-0008, DV-0009 | [DeepViewer v0.1.2 候选版本](v0.1.2.md) |
 | `v0.1.1` | Public release / Latest | 2026-08-16 | DV-0003, DV-0004, DV-0005, DV-0006, DV-0007 | [DeepViewer v0.1.1](v0.1.1.md) |
 | `v0.0.1` | Public pre-release | 2026-08-16 | DV-0003 | [DeepViewer v0.0.1](v0.0.1.md) |
 
