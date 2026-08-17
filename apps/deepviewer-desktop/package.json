@@ -1,7 +1,7 @@
 {
   "name": "@deepviewer/desktop",
   "productName": "DeepViewer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "DeepViewer desktop shell for DeepSeek Harness",
   "license": "MIT",
@@ -9,6 +9,10 @@
   "main": ".desktop/build/main.js",
   "scripts": {
     "build": "vite build --config vite.main.config.ts && vite build --config vite.preload.config.ts && vite build --config vite.renderer.config.ts",
+    "dev": "node scripts/sync-upstream-overrides.mjs --build && node scripts/dev.mjs",
+    "dev:restart": "node scripts/dev.mjs --restart",
+    "preview": "node scripts/sync-upstream-overrides.mjs --build && pnpm build && node scripts/package.mjs --preview",
+    "release": "node scripts/sync-upstream-overrides.mjs --build && pnpm build && pnpm runtime && node scripts/package.mjs --sign && node scripts/notarize.mjs",
     "start": "pnpm build && electron .",
     "runtime": "node scripts/build-runtime.mjs",
     "runtime:arm64": "node scripts/build-runtime.mjs --arch=arm64",

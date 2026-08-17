@@ -1,0 +1,8 @@
+function DetailsColumn(props: { children?: ReactNode }) {
+  return (
+    <div className={css.detailsCol}>
+      <div className={css.desktopSafeArea} data-deepviewer-macos-details-safe-area />
+      <div className={css.detailsBody}>{props.children}</div>
+    </div>
+  )
+}

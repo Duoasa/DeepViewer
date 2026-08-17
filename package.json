@@ -8,6 +8,10 @@
     "node": ">=24.0.0"
   },
   "scripts": {
+    "desktop:dev": "pnpm --filter @deepviewer/desktop dev",
+    "desktop:dev:restart": "pnpm --filter @deepviewer/desktop dev:restart",
+    "desktop:preview": "pnpm --filter @deepviewer/desktop preview",
+    "desktop:release": "pnpm --filter @deepviewer/desktop release",
     "desktop:start": "pnpm --filter @deepviewer/desktop start",
     "desktop:package": "pnpm --filter @deepviewer/desktop package",
     "desktop:package:arm64": "pnpm --filter @deepviewer/desktop package:arm64",

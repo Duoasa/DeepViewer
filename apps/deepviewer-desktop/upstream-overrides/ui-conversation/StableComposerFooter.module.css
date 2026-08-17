@@ -1,0 +1,10 @@
+/* Keep the managed footer wrapper layout-neutral. On macOS the desktop chrome
+   mirrors the stats into the top safe area and hides the source node; on other
+   surfaces display: contents preserves the upstream bottom-row behavior. */
+.root:not(.hero) {
+  padding-bottom: var(--deepviewer-composer-bottom-offset, 32px);
+}
+
+.footer {
+  display: contents;
+}

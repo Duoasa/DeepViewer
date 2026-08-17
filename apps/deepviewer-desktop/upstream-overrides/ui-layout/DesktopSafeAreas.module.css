@@ -1,0 +1,21 @@
+/* Desktop safe areas are real rows in each AppFrame column. They stay absent
+   on the web surface and are enabled only by the trusted macOS shell CSS. */
+.desktopSafeArea {
+  display: none;
+}
+
+.sidebarCol,
+.detailsCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.centerBody,
+.detailsBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}

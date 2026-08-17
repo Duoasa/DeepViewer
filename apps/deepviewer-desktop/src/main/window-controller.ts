@@ -6,7 +6,9 @@ import {
   DEEPVIEWER_APP_NAME,
   preserveDeepViewerWindowTitle,
 } from './app-identity.js'
+import { shouldHideWindowOnClose } from './app-lifecycle.js'
 import {
+  createMacosFocusStateScript,
   createMacosFullscreenStateScript,
   MACOS_FULLSCREEN_EVENT_STATE,
   MACOS_WINDOW_CHROME_CSS,
@@ -50,8 +52,19 @@ export class WindowController {
     window.on('page-title-updated', event => {
       preserveDeepViewerWindowTitle(event, title => window.setTitle(title))
     })
+    window.on('close', event => {
+      if (!shouldHideWindowOnClose(process.platform)) return
+      event.preventDefault()
+      window.hide()
+    })
     window.setTitle(DEEPVIEWER_APP_NAME)
     if (process.platform === 'darwin') {
+      const setFocusedChrome = (focused: boolean): void => {
+        if (window.isDestroyed()) return
+        void window.webContents.executeJavaScript(
+          createMacosFocusStateScript(focused),
+        )
+      }
       const setFullscreenChrome = (fullscreen: boolean): void => {
         if (window.isDestroyed()) return
         void window.webContents.executeJavaScript(
@@ -61,7 +74,14 @@ export class WindowController {
       window.webContents.on('dom-ready', () => {
         void window.webContents.insertCSS(MACOS_WINDOW_CHROME_CSS)
         void window.webContents.executeJavaScript(MACOS_WINDOW_CHROME_SCRIPT)
+        setFocusedChrome(window.isFocused())
         setFullscreenChrome(window.isFullScreen())
+      })
+      window.on('focus', () => {
+        setFocusedChrome(true)
+      })
+      window.on('blur', () => {
+        setFocusedChrome(false)
       })
       window.on('enter-full-screen', () => {
         setFullscreenChrome(MACOS_FULLSCREEN_EVENT_STATE['enter-full-screen'])
@@ -85,6 +105,7 @@ export class WindowController {
   focus(): void {
     if (this.window === undefined) return
     if (this.window.isMinimized()) this.window.restore()
+    if (!this.window.isVisible()) this.window.show()
     this.window.focus()
   }
 
@@ -145,7 +166,7 @@ export class WindowController {
     }
   }
 
-  private isRuntimeSurface(url: string): boolean {
+  isRuntimeSurface(url: string): boolean {
     if (this.runtimeOrigin === undefined) return false
     try {
       return new URL(url).origin === this.runtimeOrigin

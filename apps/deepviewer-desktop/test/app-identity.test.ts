@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import {
-  DEEPVIEWER_APP_ICON_PNG,
+  DEEPVIEWER_APP_ICON_ICNS,
   DEEPVIEWER_APP_NAME,
   preserveDeepViewerWindowTitle,
   resolveDeepViewerIconPath,
@@ -21,8 +21,8 @@ describe('DeepViewer app identity', () => {
 
   it('resolves the repository and packaged app icon consistently', () => {
     expect(resolveDeepViewerIconPath('/Applications/DeepViewer.app/Contents/Resources/app.asar'))
-      .toBe('/Applications/DeepViewer.app/Contents/Resources/app.asar/assets/deepviewer-icon-macos26-1024.png')
-    expect(DEEPVIEWER_APP_ICON_PNG).toBe('deepviewer-icon-macos26-1024.png')
+      .toBe('/Applications/DeepViewer.app/Contents/Resources/app.asar/assets/DeepViewer.icns')
+    expect(DEEPVIEWER_APP_ICON_ICNS).toBe('DeepViewer.icns')
   })
 
   it('configures Electron Packager with the generated macOS icon', () => {
