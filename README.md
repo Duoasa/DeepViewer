@@ -140,6 +140,35 @@ manifest for command-line verification.
 See the [`0.2.1` release record](docs/sdd/releases/v0.2.1.md) for the complete
 asset and verification evidence.
 
+## What's new in 0.1.2
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 in dark mode">
+  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 in light mode">
+</p>
+
+- Restructured the macOS window as two visual columns—sidebar and Chat—with
+  structural safe areas inside each column instead of a separate full-width bar.
+- Moved model usage statistics into the centered Chat safe area and fixed the
+  composer to the same 32px bottom baseline in new, thinking, streaming, and
+  completed states.
+- Added a full-Chat-canvas welcome surface with a 48px half-opacity animated
+  DeepViewer mark and the localized “What shall we build?” headline.
+- Refined the inline sidebar wordmark, native focused-window material, solid
+  unfocused state, light/dark fade continuity, fixed sidebar toggle, and native
+  control readability.
+- Added tracked upstream UI overrides with deterministic sync/build checks, plus
+  isolated development, local ARM preview, and explicit release workflow tiers.
+- Build 2 added a restricted system-browser handoff for HTTP(S) links and native
+  “Show in Finder” and copy-path actions for local deliverables.
+- Rebuilt separate arm64 and x64 DMGs from allowlisted inputs. Both packages are
+  Developer ID signed, Apple-notarized, stapled, privacy-audited, and published
+  with reproducible SHA-256 checksums.
+
+See the [`0.1.2` release record](docs/sdd/releases/v0.1.2.md) and
+[`v0.1.2-build.2` release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2)
+for the complete asset and verification evidence.
+
 ## What's new in 0.1.1
 
 <p align="center">

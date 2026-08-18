@@ -124,6 +124,31 @@ Release 同时提供
 
 完整资产与验证证据见 [`0.2.1` 发布记录](docs/sdd/releases/v0.2.1.md)。
 
+## 0.1.2 更新内容
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 深色模式">
+  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 浅色模式">
+</p>
+
+- 将 macOS 窗口整理为侧栏和 Chat 两个视觉列，系统安全区进入对应列内部，不再形成独立的
+  全宽顶栏。
+- 把模型使用统计移动到 Chat 顶部安全区居中显示；新会话、思考、流式输出和完成状态的
+  输入框统一固定在距离底部 32px 的基准位置。
+- 新增以完整 Chat 画布为基准居中的欢迎内容：48px、50% 透明度的动画 DeepViewer 图形和
+  本地化“让我们做点什么”文案。
+- 精修侧栏内联品牌、聚焦时原生材质、失焦纯色、浅色/深色淡出连续性、固定侧栏按钮和
+  原生窗口控件可读性。
+- 增加可跟踪的上游 UI 覆盖与确定性同步/build 检查，以及隔离开发、ARM 本地预览和显式
+  正式发布三个工作流层级。
+- Build 2 新增受限的 HTTP(S) 系统浏览器跳转，并为本地交付物加入原生“在 Finder 中显示”
+  和复制路径操作。
+- 从允许列表输入重新构建彼此独立的 arm64 与 x64 DMG；两个安装包均完成 Developer ID
+  签名、Apple 公证、票据装订和隐私审计，并发布可复现的 SHA-256 校验值。
+
+完整资产与验证证据见 [`0.1.2` 发布记录](docs/sdd/releases/v0.1.2.md)和
+[`v0.1.2-build.2` Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2)。
+
 ## 0.1.1 更新内容
 
 <p align="center">
