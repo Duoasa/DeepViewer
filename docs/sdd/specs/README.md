@@ -13,9 +13,9 @@
 | [DV-0007](DV-0007-macos-signing-notarization/spec.md) | macOS Developer ID 签名与公证 | Implementing | Duoasa | 2026-08-16 |
 | [DV-0008](DV-0008-local-development-workflow/spec.md) | 本地快速迭代与分级发布工作流 | Implementing | Duoasa | 2026-08-17 |
 | [DV-0009](DV-0009-macos-workspace-experience/spec.md) | macOS 工作区体验精修 | Verified | Duoasa | 2026-08-17 |
-| [DV-0010](DV-0010-global-settings-experience/spec.md) | 全局设置与关于 DeepViewer 页面 | Implementing | Duoasa | 2026-08-18 |
+| [DV-0010](DV-0010-global-settings-experience/spec.md) | 全局设置与关于 DeepViewer 页面 | Verified | Duoasa | 2026-08-19 |
 | [DV-0011](DV-0011-subscription-provider-integration/spec.md) | 订阅模型提供方插件集成 | Implementing | Duoasa | 2026-08-18 |
-| [DV-0012](DV-0012-preview-sidebar-plugin/spec.md) | 代码与实时网页预览侧栏插件 | Approved | Duoasa | 2026-08-18 |
+| [DV-0012](DV-0012-preview-sidebar-plugin/spec.md) | 代码与实时网页预览侧栏插件 | Implementing | Duoasa | 2026-08-18 |
 | [DV-0013](DV-0013-finder-reveal-generated-files/spec.md) | 在 Finder 中显示生成文件 | Implementing | Duoasa | 2026-08-18 |
 
 ## 下一个编号

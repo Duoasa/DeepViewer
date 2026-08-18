@@ -1,8 +1,8 @@
 ---
 id: DV-0010
 title: Global settings and About DeepViewer experience - Design
-status: Implementing
-updated: 2026-08-18
+status: Verified
+updated: 2026-08-19
 ---
 
 # DV-0010：设计

@@ -1,10 +1,10 @@
 ---
 id: DV-0010
 title: Global settings and About DeepViewer experience
-status: Implementing
+status: Verified
 owner: Duoasa
 created: 2026-08-18
-updated: 2026-08-18
+updated: 2026-08-19
 depends_on: [DV-0005, DV-0008, DV-0009]
 ---
 

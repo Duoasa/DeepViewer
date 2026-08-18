@@ -16,24 +16,24 @@
 
 | ID | 插件 | 固定版本 | 状态 | 最近验证内核 | 最近结论 | 证据 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active`（开发版） | DeepSeek Harness `0.1.0-rc.7` | 自动检查及真实账户登录通过；其余人工检查与正式包检查待完成 | [DV-0011 验证](../specs/DV-0011-subscription-provider-integration/verification.md) |
-| `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Active`（开发版） | DeepSeek Harness `0.1.0-rc.7` | 实现与验证进行中 | [DV-0012 验证](../specs/DV-0012-preview-sidebar-plugin/verification.md) |
+| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DeepSeek Harness `0.1.0-rc.7` | 自动检查、真实账户登录及双架构正式封包通过；实际调用与登出待人工复验 | [DV-0011 验证](../specs/DV-0011-subscription-provider-integration/verification.md) |
+| `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Active` | DeepSeek Harness `0.1.0-rc.7` | 自动检查、维护者迭代交互验收及双架构正式封包通过 | [DV-0012 验证](../specs/DV-0012-preview-sidebar-plugin/verification.md) |
 
 ### DVP-0001：订阅提供方
 
 - 用途：接入订阅账户登录、状态/用量展示，以及插件提供的模型和工具。
-- 激活边界：开发版默认启用；`DEEPVIEWER_DISABLE_SUBSCRIPTIONS=1` 可安全停用并退回纯核心。
+- 激活边界：开发版与正式 Runtime 默认启用；`DEEPVIEWER_DISABLE_SUBSCRIPTIONS=1` 可安全停用并退回纯核心。
 - 展示适配：`deepviewer-remaining-usage-v1`；插件升级时必须重新验证 client 锚点、剩余量语义和
   中英文文案。
-- 数据与安全：凭据当前由插件写入隔离 DSH home 的原子 `0600` 文件；正式分发前必须完成
-  Keychain 适配。
+- 数据与安全：`v0.2.1` 公开预览版批准使用隔离 DSH home 下的原子 `0600` 文件作为临时等价
+  方案；稳定版前仍须完成 Keychain 迁移或重新批准安全边界。
 - 当前限制：外部订阅服务并非稳定公共协议；真实账户登录已通过，状态/用量、实际调用与登出
   仍需人工冒烟。
 
 ### DVP-0002：代码与网页预览
 
 - 用途：在右侧详情栏浏览工作区文本文件，并隔离预览静态网页。
-- 激活边界：开发版默认启用；`DEEPVIEWER_DISABLE_PREVIEW=1` 可停用并保留订阅/纯核心启动。
+- 激活边界：开发版与正式 Runtime 默认启用；`DEEPVIEWER_DISABLE_PREVIEW=1` 可停用并保留订阅/纯核心启动。
 - 上游接点：`details` owner props、`conversation.details.view`、会话标题栏 action、Connection RPC、
   WebServer prefix route 和 deliverables turn data。
 - 数据与安全：仅允许已登记工作区；RPC 为 loopback-only；静态站使用短期 capability、路径/符号

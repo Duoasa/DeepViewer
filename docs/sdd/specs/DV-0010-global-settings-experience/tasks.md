@@ -1,8 +1,8 @@
 ---
 id: DV-0010
 title: Global settings and About DeepViewer experience - Tasks
-status: Implementing
-updated: 2026-08-18
+status: Verified
+updated: 2026-08-19
 ---
 
 # DV-0010：实施任务
@@ -10,16 +10,16 @@ updated: 2026-08-18
 ## 规则
 
 - 以 DeepViewer 跟踪覆盖为权威来源，不把忽略的上游 checkout 当作唯一实现。
-- 保留既有工作树修改，不执行 reset、clean、提交、推送、预览封包或发布。
+- 保留既有工作树修改，不执行 reset 或 clean；外部发布只在维护者明确授权的发布边界执行。
 - 代理完成代码和基础验证；视觉与交互由维护者手动验收。
 
 ## 任务
 
-- [ ] T-001 `[R-001, R-002, AC-001, AC-002]` 把设置 shell 改为全视口两列页面并保留返回、Escape、section/action 行为。
-- [ ] T-002 `[R-003, AC-003]` 新增导航底部关于页，展示图标、名称、说明、版本和 Build。
-- [ ] T-003 `[R-004, NFR-001, AC-004]` 扩展受控覆盖同步，加入文本模板、PNG 资源与元数据 digest。
-- [ ] T-004 `[NFR-002, NFR-003, AC-004]` 更新契约测试并运行相关测试、类型检查和 production build。
-- [ ] T-005 `[AC-001, AC-002, AC-003, AC-005]` 重启开发版，交由维护者完成浅/深色与窗口尺寸的逐页验收。
+- [x] T-001 `[R-001, R-002, AC-001, AC-002]` 把设置 shell 改为全视口两列页面并保留返回、Escape、section/action 行为。
+- [x] T-002 `[R-003, AC-003]` 新增导航底部关于页，展示图标、名称、说明、版本、Build 和 DSH 核心版本。
+- [x] T-003 `[R-004, NFR-001, AC-004]` 扩展受控覆盖同步，加入文本模板、PNG 资源与元数据 digest。
+- [x] T-004 `[NFR-002, NFR-003, AC-004]` 更新契约测试并运行相关测试、类型检查和 production build。
+- [x] T-005 `[AC-001, AC-002, AC-003, AC-005]` 重启开发版，由维护者完成浅/深色与窗口尺寸的逐页验收。
 
 ## 延后事项
 

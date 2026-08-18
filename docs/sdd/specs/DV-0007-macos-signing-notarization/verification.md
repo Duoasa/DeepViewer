@@ -2,7 +2,7 @@
 id: DV-0007
 title: macOS Developer ID signing and notarization - Verification
 status: Implementing
-updated: 2026-08-17
+updated: 2026-08-19
 ---
 
 # DV-0007：验证
@@ -81,6 +81,21 @@ quarantine 的两个 `spctl` 评估全部通过。
 发布后将三个公开资产重新下载到独立目录；清单校验、逐文件 SHA-256、带 quarantine 的两个
 Gatekeeper 评估和两个 DMG 的 `hdiutil verify` 全部通过。公开文档不记录签名身份、证书
 指纹、公证提交标识或 Keychain profile。
+
+## v0.2.1 rc.7 正式封包复验
+
+`v0.2.1`（Build `1`）的 arm64 与 x64 Runtime 均从 DeepSeek Harness `0.1.0-rc.7` release-pack
+全新构建；两个应用各包含 30 个已验证 Mach-O、唯一包内 Harness，以及固定版本的订阅与预览
+插件。两个架构均通过 16 项 ASAR allowlist、个人路径/凭据值审计、严格签名、Apple 公证
+`Accepted`、ticket staple、Gatekeeper、`hdiutil verify`、只读挂载、架构、版本与插件清单检查。
+
+本地待发布资产：
+
+- arm64：448,522,849 bytes；`77ac096451d1b0f4a1bd250b1436d0bba15421bfd307c66dcc175bec47ea4003`
+- x64：460,537,259 bytes；`f400e321953c4c3e4ac3f84deb503906da53d6eab9f5148d24911c61cff4f8ee`
+- `SHA256SUMS.txt`：196 bytes；`397d8c24ea23bb488047800aaeaaf4ed1eefee760857d7ad12ad67fc08098d9f`
+
+GitHub 上传、服务器端 digest 与重新下载核验在 `v0.2.1` Release 创建后补录。
 
 ## 人工检查
 

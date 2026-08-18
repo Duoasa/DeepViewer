@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2"><strong>下载 DeepViewer 0.1.2（Build 2）</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.1"><strong>下载 DeepViewer 0.2.1（Build 1）</strong></a>
   ·
-  <a href="#012-build-2-更新内容">版本更新</a>
+  <a href="#021-更新内容">版本更新</a>
   ·
   <a href="#隐私设计">隐私</a>
   ·
@@ -44,8 +44,8 @@ Agent 体验设计的桌面外壳。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> `v0.1.2-build.2` 是当前最新的 macOS UI 预览版（应用版本 `0.1.2`、构建号 `2`），已通过
-> 维护者的视觉与完整软件包验收，但仍属于项目早期预览，并非稳定版本。
+> `v0.2.1` 是当前最新的 macOS 预览版（应用版本 `0.2.1`、构建号 `1`），已通过维护者的
+> 多轮 UI 验收与正式封包门禁，但仍属于项目早期预览，并非稳定版本。
 
 ## 为什么选择 DeepViewer
 
@@ -62,44 +62,37 @@ Agent 体验设计的桌面外壳。
 
 ## 快速开始
 
-1. 从 [0.1.2 Build 2 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2)
+1. 从 [0.2.1 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.1)
    下载与你的 Mac 处理器匹配的版本。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开 DeepViewer。应用会自动启动内置 Harness，并在 Runtime 就绪后进入本地工作区。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | [DeepViewer-0.1.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/DeepViewer-0.1.2-macos-arm64.dmg) | `e7385a3de4b912fadf6154b0ffe682173efa293e4171234ff20566a8c6e30eea` |
-| Intel（`x64`） | [DeepViewer-0.1.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/DeepViewer-0.1.2-macos-x64.dmg) | `02f2dca62d68431db60f355837709d9bc02b0de9522f6254cd6d9e2eb514cc08` |
+| Apple Silicon（`arm64`） | [DeepViewer-0.2.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.1/DeepViewer-0.2.1-macos-arm64.dmg) | `77ac096451d1b0f4a1bd250b1436d0bba15421bfd307c66dcc175bec47ea4003` |
+| Intel（`x64`） | [DeepViewer-0.2.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.1/DeepViewer-0.2.1-macos-x64.dmg) | `f400e321953c4c3e4ac3f84deb503906da53d6eab9f5148d24911c61cff4f8ee` |
 
 Release 同时提供
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.1.2-build.2/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.1/SHA256SUMS.txt)
 供命令行核验。
 
-## 0.1.2 Build 2 更新内容
+## 0.2.1 更新内容
 
 <p align="center">
   <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 深色模式">
   <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 浅色模式">
 </p>
 
-- 在继续拒绝特权桌面窗口内非预期导航的同时，将 `http` / `https` 外链交给系统默认浏览器。
-- 为本地交付物路径增加原生右键菜单；`finder中显示` 会打开文件所在文件夹并选中该文件。
-- 将 macOS bundle 构建号提升为 `2`，并修复 pnpm 11 下正式 Runtime 脚本的显式调用。
-- 将 macOS 窗口整理为侧栏和 Chat 两个视觉列，系统安全区进入对应列内部，不再形成独立的
-  全宽顶栏。
-- 把模型使用统计移动到 Chat 顶部安全区居中显示；新会话、思考、流式输出和完成状态的
-  输入框统一固定在距离底部 32px 的基准位置。
-- 新增以完整 Chat 画布为基准居中的欢迎内容：48px、50% 透明度的动画 DeepViewer 图形和
-  本地化“让我们做点什么”文案。
-- 精修侧栏内联品牌、聚焦时原生材质、失焦纯色、浅色/深色淡出连续性、固定侧栏按钮和
-  原生窗口控件可读性。
-- 增加可跟踪的上游 UI 覆盖与确定性同步/build 检查，以及隔离开发、ARM 本地预览和显式
-  正式发布三个工作流层级。
+- 内置核心升级为 DeepSeek Harness `0.1.0-rc.7`，并为每个已集成 DSH 插件登记兼容性检查。
+- 设置改为全局页面，新增“关于 DeepViewer”，展示真实应用版本、Build 与核心版本。
+- 通过固定的 `dsh-plugin-subscriptions@0.3.1` 扩展，把订阅登录和剩余用量整合进模型页。
+- 新增可调宽度的右侧预览栏，支持工作区代码、隔离静态网页、基础浏览器工具栏和默认三分之一宽度。
+- Agent 产出文件默认使用内置预览打开，并提供“在 Finder 中显示”和“在 DeepViewer 中预览”原生菜单。
+- 更新 DeepViewer 标志、欢迎页、加载动画、仅手动收起的侧栏控制及浅色/深色可读性。
 - 从允许列表输入重新构建彼此独立的 arm64 与 x64 DMG；两个安装包均完成 Developer ID
   签名、Apple 公证、票据装订和隐私审计，并发布可复现的 SHA-256 校验值。
 
-完整资产与验证证据见 [`0.1.2 Build 2` 发布记录](docs/sdd/releases/v0.1.2.md)。
+完整资产与验证证据见 [`0.2.1` 发布记录](docs/sdd/releases/v0.2.1.md)。
 
 ## 0.1.1 更新内容
 
@@ -122,8 +115,8 @@ Release 同时提供
 ## 当前限制
 
 - x64 版本已通过架构、包体和 Apple Silicon + Rosetta 基础验证；真实 Intel Mac 验收仍待完成。
-- 当前主要是在上游 Harness 工作区外增加 DeepViewer 桌面外壳；更多导航、首次启动和
-  差异化 Agent 功能仍在规划中。
+- 订阅提供方依赖外部非稳定协议；登录已人工验证，实际模型/工具调用和登出仍需按提供方复验。
+- 预览浏览器只支持工作区静态站点，不支持任意 dev-server URL、编辑或完整通用浏览器能力。
 - 本预览版不包含 Windows、自动更新、崩溃上报或稳定支持承诺。
 - 当前 Runtime 优先保证完整性，DMG 体积较大；体积优化将在产品路径稳定后进行。
 
@@ -160,7 +153,7 @@ cd DeepViewer
 pnpm install
 
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout 47f943859bef60e4160492346772ded9b24f765a
+git -C upstream/deepseek-harness checkout 99f6f02fecdb7dff40c3fbc9470f5907c29f74ca
 pnpm --dir upstream/deepseek-harness install
 pnpm --dir upstream/deepseek-harness run build
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
@@ -197,7 +190,7 @@ DeepViewer 的 [SDD 文档系统](docs/sdd/README.md) 是产品基线、架构�
 
 DeepViewer 原创代码采用 [MIT License](LICENSE) 开源。DeepSeek Harness 与第三方组件保留
 各自的版权声明和许可证。当前桌面基线固定在 DeepSeek Harness 提交
-`47f943859bef60e4160492346772ded9b24f765a`（`0.1.0-rc.5`）。
+`99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`（`0.1.0-rc.7`）。
 
 ## 反馈
 
