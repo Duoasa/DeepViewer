@@ -1442,6 +1442,7 @@ export function stagePreviewPlugin() {
     cpSync(previewPluginSource, previewPluginStage, { recursive: true, dereference: true })
     const stagedTsconfigPath = resolve(previewPluginStage, 'tsconfig.json')
     const stagedTsconfig = readFileSync(stagedTsconfigPath, 'utf8')
+      .replaceAll('"../../tsconfig.json"', '"../../../tsconfig.base.client.json"')
       .replaceAll('../../../../upstream/deepseek-harness/', '../../../')
     writeFileSync(stagedTsconfigPath, stagedTsconfig)
     const stagedTsdownPath = resolve(previewPluginStage, 'tsdown.config.ts')

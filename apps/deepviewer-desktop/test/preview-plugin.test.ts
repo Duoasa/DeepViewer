@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, realpath, symlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, realpath, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -79,6 +79,19 @@ afterEach(async () => {
 })
 
 describe('DeepViewer preview plugin integration', () => {
+  it('uses a tracked test tsconfig and deterministically rewrites the staged DSH config', async () => {
+    const sourceConfig = JSON.parse(await readFile(
+      join(process.cwd(), 'dsh-plugins', 'preview', 'tsconfig.json'),
+      'utf8',
+    )) as { extends?: string }
+    const syncScript = await readFile(join(process.cwd(), 'scripts', 'sync-upstream-overrides.mjs'), 'utf8')
+
+    expect(sourceConfig.extends).toBe('../../tsconfig.json')
+    expect(syncScript).toContain(
+      `.replaceAll('"../../tsconfig.json"', '"../../../tsconfig.base.client.json"')`,
+    )
+  })
+
   it('opens at one third of the current app viewport', () => {
     expect(defaultPreviewPanelWidth(1440)).toBe(480)
     expect(defaultPreviewPanelWidth(1920)).toBe(640)
