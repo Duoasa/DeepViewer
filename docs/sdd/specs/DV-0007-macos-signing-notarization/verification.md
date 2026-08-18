@@ -89,13 +89,15 @@ Gatekeeper 评估和两个 DMG 的 `hdiutil verify` 全部通过。公开文档�
 插件。两个架构均通过 16 项 ASAR allowlist、个人路径/凭据值审计、严格签名、Apple 公证
 `Accepted`、ticket staple、Gatekeeper、`hdiutil verify`、只读挂载、架构、版本与插件清单检查。
 
-本地待发布资产：
+最终发布资产：
 
 - arm64：448,522,849 bytes；`77ac096451d1b0f4a1bd250b1436d0bba15421bfd307c66dcc175bec47ea4003`
 - x64：460,537,259 bytes；`f400e321953c4c3e4ac3f84deb503906da53d6eab9f5148d24911c61cff4f8ee`
 - `SHA256SUMS.txt`：196 bytes；`397d8c24ea23bb488047800aaeaaf4ed1eefee760857d7ad12ad67fc08098d9f`
 
-GitHub 上传、服务器端 digest 与重新下载核验在 `v0.2.1` Release 创建后补录。
+三个资产已上传到 [`v0.2.1`](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.1)，Release
+为 non-draft、non-prerelease、Latest。GitHub API 的大小与服务器端 digest 均和本地一致；重新
+下载到独立目录后，清单校验、逐文件 SHA-256、清单正文比较和两个 DMG 的 `hdiutil verify` 通过。
 
 ## 人工检查
 
