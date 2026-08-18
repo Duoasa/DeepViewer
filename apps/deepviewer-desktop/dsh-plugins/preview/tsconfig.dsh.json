@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "references": [
+    { "path": "../../../../upstream/deepseek-harness/vendor/cordis" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/connection/tsconfig.client.json" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/locale" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/runtime" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/ui-conversation" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/ui-deliverables" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/ui-layout" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/ui-primitives" },
+    { "path": "../../../../upstream/deepseek-harness/packages/client/ui-slots" }
+  ]
+}

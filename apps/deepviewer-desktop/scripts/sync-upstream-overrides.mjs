@@ -1443,8 +1443,11 @@ export function stagePreviewPlugin() {
     const stagedTsconfigPath = resolve(previewPluginStage, 'tsconfig.json')
     const stagedTsconfig = readFileSync(stagedTsconfigPath, 'utf8')
       .replaceAll('"../../tsconfig.json"', '"../../../tsconfig.base.client.json"')
-      .replaceAll('../../../../upstream/deepseek-harness/', '../../../')
     writeFileSync(stagedTsconfigPath, stagedTsconfig)
+    const stagedBuildTsconfigPath = resolve(previewPluginStage, 'tsconfig.dsh.json')
+    const stagedBuildTsconfig = readFileSync(stagedBuildTsconfigPath, 'utf8')
+      .replaceAll('../../../../upstream/deepseek-harness/', '../../../')
+    writeFileSync(stagedBuildTsconfigPath, stagedBuildTsconfig)
     const stagedTsdownPath = resolve(previewPluginStage, 'tsdown.config.ts')
     const stagedTsdown = readFileSync(stagedTsdownPath, 'utf8')
       .replaceAll('../../../../upstream/deepseek-harness/', '../../../')
@@ -1467,7 +1470,7 @@ export function stagePreviewPlugin() {
 }
 
 async function buildPreviewPlugin() {
-  await run('pnpm', ['exec', 'tsc', '-b', 'tsconfig.json'], { cwd: previewPluginStage })
+  await run('pnpm', ['exec', 'tsc', '-b', 'tsconfig.dsh.json'], { cwd: previewPluginStage })
   await run('pnpm', ['exec', 'tsdown', '--env.DSH_BUILD_FACE', 'client'], { cwd: previewPluginStage })
   validatePreviewPlugin(previewPluginStage, true)
 }

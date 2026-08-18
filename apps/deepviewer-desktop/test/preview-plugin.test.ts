@@ -83,13 +83,24 @@ describe('DeepViewer preview plugin integration', () => {
     const sourceConfig = JSON.parse(await readFile(
       join(process.cwd(), 'dsh-plugins', 'preview', 'tsconfig.json'),
       'utf8',
-    )) as { extends?: string }
+    )) as { extends?: string, references?: unknown[] }
+    const buildConfig = JSON.parse(await readFile(
+      join(process.cwd(), 'dsh-plugins', 'preview', 'tsconfig.dsh.json'),
+      'utf8',
+    )) as { extends?: string, references?: Array<{ path: string }> }
     const syncScript = await readFile(join(process.cwd(), 'scripts', 'sync-upstream-overrides.mjs'), 'utf8')
 
     expect(sourceConfig.extends).toBe('../../tsconfig.json')
+    expect(sourceConfig.references).toBeUndefined()
+    expect(buildConfig.extends).toBe('./tsconfig.json')
+    expect(buildConfig.references).toHaveLength(9)
+    expect(buildConfig.references?.every(reference => (
+      reference.path.startsWith('../../../../upstream/deepseek-harness/')
+    ))).toBe(true)
     expect(syncScript).toContain(
       `.replaceAll('"../../tsconfig.json"', '"../../../tsconfig.base.client.json"')`,
     )
+    expect(syncScript).toContain(`['exec', 'tsc', '-b', 'tsconfig.dsh.json']`)
   })
 
   it('opens at one third of the current app viewport', () => {
