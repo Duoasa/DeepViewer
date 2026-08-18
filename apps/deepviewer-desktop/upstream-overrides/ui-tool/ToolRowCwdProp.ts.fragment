@@ -1,0 +1,2 @@
+/** Session workspace root used only to identify native context-menu targets. */
+cwd?: string | undefined

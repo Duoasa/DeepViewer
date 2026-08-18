@@ -1,0 +1,28 @@
+it('exposes a cwd-resolved native path and prefers the DeepViewer preview event', () => {
+  const openFile = vi.fn<(path: string) => void>()
+  const view = render(
+    <ProducedFiles
+      matched={['out/report.md']}
+      cwd="/workspace"
+      openFile={openFile}
+      {...capability(true)}
+      t={t}
+    />,
+  )
+  const chip = view.getByRole('button', { name: '打开 out/report.md' })
+  expect(chip.textContent).toBe('report.md')
+  expect(chip.getAttribute('title')).toBe('/workspace/out/report.md')
+  expect(chip.getAttribute('data-deepviewer-native-file-path')).toBe('/workspace/out/report.md')
+  const preview = vi.fn((event: Event) => { event.preventDefault() })
+  window.addEventListener('deepviewer:preview-file', preview)
+  fireEvent.click(chip)
+  expect(preview).toHaveBeenCalledOnce()
+  expect((preview.mock.calls[0]?.[0] as CustomEvent<string>).detail).toBe('/workspace/out/report.md')
+  expect(openFile).not.toHaveBeenCalled()
+  window.removeEventListener('deepviewer:preview-file', preview)
+
+  fireEvent.click(chip)
+  expect(openFile).toHaveBeenCalledWith('out/report.md')
+})
+
+it('keeps the folder action absent without overflow or a local native opener', () => {

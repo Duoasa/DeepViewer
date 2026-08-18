@@ -1,0 +1,7 @@
+const previewDetails = panels.detailsView === 'preview'
+const cols = computeColumns(
+  viewport,
+  sidebarPreference,
+  detailsSession === undefined ? 0 : panels.details,
+  previewDetails ? PREVIEW_CENTER_MIN : undefined,
+)

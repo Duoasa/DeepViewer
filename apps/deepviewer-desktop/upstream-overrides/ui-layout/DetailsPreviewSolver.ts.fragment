@@ -1,0 +1,21 @@
+export function computeColumns(
+  viewport: number,
+  sidebar: number,
+  details: number,
+  centerMin = CENTER_MIN,
+): Columns {
+  // The sidebar is fixed at its preference (or the rail) — it never concedes.
+  const s = sidebar === 0 ? SIDEBAR_COLLAPSED : clampWidth(sidebar, SIDEBAR_MIN, SIDEBAR_MAX)
+  const d0 = details === 0 ? 0 : clampWidth(details, DETAILS_MIN, DETAILS_MAX)
+
+  // Step 1: everything fits at preferred widths.
+  if (s + d0 + centerMin <= viewport) return { sidebar: s, center: viewport - s - d0, details: d0 }
+
+  // Step 2: shrink details toward its minimum.
+  const d1 = d0 === 0 ? 0 : Math.max(DETAILS_MIN, viewport - s - centerMin)
+  if (s + d1 + centerMin <= viewport) return { sidebar: s, center: centerMin, details: d1 }
+
+  // Step 3: auto-close details (derived — preferences untouched); center
+  // absorbs any remaining deficit (may drop below its selected floor).
+  return { sidebar: s, center: Math.max(0, viewport - s), details: 0 }
+}

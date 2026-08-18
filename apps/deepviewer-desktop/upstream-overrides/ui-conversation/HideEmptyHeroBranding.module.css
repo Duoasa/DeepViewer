@@ -1,14 +1,19 @@
-/* Center the welcome against the whole Chat canvas. It is independent of the
-   bottom composer, so the composer's height never shifts this midpoint. */
+/* The welcome occupies the space above the bottom composer. Its top padding
+   equals the workspace-row prelude inside the composer, so the visible module
+   centers between the window top and the input card top rather than the
+   composer seat's outer edge. */
 .root {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  inset: auto;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  height: auto;
   min-width: 0;
   min-height: 0;
-  padding: 0 24px;
+  padding: var(--deepviewer-hero-input-prelude-height) 24px 0;
   pointer-events: none;
 }
 
@@ -37,9 +42,11 @@
 .prompt {
   margin: 0;
   color: var(--dsw-alias-label-primary);
-  font-size: 28px;
+  font-family: var(--dsw-font-family);
+  font-size: 24px;
   font-weight: 400;
-  line-height: 36px;
+  line-height: 32px;
+  opacity: 0.5;
   text-align: center;
 }
 

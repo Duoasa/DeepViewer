@@ -117,7 +117,7 @@ depends_on: [DV-0003, DV-0007]
 - AC-007：Given 同一已批准里程碑，When 进行小功能或缺陷修复，Then 总规范允许只修改代码
   和运行基础验证，并要求在明确同步边界前补齐累计文档。
 - AC-008：Given GitHub 上的 Pull Request、`main` 推送或手动触发，When CI 运行，Then 冻结锁
-  文件安装、类型检查、52 项测试和三个 Vite production build 全部执行，且工作流不具备写入
+  文件安装、类型检查、当前完整测试集和三个 Vite production build 全部执行，且工作流不具备写入
   仓库或发布安装包的能力。
 
 ## 边界与失败行为

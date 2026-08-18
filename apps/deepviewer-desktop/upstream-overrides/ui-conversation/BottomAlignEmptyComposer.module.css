@@ -4,6 +4,8 @@
    scroll body's beginning remains reachable on short windows. */
 .root {
   --deepviewer-composer-bottom-offset: 32px;
+  /* Workspace row: 4px top margin + 28px control + 8px stack gap. */
+  --deepviewer-hero-input-prelude-height: 40px;
 }
 
 .root[data-phase='hero'] .scrollBody {

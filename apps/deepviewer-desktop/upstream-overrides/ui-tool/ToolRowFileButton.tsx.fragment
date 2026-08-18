@@ -1,0 +1,10 @@
+<button
+  type="button"
+  title={nativeFilePath}
+  data-deepviewer-native-file-path={nativeFilePath}
+  className={css.fileLink}
+  onClick={openFile}
+  onKeyDown={fileLinkKeyDown}
+>
+  {summaryText}
+</button>

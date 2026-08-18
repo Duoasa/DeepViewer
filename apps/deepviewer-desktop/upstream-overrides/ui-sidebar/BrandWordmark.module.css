@@ -1,0 +1,4 @@
+.brand {
+  justify-content: flex-start;
+  color: var(--dsw-alias-label-secondary);
+}

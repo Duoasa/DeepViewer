@@ -10,6 +10,11 @@
 export const MACOS_TOP_SAFE_AREA_HEIGHT = 48
 
 export const MACOS_WINDOW_CHROME_CSS = `
+:root {
+  --deepviewer-window-control-top: 13px;
+  --deepviewer-window-control-right: max(16px, env(safe-area-inset-right));
+}
+
 html,
 body,
 #root,
@@ -45,6 +50,24 @@ body,
   height: ${MACOS_TOP_SAFE_AREA_HEIGHT}px;
   box-sizing: border-box;
   -webkit-app-region: drag;
+}
+
+/* The details tabs double as the right-column titlebar so the preview does not
+   stack a blank safe-area row above its own header. The fixed preview toggle
+   occupies the reserved space at the right edge. */
+[data-deepviewer-macos-details-safe-area] {
+  height: 0;
+}
+
+[data-deepviewer-details-header] {
+  min-height: ${MACOS_TOP_SAFE_AREA_HEIGHT}px !important;
+  box-sizing: border-box;
+  padding: 7px 48px 0 12px !important;
+  -webkit-app-region: drag;
+}
+
+[data-deepviewer-details-header] button {
+  -webkit-app-region: no-drag;
 }
 
 #deepviewer-macos-sidebar-toggle-host {

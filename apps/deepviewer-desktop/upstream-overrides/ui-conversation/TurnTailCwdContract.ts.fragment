@@ -1,0 +1,2 @@
+/** Session workspace root for native file-path affordances. */
+cwd?: string | undefined

@@ -1,0 +1,10 @@
+return {
+  open: () => {
+    openDeepViewerPreviewOrFallback(
+      resolveWorkspacePath(cwd, path),
+      () => { openFile(path) },
+    )
+  },
+  label: label(path),
+  title: resolveWorkspacePath(cwd, path),
+}

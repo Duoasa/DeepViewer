@@ -62,6 +62,8 @@ depends_on: []
 ## 依赖
 
 - 规格、ADR、上游版本或外部服务。
+- 若涉及 DSH 内核更新，引用 [`dsh-plugins.md`](../../integrations/dsh-plugins.md)，并列出目标
+  内核与全部 `Active` 的 `DVP-*`；不涉及时写明“无 DSH 内核变更”。
 
 ## 风险
 

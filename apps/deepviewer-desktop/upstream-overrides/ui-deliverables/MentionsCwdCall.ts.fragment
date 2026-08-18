@@ -1,0 +1,6 @@
+return producedFileMentions(
+  paths,
+  owner.openFile,
+  path => t('produced.open', { name: path }),
+  owner.cwd,
+)

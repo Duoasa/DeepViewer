@@ -37,8 +37,8 @@ export const HARNESS_LOADING_BRAND_CSS = `
 
 #${HARNESS_LOADING_OVERLAY_ID} .${LOADING_LOGO_CLASS} {
   display: block;
-  width: 150.374px;
-  height: 160px;
+  width: 112.7805px;
+  height: 120px;
   flex: 0 0 auto;
   overflow: visible;
 }

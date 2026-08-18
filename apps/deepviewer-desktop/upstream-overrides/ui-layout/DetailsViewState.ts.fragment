@@ -1,0 +1,1 @@
+type LayoutState = { sidebar: number; details: number; detailsView: string; narrow: boolean; narrowExpanded: boolean }

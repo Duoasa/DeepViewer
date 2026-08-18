@@ -1,0 +1,122 @@
+.root {
+  min-height: calc(100vh - 220px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 32px 24px 12vh;
+  color: var(--dsw-alias-label-primary);
+  text-align: center;
+}
+
+.icon {
+  display: block;
+  width: 112px;
+  height: 112px;
+  border-radius: 24px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.16));
+  user-select: none;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.name {
+  margin: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.description {
+  max-width: 520px;
+  margin: 10px 0 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.version {
+  margin: 12px 0 0;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 450;
+}
+
+.coreSection {
+  width: min(760px, 100%);
+  margin-top: 44px;
+  border-top: 1px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
+}
+
+.coreRow {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 18px 0;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.coreCopy {
+  min-width: 0;
+}
+
+.coreName {
+  margin: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.coreDescription {
+  margin: 4px 0 0;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.coreVersion {
+  flex: none;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-height: 720px) {
+  .root {
+    min-height: 420px;
+    padding-bottom: 40px;
+  }
+
+  .icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+  }
+
+  .identity {
+    margin-top: 22px;
+  }
+
+  .coreSection {
+    margin-top: 30px;
+  }
+}

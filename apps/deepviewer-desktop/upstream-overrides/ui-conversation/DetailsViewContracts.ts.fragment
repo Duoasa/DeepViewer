@@ -1,0 +1,23 @@
+/** Live projection of additive details entries. */
+export interface DetailsViewRegistry {
+  list: () => ViewTab[]
+  subscribe: (listener: () => void) => () => void
+  version: () => number
+}
+
+/** Parent details shell orchestration supplied from ui-conversation apply. */
+export interface DetailsInjected {
+  closeDetails: () => void
+  /** Optional only for source-compatible direct tests of the pre-extension panel. */
+  selectDetailsView?: (id: string) => void
+  /** Optional only for source-compatible direct tests of the pre-extension panel. */
+  views?: DetailsViewRegistry
+}
+
+/** Full details-shell props: active view owner share, child entries, orchestration, and locale. */
+export type DetailsSlotProps = PropsRuntime<'details'> & PropsRenderSlots<'conversation.details.view'>
+  & PropsStore<ChatStore> & DetailsInjected & PropsLocale<'conversation'>
+
+/** Built-in tool-details entry props. */
+export type ToolDetailsViewProps = PropsRuntime<'conversation.details.view'>
+  & PropsRenderSlots<'conversation.details.tool'> & PropsStore<ChatStore> & PropsLocale<'conversation'>

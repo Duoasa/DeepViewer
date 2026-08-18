@@ -1,0 +1,1 @@
+<DetailsColumn>{renderSlot('details', { activeView: panels.detailsView })}</DetailsColumn>

@@ -1,0 +1,2 @@
+  openDetails: (draft: LayoutState, view?: string, preferredWidth?: number) => void
+  toggleDetails: (draft: LayoutState, view?: string, preferredWidth?: number) => void

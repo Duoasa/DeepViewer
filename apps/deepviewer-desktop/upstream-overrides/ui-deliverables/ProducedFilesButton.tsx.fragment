@@ -1,0 +1,18 @@
+<button
+  key={path}
+  type="button"
+  className={css.file}
+  // The absolute path drives both the native menu and preview-first click;
+  // the chip stays short and the Host opener remains the no-plugin fallback.
+  title={resolveWorkspacePath(cwd, path)}
+  data-deepviewer-native-file-path={resolveWorkspacePath(cwd, path)}
+  aria-label={t('produced.open', { name: path })}
+  onClick={() => {
+    openDeepViewerPreviewOrFallback(
+      resolveWorkspacePath(cwd, path),
+      () => { openFile(path) },
+    )
+  }}
+>
+  {basename(path)}
+</button>

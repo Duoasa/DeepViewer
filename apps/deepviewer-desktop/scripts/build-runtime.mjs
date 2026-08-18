@@ -1,11 +1,25 @@
 import { execFileSync, spawn } from 'node:child_process'
-import { chmodSync, existsSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { mkdir, readdir, realpath } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gunzipSync } from 'node:zlib'
 import { downloadArtifact } from '@electron/get'
+import {
+  adaptSubscriptionsPlugin,
+  SUBSCRIPTIONS_UI_ADAPTER_ID,
+} from './adapt-subscriptions-plugin.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
@@ -15,11 +29,20 @@ const packRoots = [
   resolve(upstreamRoot, 'dist', 'deepviewer', 'dsh'),
 ]
 const electronVersion = '43.4.0'
-const expectedHarnessCommit = '47f943859bef60e4160492346772ded9b24f765a'
-const expectedHarnessVersion = '0.1.0-rc.5'
-const deepviewerVersion = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8')).version
+const expectedHarnessCommit = '99f6f02fecdb7dff40c3fbc9470f5907c29f74ca'
+const expectedHarnessVersion = '0.1.0-rc.7'
+const subscriptionsPluginName = 'dsh-plugin-subscriptions'
+const subscriptionsPluginVersion = '0.3.1'
+const previewPluginName = '@deepviewer/dsh-plugin-preview'
+const previewPluginVersion = '0.1.0'
+const previewPluginSource = resolve(upstreamRoot, '.deepviewer', 'plugins', 'preview')
+const appManifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+const deepviewerVersion = appManifest.version
 if (typeof deepviewerVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(deepviewerVersion)) {
   throw new Error(`invalid DeepViewer package version: ${String(deepviewerVersion)}`)
+}
+if (appManifest.dependencies?.[subscriptionsPluginName] !== subscriptionsPluginVersion) {
+  throw new Error(`${subscriptionsPluginName} must be pinned to ${subscriptionsPluginVersion}`)
 }
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
 if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
@@ -78,6 +101,137 @@ function packedDependencies() {
   }
   if (!dependencies.has('@deepseek-ai/dsh')) throw new Error('packed Harness CLI is missing')
   return dependencies
+}
+
+function packSubscriptionsPlugin() {
+  const sourceRoot = resolve(projectRoot, 'node_modules', subscriptionsPluginName)
+  const manifestPath = join(sourceRoot, 'package.json')
+  if (!existsSync(manifestPath)) {
+    throw new Error(`${subscriptionsPluginName} is missing; run pnpm install first`)
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  if (
+    manifest.name !== subscriptionsPluginName
+    || manifest.version !== subscriptionsPluginVersion
+    || manifest.license !== 'MIT'
+    || manifest.dsh?.bundle?.patch !== './cordis.patch.yml'
+    || manifest.dsh?.client?.platform !== 'web'
+  ) {
+    throw new Error(`invalid ${subscriptionsPluginName}@${subscriptionsPluginVersion} package`)
+  }
+
+  const destination = resolve(projectRoot, '.runtime', 'inputs', `${subscriptionsPluginName}-${subscriptionsPluginVersion}`)
+  rmSync(destination, { recursive: true, force: true })
+  mkdirSync(destination, { recursive: true })
+  execFileSync('pnpm', ['pack', '--pack-destination', destination], {
+    cwd: sourceRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  const tarballs = readdirSync(destination)
+    .filter(name => name.endsWith('.tgz'))
+    .map(name => join(destination, name))
+  if (tarballs.length !== 1) {
+    throw new Error(`expected one packed ${subscriptionsPluginName} tarball, found ${String(tarballs.length)}`)
+  }
+  const identity = packedIdentity(tarballs[0])
+  if (identity.name !== subscriptionsPluginName || identity.version !== subscriptionsPluginVersion) {
+    throw new Error(`packed subscriptions plugin identity mismatch: ${identity.name}@${identity.version}`)
+  }
+  return tarballs[0]
+}
+
+function packPreviewPlugin() {
+  const manifestPath = join(previewPluginSource, 'package.json')
+  if (!existsSync(manifestPath)) {
+    throw new Error(`${previewPluginName} is missing; run the upstream override build first`)
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  const clientPath = manifest.exports?.['./client']?.default
+  if (
+    manifest.name !== previewPluginName
+    || manifest.version !== previewPluginVersion
+    || manifest.license !== 'MIT'
+    || manifest.dsh?.bundle?.patch !== './cordis.patch.yml'
+    || manifest.dsh?.client?.platform !== 'web'
+    || typeof manifest.main !== 'string'
+    || typeof clientPath !== 'string'
+    || !existsSync(join(previewPluginSource, manifest.main))
+    || !existsSync(join(previewPluginSource, clientPath))
+  ) {
+    throw new Error(`invalid ${previewPluginName}@${previewPluginVersion} build`)
+  }
+  const destination = resolve(projectRoot, '.runtime', 'inputs', `deepviewer-preview-${previewPluginVersion}`)
+  rmSync(destination, { recursive: true, force: true })
+  mkdirSync(destination, { recursive: true })
+  execFileSync('pnpm', ['pack', '--pack-destination', destination], {
+    cwd: previewPluginSource,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  const tarballs = readdirSync(destination)
+    .filter(name => name.endsWith('.tgz'))
+    .map(name => join(destination, name))
+  if (tarballs.length !== 1) {
+    throw new Error(`expected one packed ${previewPluginName} tarball, found ${String(tarballs.length)}`)
+  }
+  const identity = packedIdentity(tarballs[0])
+  if (identity.name !== previewPluginName || identity.version !== previewPluginVersion) {
+    throw new Error(`packed preview plugin identity mismatch: ${identity.name}@${identity.version}`)
+  }
+  return tarballs[0]
+}
+
+function sanitizeSubscriptionsPlugin(runtimeRoot) {
+  const pluginRoot = join(runtimeRoot, 'node_modules', subscriptionsPluginName)
+  const manifestPath = join(pluginRoot, 'package.json')
+  if (!existsSync(manifestPath)) {
+    throw new Error(`installed ${subscriptionsPluginName} is missing from the Runtime`)
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  if (
+    manifest.name !== subscriptionsPluginName
+    || manifest.version !== subscriptionsPluginVersion
+    || manifest.license !== 'MIT'
+    || !existsSync(join(pluginRoot, 'LICENSE'))
+  ) {
+    throw new Error(`installed ${subscriptionsPluginName} metadata is invalid`)
+  }
+  adaptSubscriptionsPlugin(pluginRoot)
+  delete manifest.devDependencies
+  delete manifest.scripts
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
+  return {
+    name: subscriptionsPluginName,
+    version: subscriptionsPluginVersion,
+    license: 'MIT',
+    adapter: SUBSCRIPTIONS_UI_ADAPTER_ID,
+  }
+}
+
+function sanitizePreviewPlugin(runtimeRoot) {
+  const pluginRoot = join(runtimeRoot, 'node_modules', ...previewPluginName.split('/'))
+  const manifestPath = join(pluginRoot, 'package.json')
+  if (!existsSync(manifestPath)) throw new Error(`installed ${previewPluginName} is missing from the Runtime`)
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  const clientPath = manifest.exports?.['./client']?.default
+  if (
+    manifest.name !== previewPluginName
+    || manifest.version !== previewPluginVersion
+    || manifest.license !== 'MIT'
+    || typeof manifest.main !== 'string'
+    || typeof clientPath !== 'string'
+    || !existsSync(join(pluginRoot, manifest.main))
+    || !existsSync(join(pluginRoot, clientPath))
+    || !existsSync(join(pluginRoot, 'cordis.patch.yml'))
+    || !existsSync(join(pluginRoot, 'LICENSE'))
+  ) {
+    throw new Error(`installed ${previewPluginName} metadata is invalid`)
+  }
+  delete manifest.devDependencies
+  delete manifest.scripts
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
+  return { name: previewPluginName, version: previewPluginVersion, license: 'MIT' }
 }
 
 function run(command, args, options = {}) {
@@ -211,6 +365,8 @@ function sanitizeReleaseBuildPaths(runtimeRoot) {
 }
 
 const dependencies = packedDependencies()
+dependencies.set(subscriptionsPluginName, packSubscriptionsPlugin())
+dependencies.set(previewPluginName, packPreviewPlugin())
 const upstreamCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: upstreamRoot, encoding: 'utf8' }).trim()
 if (upstreamCommit !== expectedHarnessCommit) {
   throw new Error(`Harness checkout is ${upstreamCommit}; expected pinned commit ${expectedHarnessCommit}`)
@@ -247,6 +403,7 @@ for (const arch of architectures) {
     DSH_TELEMETRY_DISABLED: '1',
   })
 
+  const packagedPlugins = [sanitizeSubscriptionsPlugin(runtimeRoot), sanitizePreviewPlugin(runtimeRoot)]
   const entry = join(runtimeRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
   if (!existsSync(entry)) throw new Error(`installed Harness entry is missing at ${entry}`)
   const spawnHelper = join(runtimeRoot, 'node_modules', 'node-pty', 'prebuilds', `darwin-${arch}`, 'spawn-helper')
@@ -283,6 +440,7 @@ for (const arch of architectures) {
     harnessVersion: expectedHarnessVersion,
     deepviewerVersion,
     packageCount: dependencies.size,
+    plugins: packagedPlugins,
     verifiedNativeModules,
   }, null, 2)}\n`)
   sanitizeReleaseBuildPaths(runtimeRoot)

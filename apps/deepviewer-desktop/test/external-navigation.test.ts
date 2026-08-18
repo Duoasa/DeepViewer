@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  getExternalPreviewUrl,
   getExternalWebUrl,
   openExternalWebUrl,
 } from '../src/main/external-navigation.js'
@@ -38,5 +39,19 @@ describe('external navigation', () => {
     await expect(openExternalWebUrl('file:///tmp/private.txt', openExternal))
       .resolves.toBe(false)
     expect(openExternal).not.toHaveBeenCalled()
+  })
+
+  it('opens only explicitly marked preview capabilities from the active Runtime origin', () => {
+    const runtimeOrigin = 'http://127.0.0.1:4312'
+    const target = `${runtimeOrigin}/deepviewer-preview-static/token/index.html?x=1&deepviewerExternalPreview=1`
+
+    expect(getExternalPreviewUrl(target, runtimeOrigin))
+      .toBe(`${runtimeOrigin}/deepviewer-preview-static/token/index.html?x=1`)
+    expect(getExternalPreviewUrl(target, 'http://127.0.0.1:9999')).toBeUndefined()
+    expect(getExternalPreviewUrl(`${runtimeOrigin}/settings?deepviewerExternalPreview=1`, runtimeOrigin))
+      .toBeUndefined()
+    expect(getExternalPreviewUrl(
+      `${runtimeOrigin}/deepviewer-preview-static/token/index.html`, runtimeOrigin,
+    )).toBeUndefined()
   })
 })

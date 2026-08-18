@@ -1,0 +1,4 @@
+  /** Open the details panel and select an additive details view. */
+  openDetails(view?: string, preferredWidth?: number): void
+  /** Toggle one additive details view without disturbing a different open view. */
+  toggleDetails(view?: string, preferredWidth?: number): void

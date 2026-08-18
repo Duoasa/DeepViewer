@@ -1,0 +1,9 @@
+  /** Open the details panel and select an additive details view. */
+  openDetails(view = 'tool', preferredWidth?: number): void {
+    this.#require().openDetails(view, preferredWidth)
+  }
+
+  /** Toggle one additive details view without disturbing a different open view. */
+  toggleDetails(view = 'tool', preferredWidth?: number): void {
+    this.#require().toggleDetails(view, preferredWidth)
+  }

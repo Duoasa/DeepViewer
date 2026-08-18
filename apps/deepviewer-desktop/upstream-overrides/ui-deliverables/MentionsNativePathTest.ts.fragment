@@ -1,0 +1,27 @@
+it('resolves exact paths and unique basenames with a native absolute title', () => {
+  const opened: string[] = []
+  const resolver = producedFileMentions(
+    ['out/index.html', 'a/style.css', 'b/style.css'],
+    (path) => { opened.push(path) },
+    label,
+    '/workspace',
+  )
+  // Visible labels stay relative while the default click prefers preview.
+  const byBasename = resolver.resolve('index.html')
+  expect(byBasename?.label).toBe('打开 out/index.html')
+  expect(byBasename?.title).toBe('/workspace/out/index.html')
+  const preview = vi.fn((event: Event) => { event.preventDefault() })
+  window.addEventListener('deepviewer:preview-file', preview)
+  byBasename?.open()
+  expect((preview.mock.calls[0]?.[0] as CustomEvent<string>).detail).toBe('/workspace/out/index.html')
+  expect(opened).toEqual([])
+  window.removeEventListener('deepviewer:preview-file', preview)
+  byBasename?.open()
+  expect(opened).toEqual(['out/index.html'])
+  // An exact path resolves even when its basename is ambiguous.
+  const exact = resolver.resolve('a/style.css')
+  expect(exact?.title).toBe('/workspace/a/style.css')
+  expect(resolver.resolve('style.css')).toBeUndefined()
+  expect(resolver.resolve('notes.md')).toBeUndefined()
+  expect(basename('a\\b\\c.txt')).toBe('c.txt')
+})

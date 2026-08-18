@@ -1,0 +1,1 @@
+const nativeFilePath = filePath === undefined ? undefined : resolveWorkspacePath(cwd, filePath)

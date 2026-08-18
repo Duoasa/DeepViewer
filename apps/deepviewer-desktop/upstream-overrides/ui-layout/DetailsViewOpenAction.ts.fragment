@@ -1,0 +1,20 @@
+      openDetails: (d, view = 'tool', preferredWidth?: number) => {
+        d.detailsView = view
+        if (d.details === 0) {
+          d.details = preferredWidth === undefined
+            ? DETAILS_DEFAULT
+            : clampWidth(preferredWidth, DETAILS_MIN, DETAILS_MAX)
+        }
+      },
+      toggleDetails: (d, view = 'tool', preferredWidth?: number) => {
+        if (d.details !== 0 && d.detailsView === view) {
+          d.details = 0
+          return
+        }
+        d.detailsView = view
+        if (d.details === 0) {
+          d.details = preferredWidth === undefined
+            ? DETAILS_DEFAULT
+            : clampWidth(preferredWidth, DETAILS_MIN, DETAILS_MAX)
+        }
+      },

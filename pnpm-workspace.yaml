@@ -2,7 +2,11 @@ packages:
   - apps/*
 
 nodeLinker: hoisted
+autoInstallPeers: false
 
 allowBuilds:
   electron: true
   esbuild: true
+
+minimumReleaseAgeExclude:
+  - dsh-plugin-subscriptions@0.3.1

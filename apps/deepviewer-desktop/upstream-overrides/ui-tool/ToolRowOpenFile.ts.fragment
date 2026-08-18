@@ -1,0 +1,5 @@
+const openFile = (event: MouseEvent<HTMLButtonElement>) => {
+  event.stopPropagation()
+  if (filePath === undefined) return
+  openDeepViewerPreviewOrFallback(nativeFilePath, () => { onOpenFile?.(filePath) })
+}

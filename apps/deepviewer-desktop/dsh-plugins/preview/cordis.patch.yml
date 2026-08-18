@@ -1,0 +1,3 @@
+- insert:
+    - id: ui-preview
+      name: '@deepviewer/dsh-plugin-preview'

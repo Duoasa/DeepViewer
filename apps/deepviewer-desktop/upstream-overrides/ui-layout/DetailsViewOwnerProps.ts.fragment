@@ -1,0 +1,4 @@
+export interface DetailsOwnerProps {
+  /** Active additive details entry selected through ctx.layout. */
+  activeView?: string
+}

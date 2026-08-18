@@ -1,0 +1,33 @@
+it('file rows expose a cwd-resolved native path and prefer the DeepViewer preview event', () => {
+  const open = vi.fn()
+  const view = render(
+    <ToolRow
+      {...rowProps}
+      variant="read"
+      title="Read"
+      summary="src/a.ts"
+      filePath="src/a.ts"
+      cwd="/workspace"
+      onOpenFile={open}
+    />,
+  )
+  const row = view.getByRole('button', { name: /Read/ })
+  const pathLink = view.getByText('src/a.ts')
+  expect(pathLink.getAttribute('title')).toBe('/workspace/src/a.ts')
+  expect(pathLink.getAttribute('data-deepviewer-native-file-path')).toBe('/workspace/src/a.ts')
+  const preview = vi.fn((event: Event) => { event.preventDefault() })
+  window.addEventListener('deepviewer:preview-file', preview)
+  fireEvent.click(pathLink)
+  expect(preview).toHaveBeenCalledOnce()
+  expect((preview.mock.calls[0]?.[0] as CustomEvent<string>).detail).toBe('/workspace/src/a.ts')
+  expect(open).not.toHaveBeenCalled()
+  window.removeEventListener('deepviewer:preview-file', preview)
+
+  // The Host opener remains the fallback when the preview plugin is absent.
+  fireEvent.click(pathLink)
+  expect(open).toHaveBeenCalledWith('src/a.ts')
+  expect(row.getAttribute('aria-expanded')).toBe('false')
+  fireEvent.click(row)
+  expect(row.getAttribute('aria-expanded')).toBe('true')
+  expect(view.getByText(/"a": 1/)).toBeTruthy()
+})

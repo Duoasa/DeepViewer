@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { BrowserWindow, clipboard, Menu, shell } from 'electron'
-import type { MenuItemConstructorOptions } from 'electron'
+import type { ContextMenuParams, MenuItemConstructorOptions } from 'electron'
 import type { RuntimeStatusView } from '../shared/runtime-status.js'
 import {
   DEEPVIEWER_APP_NAME,
@@ -26,12 +26,19 @@ import {
   remainingLaunchSurfaceVisibilityMs,
   WAIT_FOR_LAUNCH_SURFACE_PAINT_SCRIPT,
 } from './launch-surface-timing.js'
-import { openExternalWebUrl } from './external-navigation.js'
+import { getExternalPreviewUrl, openExternalWebUrl } from './external-navigation.js'
 import {
+  createNativeFilePathLookupScript,
+  createPreviewFileDispatchScript,
   getContextLinkTarget,
   getDesktopContextMenuLabels,
+  getNativeFileTarget,
 } from './desktop-context-menu.js'
-import type { DesktopContextMenuOptions } from './desktop-context-menu.js'
+import type {
+  ContextLinkTarget,
+  DesktopContextMenuLabels,
+  DesktopContextMenuOptions,
+} from './desktop-context-menu.js'
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -98,7 +105,9 @@ export class WindowController {
       })
     }
     window.webContents.setWindowOpenHandler(({ url }) => {
-      if (!this.isAllowedNavigation(url)) this.openExternalNavigation(url)
+      const externalPreview = getExternalPreviewUrl(url, this.runtimeOrigin)
+      if (externalPreview !== undefined) this.openExternalNavigation(externalPreview)
+      else if (!this.isAllowedNavigation(url)) this.openExternalNavigation(url)
       return { action: 'deny' }
     })
     window.webContents.on('will-navigate', (event, targetUrl) => {
@@ -206,53 +215,83 @@ export class WindowController {
     const labels = getDesktopContextMenuLabels(options.locale)
     window.webContents.on('context-menu', (event, params) => {
       event.preventDefault()
-      const template: MenuItemConstructorOptions[] = []
-      const target = getContextLinkTarget(params.linkURL, params.titleText)
-      if (target?.kind === 'web') {
-        template.push(
-          {
-            label: labels.openWebLink,
-            click: () => this.openExternalNavigation(target.url),
-          },
-          {
-            label: labels.copyLinkAddress,
-            click: () => clipboard.writeText(target.url),
-          },
-          { type: 'separator' },
-        )
-      } else if (target?.kind === 'file') {
-        template.push(
-          {
-            label: labels.revealFile,
-            click: () => shell.showItemInFolder(target.path),
-          },
-          {
-            label: labels.copyFilePath,
-            click: () => clipboard.writeText(target.path),
-          },
-          { type: 'separator' },
-        )
-      }
+      void this.showContextMenu(window, options, labels, params)
+    })
+  }
 
+  private async resolveContextMenuTarget(
+    params: ContextMenuParams,
+  ): Promise<ContextLinkTarget | undefined> {
+    const directTarget = getContextLinkTarget(params.linkURL, params.titleText)
+    if (directTarget !== undefined) return directTarget
+    if (params.frame === null || params.frame.isDestroyed()) return undefined
+    const value = await params.frame.executeJavaScript(
+      createNativeFilePathLookupScript(params.x, params.y),
+    ).catch(() => undefined)
+    return getNativeFileTarget(value)
+  }
+
+  private async showContextMenu(
+    window: BrowserWindow,
+    options: DesktopContextMenuOptions,
+    labels: DesktopContextMenuLabels,
+    params: ContextMenuParams,
+  ): Promise<void> {
+    const template: MenuItemConstructorOptions[] = []
+    const target = await this.resolveContextMenuTarget(params)
+    if (target?.kind === 'web') {
       template.push(
         {
-          label: labels.openLogs,
-          click: () => this.openDirectory(options.logDirectory),
+          label: labels.openWebLink,
+          click: () => this.openExternalNavigation(target.url),
+        },
+        {
+          label: labels.copyLinkAddress,
+          click: () => clipboard.writeText(target.url),
         },
         { type: 'separator' },
       )
+    } else if (target?.kind === 'file') {
+      template.push(
+        {
+          label: labels.previewFile,
+          click: () => {
+            const frame = window.webContents.mainFrame
+            if (frame.isDestroyed()) return
+            void frame.executeJavaScript(createPreviewFileDispatchScript(target.path))
+              .catch(() => undefined)
+          },
+        },
+        {
+          label: labels.revealFile,
+          click: () => shell.showItemInFolder(target.path),
+        },
+        {
+          label: labels.copyFilePath,
+          click: () => clipboard.writeText(target.path),
+        },
+        { type: 'separator' },
+      )
+    }
 
-      if (params.isEditable) {
-        template.push({ role: 'cut', enabled: params.editFlags.canCut })
-      }
-      template.push({ role: 'copy', enabled: params.editFlags.canCopy })
-      if (params.isEditable) {
-        template.push({ role: 'paste', enabled: params.editFlags.canPaste })
-      }
-      template.push({ role: 'selectAll', enabled: params.editFlags.canSelectAll })
+    template.push(
+      {
+        label: labels.openLogs,
+        click: () => this.openDirectory(options.logDirectory),
+      },
+      { type: 'separator' },
+    )
 
-      Menu.buildFromTemplate(template).popup({ window })
-    })
+    if (params.isEditable) {
+      template.push({ role: 'cut', enabled: params.editFlags.canCut })
+    }
+    template.push({ role: 'copy', enabled: params.editFlags.canCopy })
+    if (params.isEditable) {
+      template.push({ role: 'paste', enabled: params.editFlags.canPaste })
+    }
+    template.push({ role: 'selectAll', enabled: params.editFlags.canSelectAll })
+
+    if (!window.isDestroyed()) Menu.buildFromTemplate(template).popup({ window })
   }
 
   private openDirectory(directory: string): void {

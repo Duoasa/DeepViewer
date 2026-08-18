@@ -1,0 +1,14 @@
+  const detailsViewTabs = (): ViewTab[] => {
+    const tabs: ViewTab[] = []
+    for (const entry of slots.entries('conversation.details.view')) {
+      /* v8 ignore next -- list registration validates ids at load. */
+      if (entry.options.id === undefined) continue
+      tabs.push({ id: entry.options.id, label: resolveSlotLabel(entry.options.label) ?? entry.options.id })
+    }
+    return tabs
+  }
+  const detailsViews = {
+    list: detailsViewTabs,
+    subscribe: (fn: () => void) => slots.subscribe('conversation.details.view', fn),
+    version: () => slots.getVersion('conversation.details.view'),
+  }

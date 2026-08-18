@@ -1,0 +1,4 @@
+export {
+  DEEPVIEWER_PREVIEW_FILE_EVENT,
+  openDeepViewerPreviewOrFallback,
+} from './DeepViewerPreviewFile.ts'

@@ -3,6 +3,10 @@ import { spawn } from 'node:child_process'
 
 const mode = process.argv[2] ?? 'ready'
 if (mode === 'exit') process.exit(7)
+if (mode === 'secret') {
+  process.stdout.write('authorization=Bearer sample-access-token\n')
+  process.stderr.write('callback?code=sample-oauth-code&state=ok refresh_token=sample-refresh-token\n')
+}
 
 const child = mode === 'child'
   ? spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' })

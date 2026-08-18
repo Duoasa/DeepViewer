@@ -1,0 +1,5 @@
+'about.nav': 'About DeepViewer',
+'about.description': 'An independent, open-source agent workspace built on DeepSeek Harness',
+'about.version': 'Version',
+'about.build': 'Build',
+'about.core': 'Currently used core',

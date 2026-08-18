@@ -61,6 +61,66 @@ describe('RuntimeManager', () => {
     })
   })
 
+  it('retries once without an optional integration when its launch exits before readiness', async () => {
+    const logger = new MemoryLogger()
+    const manager = new RuntimeManager(new DarwinProcessAdapter(), logger)
+    const phases: string[] = []
+    manager.onStatus(status => phases.push(status.phase))
+
+    const origin = await manager.start({
+      ...spec('exit'),
+      startupDiagnostics: ['SUBSCRIPTIONS_ENABLED version=0.3.1'],
+      fallback: {
+        ...spec(),
+        startupDiagnostics: ['SUBSCRIPTIONS_FALLBACK core-only'],
+      },
+    })
+
+    expect(origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u)
+    expect(manager.getStatus()).toMatchObject({ phase: 'ready', attempt: 2 })
+    expect(phases).toEqual(['starting', 'starting', 'ready'])
+    expect(logger.messages).toContain('INFO runtime:integration SUBSCRIPTIONS_ENABLED version=0.3.1')
+    expect(logger.messages).toContain('ERROR runtime:integration SUBSCRIPTIONS_START_FAILED code=RUNTIME_EXITED_EARLY; retrying core-only')
+    expect(logger.messages).toContain('INFO runtime:integration SUBSCRIPTIONS_FALLBACK core-only')
+    await manager.stop()
+  })
+
+  it('can shed preview first, then subscriptions, before using the core fallback', async () => {
+    const logger = new MemoryLogger()
+    const manager = new RuntimeManager(new DarwinProcessAdapter(), logger)
+    const origin = await manager.start({
+      ...spec('exit'),
+      integrationName: 'PREVIEW',
+      fallbackDescription: 'subscriptions-only',
+      fallback: {
+        ...spec('exit'),
+        integrationName: 'SUBSCRIPTIONS',
+        fallbackDescription: 'core-only',
+        fallback: spec(),
+      },
+    })
+
+    expect(origin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u)
+    expect(manager.getStatus()).toMatchObject({ phase: 'ready', attempt: 3 })
+    expect(logger.messages).toContain('ERROR runtime:integration PREVIEW_START_FAILED code=RUNTIME_EXITED_EARLY; retrying subscriptions-only')
+    expect(logger.messages).toContain('ERROR runtime:integration SUBSCRIPTIONS_START_FAILED code=RUNTIME_EXITED_EARLY; retrying core-only')
+    await manager.stop()
+  })
+
+  it('redacts OAuth credentials from Harness stdout and stderr logs', async () => {
+    const logger = new MemoryLogger()
+    const manager = new RuntimeManager(new DarwinProcessAdapter(), logger)
+
+    await manager.start(spec('secret'))
+
+    const output = logger.messages.join('\n')
+    expect(output).not.toContain('sample-access-token')
+    expect(output).not.toContain('sample-oauth-code')
+    expect(output).not.toContain('sample-refresh-token')
+    expect(output.match(/\[REDACTED\]/gu)?.length).toBeGreaterThanOrEqual(3)
+    await manager.stop()
+  })
+
   it('stops a runtime process group that owns a descendant', async () => {
     const manager = new RuntimeManager(new DarwinProcessAdapter(), new MemoryLogger())
     const origin = await manager.start(spec('child'))

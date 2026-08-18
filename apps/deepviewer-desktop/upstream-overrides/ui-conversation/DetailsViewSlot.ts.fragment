@@ -1,0 +1,6 @@
+    /**
+     * Additive views hosted by the right details column. The built-in tool
+     * details surface is the `tool` entry; preview and later features add
+     * their own ids without replacing the column owner.
+     */
+    'conversation.details.view': { kind: 'list'; scope: 'session'; owner: DetailsViewOwnerProps }

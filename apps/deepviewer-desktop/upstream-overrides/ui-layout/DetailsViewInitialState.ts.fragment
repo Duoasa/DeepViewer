@@ -1,0 +1,7 @@
+    init: (): LayoutState => ({
+      sidebar: SIDEBAR_DEFAULT,
+      details: 0,
+      detailsView: 'tool',
+      narrow: false,
+      narrowExpanded: false,
+    }),

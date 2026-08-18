@@ -1,0 +1,5 @@
+'about.nav': '关于 DeepViewer',
+'about.description': '基于 DeepSeek Harness 构建的独立开源智能体工作空间',
+'about.version': '版本',
+'about.build': '构建',
+'about.core': '当前使用的核心',

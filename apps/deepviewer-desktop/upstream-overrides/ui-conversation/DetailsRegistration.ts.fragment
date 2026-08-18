@@ -1,0 +1,25 @@
+  slots.register({
+    name: 'details',
+    locale: NS,
+    children: {
+      'conversation.details.view': { kind: 'list', scope: 'session' },
+    },
+    store: chatStore,
+    inject: (): DetailsInjected => ({
+      closeDetails: () => { layout.closeDetails() },
+      selectDetailsView: id => { layout.openDetails(id) },
+      views: detailsViews,
+    }),
+  }, DetailsPanel)
+
+  slots.register({
+    name: 'conversation.details.view',
+    id: 'tool',
+    order: 0,
+    label: () => t('details.view.tool'),
+    locale: NS,
+    children: {
+      'conversation.details.tool': { kind: 'single', scope: 'session' },
+    },
+    store: chatStore,
+  }, ToolDetailsView)

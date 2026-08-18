@@ -39,8 +39,21 @@ if (!Number.isSafeInteger(appBuildNumber) || appBuildNumber < 1) {
   throw new Error(`invalid DeepViewer build number: ${String(appBuildNumber)}`)
 }
 const appBuildVersion = String(appBuildNumber)
-const expectedHarnessCommit = '47f943859bef60e4160492346772ded9b24f765a'
-const expectedHarnessVersion = '0.1.0-rc.5'
+const expectedHarnessCommit = '99f6f02fecdb7dff40c3fbc9470f5907c29f74ca'
+const expectedHarnessVersion = '0.1.0-rc.7'
+const expectedRuntimePlugins = [
+  {
+    name: 'dsh-plugin-subscriptions',
+    version: '0.3.1',
+    license: 'MIT',
+    adapter: 'deepviewer-remaining-usage-v1',
+  },
+  {
+    name: '@deepviewer/dsh-plugin-preview',
+    version: '0.1.0',
+    license: 'MIT',
+  },
+]
 const shouldSign = process.argv.includes('--sign')
 const isPreview = process.argv.includes('--preview')
 if (shouldSign && isPreview) throw new Error('--preview cannot be combined with --sign')
@@ -133,6 +146,7 @@ for (const arch of architectures) {
     || runtimeManifest.upstreamCommit !== expectedHarnessCommit
     || runtimeManifest.harnessVersion !== expectedHarnessVersion
     || runtimeManifest.deepviewerVersion !== appVersion
+    || JSON.stringify(runtimeManifest.plugins) !== JSON.stringify(expectedRuntimePlugins)
   ) {
     throw new Error(`runtime manifest mismatch for ${arch}: ${JSON.stringify(runtimeManifest)}`)
   }

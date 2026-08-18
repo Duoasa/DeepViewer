@@ -28,6 +28,21 @@
 默认迭代只包括代码修改及相关静态检查、类型检查、测试和 production build。生成本地 ARM
 预览应用、执行正式签名公证发布、同步 SDD/README，均需要维护者明确提出对应要求。
 
+## DSH 内核更新与手动插件登记
+
+- [`integrations/dsh-plugins.md`](integrations/dsh-plugins.md) 是手动集成 DSH 插件及其当前状态的
+  唯一登记表。新增、升级、停用或移除插件时必须同步更新该表。
+- 更改 DeepSeek Harness 版本或提交、Runtime 包族，或者会影响 profile、bundle、client、
+  loader、settings、provider、model、tool、auth 契约的上游代码，均视为 DSH 内核更新。
+- 任何 DSH 内核更新规格在设计和实施前必须读取登记表，并在规格、任务或验证记录中明确列出
+  目标内核及全部 `Active` 的 `DVP-*`；不得以“无直接改动插件代码”为由跳过。
+- 规格进入 `Verified` 或 `Released` 前，必须按照登记表中的 `PC-*` 检查项，为每个 `Active`
+  插件记录兼容性、可用性和安全降级证据。`Pending Manual` 继续适用本文件的验证职责规则。
+- 插件不兼容或不可用时，必须先修复，或经维护者明确批准后登记为可安全降级的 `Disabled`；
+  否则对应内核更新不得完成验证或发布。
+- 登记表只保留当前状态和最近结论；历史兼容证据留在对应内核更新规格的 `verification.md`，
+  不在登记表重复累积。
+
 ## 编号
 
 - 功能规格：`DV-NNNN-short-name`，例如 `DV-0002-desktop-shell`。

@@ -1,0 +1,3 @@
+// DeepViewer keeps sidebar visibility under explicit user control at every window width.
+useEffect(() => { actions.setNarrow(false) }, [actions])
+const sidebarCollapsed = panels.sidebar === 0

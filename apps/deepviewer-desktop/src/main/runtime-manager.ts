@@ -5,7 +5,11 @@ import type { PlatformProcessAdapter, RuntimeProcess, RuntimeSpawnSpec } from '.
 import type { RuntimePhase, RuntimeStatusView } from '../shared/runtime-status.js'
 
 export interface RuntimeLaunchSpec extends RuntimeSpawnSpec {
+  fallback?: RuntimeLaunchSpec
+  integrationName?: string
+  fallbackDescription?: string
   readinessPattern?: RegExp
+  startupDiagnostics?: string[]
   startTimeoutMs?: number
   stopTimeoutMs?: number
   probeTimeoutMs?: number
@@ -24,6 +28,18 @@ export class RuntimeLaunchError extends Error {
 type StatusListener = (status: RuntimeStatusView) => void
 
 const DEFAULT_READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+)(?:\s|$)/mu
+const LOG_SECRET_PATTERNS = [
+  /(\bBearer\s+)[A-Za-z0-9._~+/=-]+/giu,
+  /([?&](?:code|token|access_token|refresh_token|id_token)=)[^&\s]+/giu,
+  /((?:access_token|refresh_token|id_token|authorization|oauth_code)\s*[:=]\s*)[^\s,}]+/giu,
+] as const
+
+function redactRuntimeLog(value: string): string {
+  return LOG_SECRET_PATTERNS.reduce(
+    (text, pattern) => text.replace(pattern, '$1[REDACTED]'),
+    value,
+  )
+}
 
 export class RuntimeManager {
   private readonly events = new EventEmitter()
@@ -62,7 +78,7 @@ export class RuntimeManager {
     if (this.startPromise !== undefined) return this.startPromise
     if (this.stopPromise !== undefined) await this.stopPromise
 
-    this.startPromise = this.launch(spec).finally(() => {
+    this.startPromise = this.launchWithFallback(spec).finally(() => {
       this.startPromise = undefined
     })
     return this.startPromise
@@ -76,13 +92,30 @@ export class RuntimeManager {
     return this.stopPromise
   }
 
-  private async launch(spec: RuntimeLaunchSpec): Promise<string> {
+  private async launchWithFallback(spec: RuntimeLaunchSpec): Promise<string> {
+    const fallback = spec.fallback
+    try {
+      return await this.launch(spec, fallback !== undefined)
+    } catch (error) {
+      if (fallback === undefined) throw error
+      const code = error instanceof RuntimeLaunchError ? error.code : 'RUNTIME_START_FAILED'
+      const integration = spec.integrationName ?? 'SUBSCRIPTIONS'
+      const target = spec.fallbackDescription ?? 'core-only'
+      this.logger.error('runtime:integration', `${integration}_START_FAILED code=${code}; retrying ${target}`)
+      return this.launchWithFallback(fallback)
+    }
+  }
+
+  private async launch(spec: RuntimeLaunchSpec, deferFailure = false): Promise<string> {
     const startTimeoutMs = spec.startTimeoutMs ?? 30_000
     const stopTimeoutMs = spec.stopTimeoutMs ?? 5_000
     const probeTimeoutMs = spec.probeTimeoutMs ?? 3_000
     const readinessPattern = spec.readinessPattern ?? DEFAULT_READY_PATTERN
     this.origin = undefined
     this.transition('starting', { attempt: this.status.attempt + 1 })
+    for (const diagnostic of spec.startupDiagnostics ?? []) {
+      this.logger.info('runtime:integration', diagnostic)
+    }
     this.logger.info('runtime', `starting attempt=${String(this.status.attempt)}`)
 
     let runtime: RuntimeProcess
@@ -92,7 +125,7 @@ export class RuntimeManager {
       this.logger.info('runtime', `spawned pid=${String(runtime.pid)}`)
     } catch (error) {
       const launchError = new RuntimeLaunchError('RUNTIME_SPAWN_FAILED', '无法启动本地 Harness。', { cause: error })
-      this.fail(launchError)
+      if (!deferFailure) this.fail(launchError)
       throw launchError
     }
 
@@ -111,7 +144,7 @@ export class RuntimeManager {
         this.logger.error('runtime', `cleanup failed: ${String(terminateError)}`)
       })
       if (this.runtime === runtime) this.runtime = undefined
-      this.fail(launchError)
+      if (!deferFailure) this.fail(launchError)
       throw launchError
     }
   }
@@ -213,7 +246,8 @@ export class RuntimeManager {
   }
 
   private fail(error: RuntimeLaunchError): void {
-    this.logger.error('runtime', `${error.code}: ${error.message}${error.cause === undefined ? '' : ` cause=${String(error.cause)}`}`)
+    const cause = error.cause === undefined ? '' : ` cause=${String(error.cause)}`
+    this.logger.error('runtime', redactRuntimeLog(`${error.code}: ${error.message}${cause}`))
     this.transition('failed', { errorCode: error.code, userMessage: error.message })
   }
 
@@ -234,7 +268,7 @@ export class RuntimeManager {
 
   private logRuntimeChunk(stream: 'stdout' | 'stderr', text: string): void {
     for (const line of text.split(/\r?\n/u)) {
-      if (line !== '') this.logger.info(`harness:${stream}`, line)
+      if (line !== '') this.logger.info(`harness:${stream}`, redactRuntimeLog(line))
     }
   }
 }

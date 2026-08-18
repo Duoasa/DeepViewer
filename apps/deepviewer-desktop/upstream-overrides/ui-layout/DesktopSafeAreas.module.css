@@ -19,3 +19,10 @@
   min-height: 0;
   overflow: hidden;
 }
+
+/* Keep the 8px invisible resize hit target, but let the column border itself
+   be the only visual drag affordance. */
+.handle[data-side='details']::after {
+  content: none;
+  display: none;
+}

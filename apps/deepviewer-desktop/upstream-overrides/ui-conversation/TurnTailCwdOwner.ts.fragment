@@ -1,0 +1,3 @@
+const owner: TurnTailOwnerProps = {
+  turn, seq: closing?.finalNode.seq ?? data.seq, cwd, openFile,
+}

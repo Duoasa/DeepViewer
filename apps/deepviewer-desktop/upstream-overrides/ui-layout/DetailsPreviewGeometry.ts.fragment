@@ -1,0 +1,4 @@
+/** Details drag clamp ceiling, widened for first-party web preview. */
+export const DETAILS_MAX = 960
+/** Center floor used only while the first-party preview view is selected. */
+export const PREVIEW_CENTER_MIN = 420

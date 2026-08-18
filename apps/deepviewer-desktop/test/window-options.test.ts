@@ -71,8 +71,16 @@ describe('main window options', () => {
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-sidebar-safe-area]')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-main-safe-area]')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-details-safe-area]')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-details-safe-area] {\n  height: 0')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-details-header]')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('padding: 7px 48px 0 12px !important')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-details-header] button')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-shell-overlay]')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-side]')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('--deepviewer-window-control-top: 13px')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain(
+      '--deepviewer-window-control-right: max(16px, env(safe-area-inset-right))',
+    )
   })
 
   it('mirrors session stats into the structural chat safe area without an overlay bar', () => {

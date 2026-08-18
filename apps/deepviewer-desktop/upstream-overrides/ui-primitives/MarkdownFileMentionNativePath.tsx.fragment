@@ -1,0 +1,10 @@
+<button
+  type="button"
+  className={css.fileMention}
+  title={mention.title}
+  data-deepviewer-native-file-path={mention.title}
+  aria-label={mention.label}
+  onClick={mention.open}
+>
+  {value}
+</button>

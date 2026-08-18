@@ -1,0 +1,2 @@
+/** Details-view entries need no owner data; session/global state is standard slot currency. */
+export interface DetailsViewOwnerProps {}
