@@ -37,7 +37,7 @@ the pinned local runtime into a normal macOS application and provides a desktop
 shell designed for a visual, controllable agent experience.
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="100%" alt="DeepViewer 0.1.2 in dark mode">
+  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.1 with the conversation workspace and web preview sidebar">
 </p>
 
 > [!NOTE]
@@ -81,26 +81,61 @@ manifest for command-line verification.
 
 ## What's new in 0.2.1
 
-<p align="center">
-  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 in dark mode">
-  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 in light mode">
-</p>
+### DeepSeek Harness rc.7 and plugin governance
 
-- Upgrades the bundled core to DeepSeek Harness `0.1.0-rc.7` and records
-  compatibility checks for every integrated DSH plugin.
-- Adds a global Settings experience with an About page showing the real app,
-  build, and core versions.
-- Integrates subscription sign-in and remaining-usage status into the Models
-  page through the pinned `dsh-plugin-subscriptions@0.3.1` extension.
-- Adds a resizable right preview sidebar for workspace code and isolated static
-  web pages, including a compact browser toolbar and responsive one-third width.
-- Opens Agent-produced files in the built-in preview by default and provides
-  native “Show in Finder” and “Preview in DeepViewer” context-menu actions.
-- Refreshes the DeepViewer wordmark, welcome surface, loading mark, manual-only
-  sidebar controls, and light/dark readability.
-- Rebuilds separate arm64 and x64 DMGs from allowlisted inputs. Both packages are
-  Developer ID signed, Apple-notarized, stapled, privacy-audited, and published
-  with reproducible SHA-256 checksums.
+- Upgrades the only bundled core to DeepSeek Harness `0.1.0-rc.7`; the About
+  page reports the app version, build number, and active core version together.
+- Introduces a committed DSH plugin registry. Every future core update must
+  recheck the source, pinned version, peer graph, client injection points,
+  capabilities, security boundaries, fallback behavior, and packaged Runtime
+  for every active plugin.
+- Keeps the signed application immutable: plugins are pinned at build time and
+  never download into or modify `Contents/Resources/harness` at runtime.
+
+### Subscriptions inside Models
+
+- Integrates `dsh-plugin-subscriptions@0.3.1` through official DSH bundle and
+  client extension points rather than a private model protocol.
+- Reorganizes Models into an API section followed by Subscriptions, separated
+  with the same visual divider used by Settings.
+- Supports localized external-browser sign-in and provider status. Remaining
+  quota fills the usage bar directly, changes color at healthy/warning/critical
+  thresholds, and uses the provider-neutral “period window” label.
+- A real subscription login was manually validated. Provider model/tool calls
+  and logout remain explicit compatibility checks because the external services
+  do not expose stable public protocols.
+
+### Code and static web preview
+
+- Adds a first-party `@deepviewer/dsh-plugin-preview@0.1.0` right sidebar with a
+  workspace file tree, read-only syntax-highlighted code, and isolated static
+  web preview.
+- Opens at one third of the current window, supports direct border resizing,
+  and exposes a fixed top-right toggle that respects the macOS safe area.
+- Provides collapsible workspace files, draggable vertical section sizing, and
+  a compact browser toolbar with back, forward, refresh, constrained address
+  navigation, and system-browser handoff.
+- Restricts preview access to registered workspaces. Path traversal, symlink
+  escapes, sensitive files, binaries, oversized files, expired capabilities,
+  and arbitrary development-server URLs are rejected.
+
+### Faster artifact workflow and refined desktop shell
+
+- Agent-generated files now open in DeepViewer Preview on a normal click.
+  Native context menus add “Preview in DeepViewer”, “Show in Finder”, and copy
+  path actions while retaining the original Host fallback.
+- Settings is now a full-window application page with a stable two-column
+  layout and an About DeepViewer destination.
+- Refreshes the native SVG wordmark, welcome composition, 120px startup mark,
+  light/dark contrast, and manual-only left/right sidebar controls.
+
+### Release quality
+
+- Rebuilds independent arm64 and x64 Runtimes from the rc.7 release-pack. Each
+  application contains exactly one Harness and the same two pinned plugins.
+- Both DMGs passed allowlist and credential-value privacy audits, strict nested
+  code-sign verification, Apple notarization, ticket stapling, Gatekeeper,
+  architecture inspection, and independent post-upload SHA-256/DMG verification.
 
 See the [`0.2.1` release record](docs/sdd/releases/v0.2.1.md) for the complete
 asset and verification evidence.

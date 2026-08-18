@@ -37,7 +37,7 @@ Agent 工作台。它把固定版本的本地 Runtime 封装进普通 macOS 应�
 Agent 体验设计的桌面外壳。
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="100%" alt="DeepViewer 0.1.2 深色模式">
+  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.1 对话工作区与网页预览侧栏">
 </p>
 
 > [!NOTE]
@@ -78,19 +78,49 @@ Release 同时提供
 
 ## 0.2.1 更新内容
 
-<p align="center">
-  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 深色模式">
-  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 浅色模式">
-</p>
+### DeepSeek Harness rc.7 与插件治理
 
-- 内置核心升级为 DeepSeek Harness `0.1.0-rc.7`，并为每个已集成 DSH 插件登记兼容性检查。
-- 设置改为全局页面，新增“关于 DeepViewer”，展示真实应用版本、Build 与核心版本。
-- 通过固定的 `dsh-plugin-subscriptions@0.3.1` 扩展，把订阅登录和剩余用量整合进模型页。
-- 新增可调宽度的右侧预览栏，支持工作区代码、隔离静态网页、基础浏览器工具栏和默认三分之一宽度。
-- Agent 产出文件默认使用内置预览打开，并提供“在 Finder 中显示”和“在 DeepViewer 中预览”原生菜单。
-- 更新 DeepViewer 标志、欢迎页、加载动画、仅手动收起的侧栏控制及浅色/深色可读性。
-- 从允许列表输入重新构建彼此独立的 arm64 与 x64 DMG；两个安装包均完成 Developer ID
-  签名、Apple 公证、票据装订和隐私审计，并发布可复现的 SHA-256 校验值。
+- 包内唯一核心升级为 DeepSeek Harness `0.1.0-rc.7`；“关于 DeepViewer”会同时展示应用版本、
+  Build 和当前 DSH 核心版本。
+- 新增版本化 DSH 插件登记表。后续每次核心更新都必须逐一复核所有 Active 插件的来源、固定版本、
+  peer 依赖、客户端注入点、能力、安全边界、降级行为和正式 Runtime。
+- 已签名应用保持不可变：插件在构建时固定，运行时不会下载或修改
+  `Contents/Resources/harness`。
+
+### 模型页内的订阅能力
+
+- 通过 DSH 官方 bundle/client 扩展点集成 `dsh-plugin-subscriptions@0.3.1`，不引入 DeepViewer
+  私有模型协议。
+- 模型页按“API”和“订阅”两个板块组织，中间使用设置页面通用分割线，不再占用独立菜单。
+- 支持本地化的外部浏览器登录和提供方状态。用量条直接填充剩余额度，按健康/警告/危险三级
+  阈值改变颜色，并使用不假定固定时长的“周期窗口”文案。
+- 真实订阅账户登录已由维护者验证；由于外部服务并非稳定公共协议，模型/工具实际调用与登出
+  继续作为显式兼容性检查项。
+
+### 代码与静态网页预览
+
+- 新增第一方 `@deepviewer/dsh-plugin-preview@0.1.0` 右侧栏，包含工作区文件树、只读代码高亮和
+  隔离静态网页预览。
+- 侧栏默认占当前窗口三分之一，可直接拖动边框调宽；固定在窗口右上角的开关会避让 macOS 安全区。
+- 工作区文件可独立折叠，上下区域可拖动调整；基础浏览器工具栏提供后退、前进、刷新、受限地址
+  跳转和系统浏览器打开。
+- 预览只允许已登记工作区；路径穿越、符号链接逃逸、敏感文件、二进制、超限文件、过期 capability
+  与任意开发服务器 URL 都会被拒绝。
+
+### 更快的产出工作流与桌面体验
+
+- Agent 生成的文件单击时默认在 DeepViewer 预览中打开；原生右键菜单增加“在 DeepViewer 中预览”、
+  “在 Finder 中显示”和复制路径，同时保留原 Host 回退。
+- 设置改为全窗口应用页面，使用稳定双列布局并加入“关于 DeepViewer”。
+- 更新原生 SVG 品牌标志、欢迎内容、120px 启动图形、浅色/深色对比度，以及只允许手动操作的
+  左右侧栏开关。
+
+### 发布质量
+
+- arm64 与 x64 Runtime 均从 rc.7 release-pack 独立构建；每个应用只包含一个 Harness 和相同的
+  两个固定插件。
+- 两个 DMG 均通过允许列表与凭据值隐私审计、嵌套代码严格签名、Apple 公证、票据装订、
+  Gatekeeper、架构检查，以及上传后的独立 SHA-256 和 DMG 完整性复验。
 
 完整资产与验证证据见 [`0.2.1` 发布记录](docs/sdd/releases/v0.2.1.md)。
 
