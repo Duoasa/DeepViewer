@@ -25,7 +25,7 @@ updated: 2026-08-19
 | AC-005 | 正式发布命令 | Pass | 0.2.1 release alias 同步受控覆盖并构建双架构 Runtime；文件级 staging/ASAR 隐私门禁、签名与公证通过，命令本身未上传 |
 | AC-006 | 文档检查 | Pass | 根命令、README、governance 与规格已同步三个层级和默认触发规则 |
 | AC-007 | 总规范检查 | Pass | `AGENTS.md` 与 governance 已允许同一里程碑小改动只改代码和基础验证，并定义批量同步边界 |
-| AC-008 | 本地配置/远端 CI | Pass | workflow YAML、只读权限、冻结安装和命令边界已检查；提交 `66547a6` 的 [GitHub Actions CI #1](https://github.com/Duoasa/DeepViewer/actions/runs/32013698404) 在 `main` 上通过，9 个测试文件、52 项测试全部通过，production build 完成且未产生发布制品 |
+| AC-008 | 本地配置/远端 CI | Pass | workflow YAML、只读权限、冻结安装和命令边界已检查；提交 `6572278` 的 [GitHub Actions CI](https://github.com/Duoasa/DeepViewer/actions/runs/32163715085) 在无本地 upstream 的 clean checkout 上通过 104 项测试与 production build，且未产生发布制品 |
 
 ## 执行的命令
 
@@ -44,8 +44,10 @@ ruby -e 'require "yaml"; YAML.parse_file(".github/workflows/ci.yml")'
 - Vitest：14 个测试文件、103 项测试全部通过。
 - Vite：main、preload、renderer 三个 production build 全部通过。
 - GitHub Actions：YAML 可解析；workflow 只有 `contents: read`，checkout 关闭凭据持久化，
-  仅调用冻结安装、typecheck、test 与 build；[CI #1](https://github.com/Duoasa/DeepViewer/actions/runs/32013698404)
-  在提交 `66547a6` 上于 31 秒内通过，远端测试报告为 9 个文件、52/52 项通过，Artifacts 为空。
+  仅调用冻结安装、typecheck、test 与 build；[CI 32163715085](https://github.com/Duoasa/DeepViewer/actions/runs/32163715085)
+  在提交 `6572278` 的 clean checkout 上于 26 秒内通过，远端测试与 production build 完成，
+  Artifacts 为空。预览插件的普通测试配置不依赖被忽略的本地 upstream，DSH staging 仍使用
+  独立 `tsconfig.dsh.json` 保留完整 rc.7 project references。
 - 活跃 runner 的 restart：受限沙箱首次拒绝连接项目 socket；允许本机 socket 后同一命令成功
   排队，未影响其他 Electron 应用。
 - 维护者使用开发版完成本轮 UI 交互验收；在其明确发布指令后，独立运行正式 release 层并生成
