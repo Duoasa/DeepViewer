@@ -9,7 +9,7 @@ updated: 2026-08-20
 
 ## 验证环境
 
-- 提交：Pending release source commit
+- 源码提交：`a5a5ca50afee0ecdfee530c98f4706a09d9afd84`
 - 平台：macOS arm64 构建主机；arm64 与 x64 目标包
 - 配置：DeepViewer 0.2.2 Build 1，默认 JSONL persistence
 - 外部依赖：DeepSeek Harness `dsh-v0.1.0-rc.8` /
