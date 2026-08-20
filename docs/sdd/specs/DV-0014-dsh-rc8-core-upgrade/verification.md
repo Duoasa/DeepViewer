@@ -9,7 +9,7 @@ updated: 2026-08-20
 
 ## 验证环境
 
-- 源码提交：`a5a5ca50afee0ecdfee530c98f4706a09d9afd84`
+- 源码提交：`fc83a17654f61a3156fb213d4b4f721c427cdfbd`
 - 平台：macOS arm64 构建主机；arm64 与 x64 目标包
 - 配置：DeepViewer 0.2.2 Build 2，默认 JSONL persistence
 - 外部依赖：DeepSeek Harness `dsh-v0.1.0-rc.8` /
@@ -25,7 +25,7 @@ updated: 2026-08-20
 | AC-002 | 自动 + 人工 | Pass with Pending Manual | 两个 Active 插件 PC-001—PC-008 通过；DVP-0001 PC-009 真实账户完整流程待维护者 |
 | AC-003 | 静态 + 集成 | Pass | 最终 rc.8 base bundle 依赖 JSONL persistence；SQLite schema 17 无迁移、失败关闭和 0.2.1 回滚边界已记录 |
 | AC-004 | 自动 + 系统工具 | Build 1 Pass / Build 2 Pass | Build 2 双架构全新封包、隐私审计、严格签名、Apple 公证、票据装订、Gatekeeper、DMG 校验与只读挂载回读全部通过 |
-| AC-005 | GitHub + 回读 | Build 1 Pass / Build 2 Pending | Build 1 已发布并回读；Build 2 待发布独立 tag、Release 与全新资产 |
+| AC-005 | GitHub + 回读 | Build 1 Pass / Build 2 Pass | Build 2 独立 tag/Release 已发布为 Latest；三份全新资产的名称、大小与服务器端 SHA-256 回读一致 |
 
 ## 插件兼容矩阵
 
@@ -62,6 +62,9 @@ updated: 2026-08-20
 - Build 2 双架构 Runtime 全新构建，应用与 DMG 签名、包体隐私审计、Apple 公证、
   ticket staple、Gatekeeper 与 `hdiutil verify`：Pass；最终 DMG 只读挂载回读确认
   0.2.2 Build 2、rc.8、对应架构和严格签名：Pass。
+- GitHub `main` / `v0.2.2-build.2` / Release / expanded assets 回读：CI
+  [#19](https://github.com/Duoasa/DeepViewer/actions/runs/32373871106)、Latest 状态、三份资产
+  文件名、大小与服务器端 SHA-256 全部 Pass。
 
 ## 人工检查
 
@@ -77,6 +80,6 @@ updated: 2026-08-20
 
 ## 结论
 
-- 结果：Build 2 Automated Pass / Pending GitHub / Pending Manual
+- 结果：Build 2 Automated Pass / Pending Manual
 - 验证人：Codex（自动验证）/ Duoasa（人工验证）
 - 日期：2026-08-20
