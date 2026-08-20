@@ -25,7 +25,7 @@ updated: 2026-08-20
 | AC-002 | 自动 + 人工 | Pass with Pending Manual | 两个 Active 插件 PC-001—PC-008 通过；DVP-0001 PC-009 真实账户完整流程待维护者 |
 | AC-003 | 静态 + 集成 | Pass | 最终 rc.8 base bundle 依赖 JSONL persistence；SQLite schema 17 无迁移、失败关闭和 0.2.1 回滚边界已记录 |
 | AC-004 | 自动 + 系统工具 | Pass | 0.2.2 Build 1 arm64/x64 正式包通过隐私、架构、严格签名、Apple 公证、staple、Gatekeeper、DMG 与只读挂载复验 |
-| AC-005 | GitHub + 回读 | In Progress | README/SDD 与本地资产摘要已一致；main、tag、Release 和远端 digest 待发布 |
+| AC-005 | GitHub + 回读 | Pass | README/SDD 已同步；main 与 `v0.2.2` 指向发布提交；CI #16 通过；Release 已发布，三个远端资产 digest 与本地摘要一致 |
 
 ## 插件兼容矩阵
 
@@ -55,6 +55,8 @@ updated: 2026-08-20
 - 将两个最终 DMG 只读挂载后，再次执行嵌套 `codesign --verify --deep --strict`、
   Gatekeeper、Info.plist 与 Runtime manifest 回读：Pass。
 - `shasum -a 256` 及 `shasum -a 256 -c out/SHA256SUMS.txt`：两个 DMG Pass。
+- GitHub `main` / `v0.2.2` / Release / expanded assets 回读：CI #16、Latest 状态、
+  三个资产文件名、大小与服务器端 SHA-256 均 Pass。
 
 ## 人工检查
 
@@ -70,6 +72,6 @@ updated: 2026-08-20
 
 ## 结论
 
-- 结果：Automated Pass / Pending Manual / Pending GitHub publish
+- 结果：Automated Pass / Pending Manual
 - 验证人：Codex（自动验证）/ Duoasa（人工验证）
 - 日期：2026-08-20
