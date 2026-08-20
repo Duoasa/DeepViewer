@@ -18,7 +18,7 @@ allowlist staging → 签名、公证与远端验证的现有发布链。升级�
 | 需求 | 设计章节 | 说明 |
 | --- | --- | --- |
 | R-001, NFR-001 | 固定核心与构建门禁 | 同时校验 tag 对应提交、manifest 版本和唯一 Runtime |
-| R-002 | 应用身份 | manifest、About 注入、包体 Info.plist 统一为 0.2.2 Build 1 |
+| R-002 | 应用身份 | manifest、About 注入、包体 Info.plist 统一为 0.2.2 Build 2 |
 | R-003, NFR-004 | 插件兼容 | 对两个 DVP 执行 PC-001—PC-009 并保留禁用开关 |
 | R-004 | 数据边界 | base bundle 继续 JSONL；旧 SQLite schema 失败关闭且不迁移 |
 | R-005, NFR-003 | 正式发布链 | 双架构全新构建、签名公证、净化与远端摘要复验 |
@@ -51,7 +51,8 @@ SQLite schema 17 是可选后端的新物理格式；上游不提供 schema 16 �
 3. 验证订阅插件 manifest、peer 图、客户端本地化适配、能力和禁用降级。
 4. 分架构重新生成 Runtime、staging、应用与 DMG；执行净化、签名、公证及系统检查。
 5. 更新 README/SDD，提交发布分支，通过 CI 后合并 main。
-6. 从合并提交创建 `v0.2.2`，上传两个 DMG 与校验清单并独立下载回读。
+6. Build 1 使用 `v0.2.2`；热修复从对应提交创建 `v0.2.2-build.2`，上传全新双架构
+   DMG 与校验清单并独立下载回读，不改写 Build 1。
 
 ## 权限、安全与隐私
 
@@ -71,7 +72,8 @@ SQLite schema 17 是可选后端的新物理格式；上游不提供 schema 16 �
 - 自定义 SQLite schema 16：rc.8 明确拒绝；保留数据文件，用户可重装 0.2.1 读取，或明确
   选择新的 schema 17 数据库。
 - 插件：版本保持不变；任一插件可通过既有环境开关禁用并退回纯核心。
-- 应用：不移动或替换 `v0.2.1` tag/资产；`v0.2.2` 使用独立 tag、Release 和 SHA 清单。
+- 应用：不移动或替换 `v0.2.1`、`v0.2.2` tag/资产；Build 2 使用
+  `v0.2.2-build.2` 独立 tag、Release 和 SHA 清单。
 
 ## 测试策略
 

@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2"><strong>下载 DeepViewer 0.2.2（Build 1）</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2"><strong>下载 DeepViewer 0.2.2（Build 2）</strong></a>
   ·
   <a href="#022-更新内容">版本更新</a>
   ·
@@ -44,9 +44,9 @@ Agent 体验设计的桌面外壳。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> `v0.2.2` 是当前最新的 macOS 预览版（应用版本 `0.2.2`、构建号 `1`），
+> `v0.2.2-build.2` 是当前最新的 macOS 预览版（应用版本 `0.2.2`、构建号 `2`），
 > 内置 DeepSeek Harness `0.1.0-rc.8`，保持维护者已验收的 0.2.1 界面，并已通过
-> 自动与正式封包门禁。rc.8 订阅账户流程仍待维护者复验，且本版仍属项目早期
+> 自动门禁，同时阻止 rc.8 在应用启动时额外打开系统浏览器。rc.8 订阅账户流程仍待维护者复验，且本版仍属项目早期
 > 预览，并非稳定版本。
 
 ## 为什么选择 DeepViewer
@@ -64,21 +64,29 @@ Agent 体验设计的桌面外壳。
 
 ## 快速开始
 
-1. 从 [0.2.2 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2)
+1. 从 [0.2.2 Build 2 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2)
    下载与你的 Mac 处理器匹配的版本。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开 DeepViewer。应用会自动启动内置 Harness，并在 Runtime 就绪后进入本地工作区。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | [DeepViewer-0.2.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/DeepViewer-0.2.2-macos-arm64.dmg) | `d50569db9db46edb4d1e5f282457ed4b6ec107cdb8dc1345f17a20408e29da56` |
-| Intel（`x64`） | [DeepViewer-0.2.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/DeepViewer-0.2.2-macos-x64.dmg) | `860f43062456c87c91bdad145cb016b08a491f635560190b7cac7c7c87081cee` |
+| Apple Silicon（`arm64`） | Build 2 正在封包 | Pending |
+| Intel（`x64`） | Build 2 正在封包 | Pending |
 
 Release 同时提供
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/SHA256SUMS.txt)
+`SHA256SUMS.txt`
 供命令行核验。
 
 ## 0.2.2 更新内容
+
+### Build 2 浏览器启动热修复
+
+- 阻止 rc.8 的 `dsh web` 默认行为在 DeepViewer 启动时额外打开系统浏览器，本地 Harness
+  页面只由应用窗口加载。
+- 核心、仅订阅、启用预览和纯核心降级路径全部固定传入 `--no-open`，不改变 loopback
+  监听与桌面权限。
+- 原 `v0.2.2` Build 1 Release 保持不变，作为回滚入口。
 
 ### DeepSeek Harness rc.8
 
@@ -105,7 +113,7 @@ Release 同时提供
 - 已执行上游官方完整构建、105 项桌面测试、TypeScript 与桌面 production build、
   包体隐私审计、严格 Developer ID 签名、Apple 公证、票据装订、Gatekeeper 与 DMG 校验。
 
-完整资产与验证证据见 [`0.2.2` 发布记录](docs/sdd/releases/v0.2.2.md)。0.2.2 为核心升级，
+完整资产与验证证据见 [`0.2.2 Build 2` 发布记录](docs/sdd/releases/v0.2.2-build.2.md)。0.2.2 为核心升级，
 保持 0.2.1 界面不变，因此顶部产品图仍准确表示当前界面。
 
 ## 0.2.1 更新内容

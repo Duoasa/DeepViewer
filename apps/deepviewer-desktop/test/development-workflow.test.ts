@@ -256,11 +256,11 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(packageScript).toContain("adapter: 'deepviewer-remaining-usage-v1'")
   })
 
-  it('pins DeepViewer 0.2.2 Build 1 and the rc.8 release boundary', () => {
+  it('pins DeepViewer 0.2.2 Build 2 and the rc.8 release boundary', () => {
     const runtimeBuild = readFileSync(resolve(appRoot, 'scripts/build-runtime.mjs'), 'utf8')
 
     expect(appManifest.version).toBe('0.2.2')
-    expect(appManifest.buildNumber).toBe(1)
+    expect(appManifest.buildNumber).toBe(2)
     expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.0-rc.8'")
     expect(runtimeBuild).toContain("const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'")
     expect(packageScript).toContain("const expectedHarnessVersion = '0.1.0-rc.8'")

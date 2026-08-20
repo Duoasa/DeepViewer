@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2"><strong>Download DeepViewer 0.2.2 (Build 1)</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2"><strong>Download DeepViewer 0.2.2 (Build 2)</strong></a>
   ·
   <a href="#whats-new-in-022">What’s new</a>
   ·
@@ -45,9 +45,10 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.2.2` is the latest macOS preview (app version `0.2.2`, build `1`) and
+> `v0.2.2-build.2` is the latest macOS preview (app version `0.2.2`, build `2`) and
 > bundles DeepSeek Harness `0.1.0-rc.8`. It preserves the maintainer-accepted
-> 0.2.1 interface and has passed the automated and formal package gates. rc.8
+> 0.2.1 interface, prevents rc.8 from opening a second system-browser window,
+> and has passed the automated gates. rc.8
 > subscription account flows remain a maintainer check, and this is still an
 > early preview rather than a stable release.
 
@@ -67,21 +68,29 @@ shell designed for a visual, controllable agent experience.
 ## Quick start
 
 1. Download the package that matches your Mac from the
-   [0.2.2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2).
+   [0.2.2 Build 2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open DeepViewer. It starts the bundled Harness automatically and loads the
    local workspace when the runtime is ready.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [DeepViewer-0.2.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/DeepViewer-0.2.2-macos-arm64.dmg) | `d50569db9db46edb4d1e5f282457ed4b6ec107cdb8dc1345f17a20408e29da56` |
-| Intel (`x64`) | [DeepViewer-0.2.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/DeepViewer-0.2.2-macos-x64.dmg) | `860f43062456c87c91bdad145cb016b08a491f635560190b7cac7c7c87081cee` |
+| Apple Silicon (`arm64`) | Build 2 packaging in progress | Pending |
+| Intel (`x64`) | Build 2 packaging in progress | Pending |
 
 The release also includes a
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/SHA256SUMS.txt)
+`SHA256SUMS.txt`
 manifest for command-line verification.
 
 ## What's new in 0.2.2
+
+### Build 2 browser-launch hotfix
+
+- Prevents rc.8's `dsh web` default from opening the system browser when
+  DeepViewer starts. The local Harness page is loaded only by the application.
+- Applies `--no-open` to the core, subscriptions-only, preview-enabled, and
+  core fallback launch paths without changing loopback binding or permissions.
+- Keeps the original `v0.2.2` Build 1 release unchanged as a rollback option.
 
 ### DeepSeek Harness rc.8
 
@@ -117,7 +126,7 @@ manifest for command-line verification.
   desktop production builds, package privacy audits, strict Developer ID
   signing, Apple notarization, ticket stapling, Gatekeeper and DMG verification.
 
-See the [`0.2.2` release record](docs/sdd/releases/v0.2.2.md) for the complete
+See the [`0.2.2 Build 2` release record](docs/sdd/releases/v0.2.2-build.2.md) for the complete
 asset and verification evidence. The 0.2.2 core-only update preserves the 0.2.1
 interface shown in the current product image above.
 

@@ -14,7 +14,8 @@ depends_on: [DV-0007, DV-0008, DV-0010, DV-0011, DV-0012, DV-0013]
 
 将 DeepViewer 包内唯一核心从 DeepSeek Harness `0.1.0-rc.7` 升级到官方不可变标签
 `dsh-v0.1.0-rc.8`，重新验证全部 Active 插件、受控 UI 覆盖、默认 JSONL 会话兼容边界与
-双架构正式发布门禁，并以 DeepViewer `0.2.2`（Build `1`）公开发布。
+双架构正式发布门禁，并以 DeepViewer `0.2.2` 公开发布。初始 Build `1` 保留为历史版本；
+Build `2` 修正 rc.8 默认唤起系统浏览器的问题，作为当前热修复版本。
 
 ## 背景与问题
 
@@ -55,7 +56,8 @@ rc.8 同时把可选 SQLite 会话后端升级到无原地迁移的 schema 17。
 - R-001：正式 Runtime 必须固定 DeepSeek Harness `0.1.0-rc.8` 与提交
   `141eb6fef83422698aef7a981029e843e8161534`，每个应用只包含一个
   `Contents/Resources/harness`。
-- R-002：应用版本必须为 `0.2.2`、Build `1`，关于页必须显示相同应用、Build 与核心版本。
+- R-002：当前应用版本必须为 `0.2.2`、Build `2`，关于页必须显示相同应用、Build 与核心版本；
+  Build `1` 的 tag、Release 与资产不得移动或替换。
 - R-003：必须按 [`dsh-plugins.md`](../../integrations/dsh-plugins.md) 对 DVP-0001 与 DVP-0002
   执行 PC-001 至 PC-009；任一自动检查为 Fail 时不得发布。
 - R-004：默认基础 bundle 必须继续使用 JSONL；不得自动迁移、删除或覆盖旧 SQLite 数据。
@@ -79,9 +81,9 @@ rc.8 同时把可选 SQLite 会话后端升级到无原地迁移的 schema 17。
   真实账户人工复验状态且没有 Fail。
 - AC-003：给定默认应用配置，检查 release-pack 与最终 Runtime 时使用 JSONL persistence，
   不启用 SQLite；旧 SQLite schema 的边界在文档中明确为失败关闭、无自动迁移。
-- AC-004：给定 arm64 与 x64 正式包，两个应用均显示 0.2.2 Build 1 / rc.8，只含唯一 Harness
+- AC-004：给定 arm64 与 x64 正式包，两个应用均显示 0.2.2 Build 2 / rc.8，只含唯一 Harness
   和两个固定插件，并通过签名、公证、Gatekeeper、DMG、架构及净化审计。
-- AC-005：给定 GitHub `main` 与 `v0.2.2` Release，中英文 README、SDD 记录、DMG 下载、
+- AC-005：给定 GitHub `main` 与 `v0.2.2-build.2` Release，中英文 README、SDD 记录、DMG 下载、
   SHA-256 清单和远端 digest 相互一致。
 
 ## 边界与失败行为
@@ -93,7 +95,7 @@ rc.8 同时把可选 SQLite 会话后端升级到无原地迁移的 schema 17。
 
 ## UX 说明
 
-本规格不增加新的 DeepViewer 导航或设置入口。About 页面版本更新为 0.2.2 / Build 1 / rc.8；
+本规格不增加新的 DeepViewer 导航或设置入口。About 页面版本更新为 0.2.2 / Build 2 / rc.8；
 rc.8 上游已有布局与交互优化随固定 Web Runtime 提供。自定义 SQLite 用户的兼容边界通过
 发行说明说明，不增加未经设计的数据迁移对话框。
 

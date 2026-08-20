@@ -80,6 +80,21 @@ export interface SubscriptionsPluginResolution {
 
 export type PreviewPluginResolution = SubscriptionsPluginResolution
 
+export function buildHarnessWebArgs(
+  nodeArgs: readonly string[],
+  patches: readonly string[] = [],
+): string[] {
+  return [
+    ...nodeArgs,
+    'web',
+    ...patches.flatMap(path => ['--patch', path]),
+    '--port',
+    '0',
+    // rc.8 opens the system browser by default; the desktop shell owns the UI.
+    '--no-open',
+  ]
+}
+
 function packagePath(root: string, relativePath: string): string | undefined {
   const candidate = resolve(root, relativePath)
   if (candidate !== root && !candidate.startsWith(`${root}${sep}`)) return undefined
@@ -263,14 +278,10 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
 
   const subscriptions = resolveSubscriptionsPlugin(harnessRoot, dshHome)
   const preview = resolvePreviewPlugin(harnessRoot, dshHome)
-  const coreArgs = [...nodeArgs, 'web', '--port', '0']
-  const argsWithPatches = (patches: readonly string[]): string[] => [
-    ...nodeArgs,
-    'web',
-    ...patches.flatMap(path => ['--patch', path]),
-    '--port',
-    '0',
-  ]
+  const coreArgs = buildHarnessWebArgs(nodeArgs)
+  const argsWithPatches = (patches: readonly string[]): string[] => (
+    buildHarnessWebArgs(nodeArgs, patches)
+  )
   const subscriptionArgs = subscriptions.enabled && subscriptions.patchPath !== undefined
     ? argsWithPatches([subscriptions.patchPath])
     : coreArgs

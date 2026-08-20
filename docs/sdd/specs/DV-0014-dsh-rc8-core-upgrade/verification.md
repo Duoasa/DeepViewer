@@ -11,7 +11,7 @@ updated: 2026-08-20
 
 - 源码提交：`a5a5ca50afee0ecdfee530c98f4706a09d9afd84`
 - 平台：macOS arm64 构建主机；arm64 与 x64 目标包
-- 配置：DeepViewer 0.2.2 Build 1，默认 JSONL persistence
+- 配置：DeepViewer 0.2.2 Build 2，默认 JSONL persistence
 - 外部依赖：DeepSeek Harness `dsh-v0.1.0-rc.8` /
   `141eb6fef83422698aef7a981029e843e8161534`
 - DSH 插件：DVP-0001 `dsh-plugin-subscriptions@0.3.1`、DVP-0002
@@ -24,8 +24,8 @@ updated: 2026-08-20
 | AC-001 | 自动 | Pass | 官方 rc.8 checkout/commit 门禁、host/client、预览插件、Web、`build:official`、release-pack、105 项测试、TypeScript 和桌面 build 通过 |
 | AC-002 | 自动 + 人工 | Pass with Pending Manual | 两个 Active 插件 PC-001—PC-008 通过；DVP-0001 PC-009 真实账户完整流程待维护者 |
 | AC-003 | 静态 + 集成 | Pass | 最终 rc.8 base bundle 依赖 JSONL persistence；SQLite schema 17 无迁移、失败关闭和 0.2.1 回滚边界已记录 |
-| AC-004 | 自动 + 系统工具 | Pass | 0.2.2 Build 1 arm64/x64 正式包通过隐私、架构、严格签名、Apple 公证、staple、Gatekeeper、DMG 与只读挂载复验 |
-| AC-005 | GitHub + 回读 | Pass | README/SDD 已同步；main 与 `v0.2.2` 指向发布提交；CI #16 通过；Release 已发布，三个远端资产 digest 与本地摘要一致 |
+| AC-004 | 自动 + 系统工具 | Build 1 Pass / Build 2 Pending | Build 1 已通过完整发布门禁；Build 2 待完成双架构正式封包、签名与公证 |
+| AC-005 | GitHub + 回读 | Build 1 Pass / Build 2 Pending | Build 1 已发布并回读；Build 2 待发布独立 tag、Release 与全新资产 |
 
 ## 插件兼容矩阵
 
@@ -57,6 +57,8 @@ updated: 2026-08-20
 - `shasum -a 256` 及 `shasum -a 256 -c out/SHA256SUMS.txt`：两个 DMG Pass。
 - GitHub `main` / `v0.2.2` / Release / expanded assets 回读：CI #16、Latest 状态、
   三个资产文件名、大小与服务器端 SHA-256 均 Pass。
+- Build 2 启动参数回归：核心、订阅单插件、订阅 + 预览路径都只含一个 `--no-open`；
+  15 个测试文件、106/106 项测试、TypeScript 与桌面 production build：Pass。
 
 ## 人工检查
 
@@ -72,6 +74,6 @@ updated: 2026-08-20
 
 ## 结论
 
-- 结果：Automated Pass / Pending Manual
+- 结果：Build 2 Automated Pass / Pending Package / Pending Manual
 - 验证人：Codex（自动验证）/ Duoasa（人工验证）
 - 日期：2026-08-20
