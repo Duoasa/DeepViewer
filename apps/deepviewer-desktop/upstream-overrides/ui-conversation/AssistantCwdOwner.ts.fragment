@@ -1,4 +1,4 @@
-node, cwd, useTurnData, openFile, loadImage, fileMentions, t,
+node, cwd, useTurnData, openFile, renderMessageImages, fileMentions, t,
 }: ChatNodeViewProps<'assistant-step'>) {
   const data = node.data
   const turn = node.location.kind === 'turn' || node.location.kind === 'step'

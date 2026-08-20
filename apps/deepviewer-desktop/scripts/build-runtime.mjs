@@ -29,8 +29,8 @@ const packRoots = [
   resolve(upstreamRoot, 'dist', 'deepviewer', 'dsh'),
 ]
 const electronVersion = '43.4.0'
-const expectedHarnessCommit = '99f6f02fecdb7dff40c3fbc9470f5907c29f74ca'
-const expectedHarnessVersion = '0.1.0-rc.7'
+const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'
+const expectedHarnessVersion = '0.1.0-rc.8'
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'
 const previewPluginName = '@deepviewer/dsh-plugin-preview'

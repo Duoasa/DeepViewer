@@ -256,7 +256,18 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(packageScript).toContain("adapter: 'deepviewer-remaining-usage-v1'")
   })
 
-  it('builds the first-party preview plugin against the pinned rc.7 client contracts', () => {
+  it('pins DeepViewer 0.2.2 Build 1 and the rc.8 release boundary', () => {
+    const runtimeBuild = readFileSync(resolve(appRoot, 'scripts/build-runtime.mjs'), 'utf8')
+
+    expect(appManifest.version).toBe('0.2.2')
+    expect(appManifest.buildNumber).toBe(1)
+    expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.0-rc.8'")
+    expect(runtimeBuild).toContain("const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'")
+    expect(packageScript).toContain("const expectedHarnessVersion = '0.1.0-rc.8'")
+    expect(packageScript).toContain("const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'")
+  })
+
+  it('builds the first-party preview plugin against the pinned rc.8 client contracts', () => {
     const previewManifest = JSON.parse(readFileSync(
       resolve(appRoot, 'dsh-plugins/preview/package.json'),
       'utf8',
@@ -265,6 +276,8 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
 
     expect(previewManifest.name).toBe('@deepviewer/dsh-plugin-preview')
     expect(previewManifest.version).toBe('0.1.0')
+    expect(new Set(Object.values(previewManifest.peerDependencies))).toContain('0.1.0-rc.8')
+    expect(Object.values(previewManifest.peerDependencies)).not.toContain('0.1.0-rc.7')
     expect(previewManifest.dsh.client.inject).toContain('@deepseek-ai/dsh-client-ui-deliverables')
     expect(upstreamOverrideSync).toContain('stagePreviewPlugin')
     expect(upstreamOverrideSync).toContain('buildPreviewPlugin')
@@ -364,9 +377,13 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
 
   it('keeps the DeepViewer sidebar wordmark as a tracked inline React SVG override', () => {
     expect(wordmarkOverride).toContain('export function BrandWordmark')
+    expect(wordmarkOverride).toContain('export interface BrandWordmarkProps')
     expect(wordmarkOverride).toContain('size = 24')
-    expect(wordmarkOverride).toContain('width={(size * 747) / 144}')
-    expect(wordmarkOverride).toContain('viewBox="0 0 747 144"')
+    expect(wordmarkOverride).toContain('includeMark = true')
+    expect(wordmarkOverride).toContain('includeMark ? "0 0 747 144" : "176 0 571 144"')
+    expect(wordmarkOverride).toContain('includeMark ? 747 : 571')
+    expect(wordmarkOverride).toContain('width={(size * nativeWidth) / 144}')
+    expect(wordmarkOverride).toContain('viewBox={viewBox}')
     expect(wordmarkOverride.match(/<path\b/gu)).toHaveLength(3)
     expect(wordmarkOverride.match(/fill="currentColor"/gu)).toHaveLength(3)
     expect(wordmarkOverride).not.toContain('fill="white"')
@@ -378,7 +395,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(sidebarWordmarkLayoutOverride).toContain('var(--dsw-alias-label-secondary)')
     expect(upstreamOverrideSync).toContain("'BrandWordmark.tsx'")
     expect(upstreamOverrideSync).toContain("'center-sidebar-wordmark'")
-    expect(upstreamOverrideSync).toContain("['run', 'build:lib:client']")
+    expect(upstreamOverrideSync).toContain("['run', 'build:lib']")
     expect(upstreamOverrideSync).toContain("['run', 'build:web']")
   })
 

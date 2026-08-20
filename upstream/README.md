@@ -5,18 +5,20 @@
 ## 当前分析基线
 
 - 仓库：<https://github.com/deepseek-ai/deepseek-harness>
-- 分支：`master`
-- 提交：`47f943859bef60e4160492346772ded9b24f765a`
-- 提交时间：`2026-08-13T19:38:46+08:00`
-- 上游版本：`0.1.0-rc.5`
+- 标签：`dsh-v0.1.0-rc.8`
+- 提交：`141eb6fef83422698aef7a981029e843e8161534`
+- 发布时间：`2026-08-19`
+- 上游版本：`0.1.0-rc.8`
 - 本地路径：`upstream/deepseek-harness/`
 
-这是一个 `--depth 1` 的参考 checkout。它用于架构分析和后续上游对比，不代表 DeepViewer 已决定采用 fork、subtree、vendor 或依赖集成。
+这是正式构建使用的固定官方 checkout。DeepViewer 通过上游 release-pack 和 DSH 扩展点集成，
+不把该目录提交为 fork、subtree 或 vendored 源码。
 
 ## 刷新上游副本
 
 ```sh
-git -C upstream/deepseek-harness pull --ff-only origin master
+git -C upstream/deepseek-harness fetch --tags origin
+git -C upstream/deepseek-harness checkout dsh-v0.1.0-rc.8
 ```
 
 刷新后，应把新的提交 SHA 写回本文件，并重新检查 [`DV-0002`](../docs/sdd/specs/DV-0002-upstream-foundation/spec.md) 中依赖的架构假设。

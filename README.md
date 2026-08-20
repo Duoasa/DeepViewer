@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.1"><strong>Download DeepViewer 0.2.1 (Build 1)</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2"><strong>Download DeepViewer 0.2.2 (Build 1)</strong></a>
   ·
-  <a href="#whats-new-in-021">What’s new</a>
+  <a href="#whats-new-in-022">What’s new</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
@@ -37,7 +37,7 @@ the pinned local runtime into a normal macOS application and provides a desktop
 shell designed for a visual, controllable agent experience.
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.1 with the conversation workspace and web preview sidebar">
+  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.x conversation workspace and web preview sidebar">
 </p>
 
 > [!NOTE]
@@ -45,9 +45,11 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.2.1` is the latest macOS preview (app version `0.2.1`, build `1`). It has
-> passed the maintainer's iterative UI acceptance and the formal package gates, but it is
-> still an early preview rather than a stable release.
+> `v0.2.2` is the latest macOS preview (app version `0.2.2`, build `1`) and
+> bundles DeepSeek Harness `0.1.0-rc.8`. It preserves the maintainer-accepted
+> 0.2.1 interface and has passed the automated and formal package gates. rc.8
+> subscription account flows remain a maintainer check, and this is still an
+> early preview rather than a stable release.
 
 ## Why DeepViewer
 
@@ -65,19 +67,59 @@ shell designed for a visual, controllable agent experience.
 ## Quick start
 
 1. Download the package that matches your Mac from the
-   [0.2.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.1).
+   [0.2.2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open DeepViewer. It starts the bundled Harness automatically and loads the
    local workspace when the runtime is ready.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [DeepViewer-0.2.1-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.1/DeepViewer-0.2.1-macos-arm64.dmg) | `77ac096451d1b0f4a1bd250b1436d0bba15421bfd307c66dcc175bec47ea4003` |
-| Intel (`x64`) | [DeepViewer-0.2.1-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.1/DeepViewer-0.2.1-macos-x64.dmg) | `f400e321953c4c3e4ac3f84deb503906da53d6eab9f5148d24911c61cff4f8ee` |
+| Apple Silicon (`arm64`) | [DeepViewer-0.2.2-macos-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/DeepViewer-0.2.2-macos-arm64.dmg) | `d50569db9db46edb4d1e5f282457ed4b6ec107cdb8dc1345f17a20408e29da56` |
+| Intel (`x64`) | [DeepViewer-0.2.2-macos-x64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/DeepViewer-0.2.2-macos-x64.dmg) | `860f43062456c87c91bdad145cb016b08a491f635560190b7cac7c7c87081cee` |
 
 The release also includes a
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.1/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2/SHA256SUMS.txt)
 manifest for command-line verification.
+
+## What's new in 0.2.2
+
+### DeepSeek Harness rc.8
+
+- Upgrades the only bundled core to the immutable DeepSeek Harness
+  `0.1.0-rc.8` release (`141eb6fef83422698aef7a981029e843e8161534`).
+- Brings upstream multimodal and image-input improvements, file/session
+  references, installable Claude and Codex subagent bundles, persistent
+  PowerShell, concurrent web search, subagent wakeups, and startup/download
+  refinements into the pinned local Runtime.
+- Includes upstream fixes for image payloads, stream cancellation, custom
+  OpenAI-compatible gateways, search, tool rendering, and UI layout.
+
+### Compatibility and data safety
+
+- Revalidates `dsh-plugin-subscriptions@0.3.1` and
+  `@deepviewer/dsh-plugin-preview@0.1.0` against rc.8. The preview plugin now
+  pins rc.8 peers and builds through the rc.8 host/client contract without
+  widening desktop filesystem or network privileges.
+- Keeps the default DeepViewer session backend on JSONL, so ordinary 0.2.1
+  installations do not undergo a storage migration. rc.8's optional SQLite
+  backend uses schema 17 and has no migration from the earlier pre-release
+  schema; custom SQLite users should retain their database and either start a
+  new rc.8 database or reinstall 0.2.1 to read the old one.
+- Preserves the immutable signed bundle, plugin disable/fallback paths, and the
+  existing 0.2.1 Release as a rollback option.
+
+### Release quality
+
+- Rebuilds independent arm64 and x64 Runtimes from the official rc.8
+  release-pack. Each application contains one pinned Harness and the same two
+  registered plugins.
+- Runs the complete upstream official build, 105 desktop tests, TypeScript and
+  desktop production builds, package privacy audits, strict Developer ID
+  signing, Apple notarization, ticket stapling, Gatekeeper and DMG verification.
+
+See the [`0.2.2` release record](docs/sdd/releases/v0.2.2.md) for the complete
+asset and verification evidence. The 0.2.2 core-only update preserves the 0.2.1
+interface shown in the current product image above.
 
 ## What's new in 0.2.1
 
@@ -197,7 +239,11 @@ for the complete asset and verification evidence.
 - The x64 build passes architecture, package, and Rosetta-based validation on
   Apple Silicon; physical Intel Mac acceptance remains pending.
 - Subscription providers use external, non-stable protocols. Login has been
-  manually validated; end-to-end model/tool calls and logout remain provider-specific checks.
+  manually validated on 0.2.1; the complete login, status, model/tool call and
+  logout flow remains a provider-specific 0.2.2 check.
+- rc.8's optional SQLite session backend cannot read the earlier pre-release
+  schema in place. DeepViewer defaults to JSONL; custom SQLite users must keep
+  their old database and use a new rc.8 database or roll back to 0.2.1.
 - The preview browser supports workspace static sites, not arbitrary dev-server URLs,
   editing, or a full general-purpose browser.
 - Windows packaging, automatic updates, crash reporting, and a stable support
@@ -243,9 +289,9 @@ cd DeepViewer
 pnpm install
 
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout 99f6f02fecdb7dff40c3fbc9470f5907c29f74ca
+git -C upstream/deepseek-harness checkout 141eb6fef83422698aef7a981029e843e8161534
 pnpm --dir upstream/deepseek-harness install
-pnpm --dir upstream/deepseek-harness run build
+pnpm --dir upstream/deepseek-harness run build:official
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
 pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
 
@@ -289,7 +335,7 @@ DeepViewer's original code is released under the [MIT License](LICENSE).
 DeepSeek Harness and all third-party components retain their respective
 copyright notices and licenses. The current desktop baseline is pinned to
 DeepSeek Harness commit
-`99f6f02fecdb7dff40c3fbc9470f5907c29f74ca` (`0.1.0-rc.7`).
+`141eb6fef83422698aef7a981029e843e8161534` (`0.1.0-rc.8`).
 
 ## Feedback
 

@@ -55,7 +55,7 @@ export function DetailsPanel(props: DetailsPanelProps) {
   const tabs = registry.list()
   const active = tabs.find(tab => tab.id === activeView) ?? tabs[0]
 
-  // rc.7 tests and downstreams may still mount DetailsPanel directly with the
+  // Pinned-core tests and downstreams may still mount DetailsPanel directly with the
   // former single-view props. Keep that source-compatible path while the real
   // registered shell always receives the additive registry.
   if (views === undefined) {
@@ -98,7 +98,7 @@ export function DetailsPanel(props: DetailsPanelProps) {
   )
 }
 
-/** The preserved rc.7 tool-call details body, now one additive details view. */
+/** The preserved pinned-core tool-call details body, now one additive details view. */
 export function ToolDetailsView({ useSession, useSessions, sessionId, useStore, renderSlot, t }: ToolDetailsViewProps) {
   const selection = useStore(s => s.selection)
   const sessionCwd = useSessions(list => list.byId[sessionId]?.cwd)

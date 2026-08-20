@@ -324,6 +324,20 @@ const cssOverrides = [
 ]
 const textOverrides = [
   {
+    name: 'external-client-workspace-manifest',
+    sourcePath: resolve(
+      appRoot,
+      'upstream-overrides',
+      'build',
+      'ExternalWorkspaceManifest.ts.fragment',
+    ),
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'tsdown.client.ts'),
+    needle: '  if (cached !== undefined) return cached\n',
+    indent: '  ',
+    markerKind: 'code',
+    preserveNeedle: true,
+  },
+  {
     name: 'tool-row-native-path-import',
     sourcePath: resolve(appRoot, 'upstream-overrides', 'ui-tool', 'ToolRowNativePathImport.ts.fragment'),
     targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-tool', 'src', 'client', 'tool', 'components', 'ToolRow.tsx'),
@@ -493,7 +507,7 @@ const textOverrides = [
     name: 'assistant-cwd-owner',
     sourcePath: resolve(appRoot, 'upstream-overrides', 'ui-conversation', 'AssistantCwdOwner.ts.fragment'),
     targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-conversation', 'src', 'client', 'chat', 'AssistantNodeView.tsx'),
-    needle: `  node, useTurnData, openFile, loadImage, fileMentions, t,
+    needle: `  node, useTurnData, openFile, renderMessageImages, fileMentions, t,
 }: ChatNodeViewProps<'assistant-step'>) {
   const data = node.data
   const turn = node.location.kind === 'turn' || node.location.kind === 'step'
@@ -950,14 +964,16 @@ export type DetailsSlotProps = PropsRuntime<'details'> & PropsRenderSlots<'conve
       'skeleton',
       'EmptyHero.tsx',
     ),
-    needle: `export function HeroShell({ t, children }: HeroShellProps) {
+    needle: `export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
   return (
     <div className={css.root}>
       <div className={css.stack}>
         <div className={css.headline}>
           {/* figma 34:10412: fish 34×25 leading the headline, gap 10. */}
           <span className={css.fishHitbox}>
-            <FishLogo size={34} className={css.fish} />
+            {renderSlot('conversation.hero.brand.mark', { size: 34, className: css.fish }, {
+              fallback: <FishLogo size={34} className={css.fish} />,
+            })}
           </span>
           <span className={css.headlineText}>{t('hero.headline')}</span>
           <span className={css.previewBadge}>{t('hero.preview')}</span>
@@ -994,7 +1010,7 @@ export type DetailsSlotProps = PropsRuntime<'details'> & PropsRenderSlots<'conve
       'skeleton',
       'ConversationRoot.tsx',
     ),
-    needle: '      {hero && <HeroShell t={t} />}',
+    needle: '      {hero && <HeroShell t={t} renderSlot={renderSlot} />}',
     indent: '      ',
   },
   {
@@ -1457,7 +1473,7 @@ export function stagePreviewPlugin() {
   validatePreviewPlugin(previewPluginStage)
   let peersChanged = false
   for (const [name, target] of previewPluginPeers) {
-    if (!existsSync(target)) throw new Error(`Missing rc.7 peer package for ${previewPluginName}: ${name}`)
+    if (!existsSync(target)) throw new Error(`Missing pinned Harness peer package for ${previewPluginName}: ${name}`)
     peersChanged = ensureDirectorySymlink(
       resolve(previewPluginStage, 'node_modules', ...name.split('/')),
       target,
@@ -1470,8 +1486,15 @@ export function stagePreviewPlugin() {
 }
 
 async function buildPreviewPlugin() {
+  const env = {
+    ...process.env,
+    DSH_EXTERNAL_WORKSPACE_MANIFEST: resolve(previewPluginStage, 'package.json'),
+  }
   await run('pnpm', ['exec', 'tsc', '-b', 'tsconfig.dsh.json'], { cwd: previewPluginStage })
-  await run('pnpm', ['exec', 'tsdown', '--env.DSH_BUILD_FACE', 'client'], { cwd: previewPluginStage })
+  await run('pnpm', ['exec', 'tsdown', '--env.DSH_BUILD_FACE', 'client'], {
+    cwd: previewPluginStage,
+    env,
+  })
   validatePreviewPlugin(previewPluginStage, true)
 }
 
@@ -1502,7 +1525,7 @@ function stageSubscriptionsPluginPeers() {
   let changed = false
   for (const [name, target] of subscriptionsPluginPeers) {
     if (!existsSync(resolve(target, 'package.json'))) {
-      throw new Error(`Missing rc.7 peer package for ${subscriptionsPluginName}: ${name}`)
+      throw new Error(`Missing pinned Harness peer package for ${subscriptionsPluginName}: ${name}`)
     }
     const link = resolve(subscriptionsPluginTarget, 'node_modules', ...name.split('/'))
     try {
@@ -1702,7 +1725,9 @@ async function main() {
     return
   }
 
-  await run('pnpm', ['run', 'build:lib:client'], { cwd: upstreamRoot })
+  // rc.8 client types consume remote contracts emitted by the host build.
+  // Build both faces so a clean pinned checkout is reproducible.
+  await run('pnpm', ['run', 'build:lib'], { cwd: upstreamRoot })
   await buildPreviewPlugin()
   await run('pnpm', ['run', 'build:web'], { cwd: upstreamRoot })
   writeFileSync(buildStampPath, `${sourceDigest}\n`)

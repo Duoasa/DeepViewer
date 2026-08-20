@@ -4,16 +4,28 @@
 
 import type { IconProps } from "./icons/props.ts"
 
+/** Display options kept compatible with the pinned Harness brand surface. */
+export interface BrandWordmarkProps extends IconProps {
+  /** Whether to include the leading DeepViewer mark; defaults to true. */
+  includeMark?: boolean | undefined
+}
+
 /**
  * Render the DeepViewer logo at its native 747:144 aspect ratio.
  */
-export function BrandWordmark({ size = 24, className }: IconProps) {
+export function BrandWordmark({
+  size = 24,
+  className,
+  includeMark = true,
+}: BrandWordmarkProps) {
+  const viewBox = includeMark ? "0 0 747 144" : "176 0 571 144"
+  const nativeWidth = includeMark ? 747 : 571
   return (
     <svg
-      width={(size * 747) / 144}
+      width={(size * nativeWidth) / 144}
       height={size}
       className={className}
-      viewBox="0 0 747 144"
+      viewBox={viewBox}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"

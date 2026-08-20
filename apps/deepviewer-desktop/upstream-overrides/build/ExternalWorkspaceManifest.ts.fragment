@@ -1,0 +1,10 @@
+const externalManifestPath = process.env.DSH_EXTERNAL_WORKSPACE_MANIFEST
+if (externalManifestPath !== undefined) {
+  const externalManifest = JSON.parse(
+    readFileSync(resolvePath(externalManifestPath), 'utf8'),
+  ) as WorkspaceManifest
+  if (externalManifest.name === id) {
+    manifestCache.set(id, externalManifest)
+    return externalManifest
+  }
+}
