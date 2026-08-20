@@ -8,7 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
-| `v0.2.2-build.2` | Public hotfix / Preparing | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 2)](v0.2.2-build.2.md) |
+| `v0.2.2-build.2` | Public hotfix / Publishing | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 2)](v0.2.2-build.2.md) |
 | `v0.2.2` | Public preview / Rollback | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 1)](v0.2.2.md) |
 | `v0.2.1` | Public preview / Rollback | 2026-08-19 | DV-0007, DV-0008, DV-0010—DV-0013 | [DeepViewer 0.2.1](v0.2.1.md) |
 | `v0.1.2-build.2` | Public hotfix | 2026-08-17 | DV-0007, DV-0008, DV-0009 | [DeepViewer 0.1.2 (Build 2)](v0.1.2.md) |

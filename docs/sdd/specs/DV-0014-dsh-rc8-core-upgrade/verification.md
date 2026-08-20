@@ -24,7 +24,7 @@ updated: 2026-08-20
 | AC-001 | 自动 | Pass | 官方 rc.8 checkout/commit 门禁、host/client、预览插件、Web、`build:official`、release-pack、105 项测试、TypeScript 和桌面 build 通过 |
 | AC-002 | 自动 + 人工 | Pass with Pending Manual | 两个 Active 插件 PC-001—PC-008 通过；DVP-0001 PC-009 真实账户完整流程待维护者 |
 | AC-003 | 静态 + 集成 | Pass | 最终 rc.8 base bundle 依赖 JSONL persistence；SQLite schema 17 无迁移、失败关闭和 0.2.1 回滚边界已记录 |
-| AC-004 | 自动 + 系统工具 | Build 1 Pass / Build 2 Pending | Build 1 已通过完整发布门禁；Build 2 待完成双架构正式封包、签名与公证 |
+| AC-004 | 自动 + 系统工具 | Build 1 Pass / Build 2 Pass | Build 2 双架构全新封包、隐私审计、严格签名、Apple 公证、票据装订、Gatekeeper、DMG 校验与只读挂载回读全部通过 |
 | AC-005 | GitHub + 回读 | Build 1 Pass / Build 2 Pending | Build 1 已发布并回读；Build 2 待发布独立 tag、Release 与全新资产 |
 
 ## 插件兼容矩阵
@@ -59,6 +59,9 @@ updated: 2026-08-20
   三个资产文件名、大小与服务器端 SHA-256 均 Pass。
 - Build 2 启动参数回归：核心、订阅单插件、订阅 + 预览路径都只含一个 `--no-open`；
   15 个测试文件、106/106 项测试、TypeScript 与桌面 production build：Pass。
+- Build 2 双架构 Runtime 全新构建，应用与 DMG 签名、包体隐私审计、Apple 公证、
+  ticket staple、Gatekeeper 与 `hdiutil verify`：Pass；最终 DMG 只读挂载回读确认
+  0.2.2 Build 2、rc.8、对应架构和严格签名：Pass。
 
 ## 人工检查
 
@@ -74,6 +77,6 @@ updated: 2026-08-20
 
 ## 结论
 
-- 结果：Build 2 Automated Pass / Pending Package / Pending Manual
+- 结果：Build 2 Automated Pass / Pending GitHub / Pending Manual
 - 验证人：Codex（自动验证）/ Duoasa（人工验证）
 - 日期：2026-08-20

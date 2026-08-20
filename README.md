@@ -75,11 +75,11 @@ shell designed for a visual, controllable agent experience.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | Build 2 packaging in progress | Pending |
-| Intel (`x64`) | Build 2 packaging in progress | Pending |
+| Apple Silicon (`arm64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-arm64.dmg) | `13a33ff50f2772b7ba5fc31fb9eb1012b6874211e9e7ac10832ca4f142a848f4` |
+| Intel (`x64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-x64.dmg) | `21c1b52ac28d712b2b9b52acc9e1f904777b4a0b650d824538fd2612337e5dd3` |
 
 The release also includes a
-`SHA256SUMS.txt`
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/SHA256SUMS.txt)
 manifest for command-line verification.
 
 ## What's new in 0.2.2
@@ -122,7 +122,7 @@ manifest for command-line verification.
 - Rebuilds independent arm64 and x64 Runtimes from the official rc.8
   release-pack. Each application contains one pinned Harness and the same two
   registered plugins.
-- Runs the complete upstream official build, 105 desktop tests, TypeScript and
+- Runs the complete upstream official build, 106 desktop tests, TypeScript and
   desktop production builds, package privacy audits, strict Developer ID
   signing, Apple notarization, ticket stapling, Gatekeeper and DMG verification.
 

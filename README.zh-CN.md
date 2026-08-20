@@ -71,11 +71,11 @@ Agent 体验设计的桌面外壳。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | Build 2 正在封包 | Pending |
-| Intel（`x64`） | Build 2 正在封包 | Pending |
+| Apple Silicon（`arm64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-arm64.dmg) | `13a33ff50f2772b7ba5fc31fb9eb1012b6874211e9e7ac10832ca4f142a848f4` |
+| Intel（`x64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-x64.dmg) | `21c1b52ac28d712b2b9b52acc9e1f904777b4a0b650d824538fd2612337e5dd3` |
 
 Release 同时提供
-`SHA256SUMS.txt`
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/SHA256SUMS.txt)
 供命令行核验。
 
 ## 0.2.2 更新内容
@@ -110,7 +110,7 @@ Release 同时提供
 
 - arm64 与 x64 Runtime 均从官方 rc.8 release-pack 独立重建；每个应用只包含一个
   Harness 和相同的两个登记插件。
-- 已执行上游官方完整构建、105 项桌面测试、TypeScript 与桌面 production build、
+- 已执行上游官方完整构建、106 项桌面测试、TypeScript 与桌面 production build、
   包体隐私审计、严格 Developer ID 签名、Apple 公证、票据装订、Gatekeeper 与 DMG 校验。
 
 完整资产与验证证据见 [`0.2.2 Build 2` 发布记录](docs/sdd/releases/v0.2.2-build.2.md)。0.2.2 为核心升级，
