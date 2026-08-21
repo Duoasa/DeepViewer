@@ -37,7 +37,7 @@ Agent 工作台。它把固定版本的本地 Runtime 封装进普通 macOS 应�
 Agent 体验设计的桌面外壳。
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.x 对话工作区与网页预览侧栏">
+  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 关于页面与 DeepSeek Harness 0.1.0-rc.8">
 </p>
 
 > [!NOTE]
@@ -80,6 +80,10 @@ Release 同时提供
 
 ## 0.2.2 更新内容
 
+<p align="center">
+  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 关于页面中的应用与 rc.8 核心版本">
+</p>
+
 ### Build 2 浏览器启动热修复
 
 - 阻止 rc.8 的 `dsh web` 默认行为在 DeepViewer 启动时额外打开系统浏览器，本地 Harness
@@ -113,10 +117,15 @@ Release 同时提供
 - 已执行上游官方完整构建、106 项桌面测试、TypeScript 与桌面 production build、
   包体隐私审计、严格 Developer ID 签名、Apple 公证、票据装订、Gatekeeper 与 DMG 校验。
 
-完整资产与验证证据见 [`0.2.2 Build 2` 发布记录](docs/sdd/releases/v0.2.2-build.2.md)。0.2.2 为核心升级，
-保持 0.2.1 界面不变，因此顶部产品图仍准确表示当前界面。
+完整资产与验证证据见 [`0.2.2 Build 2` 发布记录](docs/sdd/releases/v0.2.2-build.2.md)。
+0.2.2 产品图记录 rc.8 的“关于”页面；维护者已验收的 0.2.1 对话与预览界面继续保留在
+下方对应的版本历史中。
 
 ## 0.2.1 更新内容
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.1 对话工作区与网页预览侧栏">
+</p>
 
 ### DeepSeek Harness rc.7 与插件治理
 

@@ -37,7 +37,7 @@ the pinned local runtime into a normal macOS application and provides a desktop
 shell designed for a visual, controllable agent experience.
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.x conversation workspace and web preview sidebar">
+  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 About page with DeepSeek Harness 0.1.0-rc.8">
 </p>
 
 > [!NOTE]
@@ -84,6 +84,10 @@ manifest for command-line verification.
 
 ## What's new in 0.2.2
 
+<p align="center">
+  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 About page with app and rc.8 core versions">
+</p>
+
 ### Build 2 browser-launch hotfix
 
 - Prevents rc.8's `dsh web` default from opening the system browser when
@@ -127,10 +131,15 @@ manifest for command-line verification.
   signing, Apple notarization, ticket stapling, Gatekeeper and DMG verification.
 
 See the [`0.2.2 Build 2` release record](docs/sdd/releases/v0.2.2-build.2.md) for the complete
-asset and verification evidence. The 0.2.2 core-only update preserves the 0.2.1
-interface shown in the current product image above.
+asset and verification evidence. The 0.2.2 image records the rc.8 About view;
+the maintainer-accepted 0.2.1 conversation and preview interface remains shown
+in its version history below.
 
 ## What's new in 0.2.1
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.1 conversation workspace and web preview sidebar">
+</p>
 
 ### DeepSeek Harness rc.7 and plugin governance
 
