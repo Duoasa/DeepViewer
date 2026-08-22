@@ -28,6 +28,7 @@ updated: 2026-08-22
 | R-008 | 品牌插槽 | 分离 DeepViewer SVG mark 与文本 name，在本地 profile 中显式注册 rc.2 侧栏品牌槽位 |
 | R-009, NFR-005 | 双架构签名候选包 | 独立清理和构建 arm64/x64 Runtime、应用与 DMG，执行 allowlist 隐私审计、签名和完整性验证 |
 | R-010 | 文档与主线 | 在证据确定后同步双语 README、SDD 与插件登记，提交发布分支并快进合并远端 `main` |
+| R-011 | 公开发布 | 版本化保存产品图，公证并装订最终 DMG，创建 tag/Release，上传资产后回读 digest 与 Latest |
 
 ## 组件与职责
 
@@ -39,6 +40,10 @@ updated: 2026-08-22
   profile 门禁，确保本地与候选构建均占用新品牌槽位。
 - `package.mjs`、`macos-signing.mjs`、`release-audit.mjs`：以 allowlist staging 生成独立架构
   应用，净化 Runtime 符号链接，审计个人数据并验证每个 Mach-O 与 DMG 的 Developer ID 签名。
+- `notarize.mjs`：只接受 Keychain profile，等待 Apple Accepted 后装订 ticket，验证 DMG、
+  Gatekeeper，并只读挂载应用再次评估；公证回执保存在 gitignored 的本地证据目录。
+- `Resources/DeepViewer-0.2.3.png` 与双语 README：保存维护者原始产品图，在顶图、下载入口、
+  当前版本说明和校验值之间保持同一 0.2.3 发布身份。
 - Desktop tests：固定版本、启动参数、插件启用/禁用和打包契约。
 
 ## 接口与事件
@@ -61,6 +66,10 @@ DeepViewer 不迁移或复制其内容。开发启动和正式 Runtime 继续使
 5. 启动 arm64 本地 DeepViewer Dev，由维护者检查品牌与工作区行为。
 6. 清理并重建两个架构的 release-pack、Runtime、应用和 DMG，执行隐私、架构与签名验证。
 7. 记录大小、SHA-256 与签名证据，同步双语 README/SDD，提交并快进合并到远端 `main`。
+8. 将维护者产品图版本化保存，使用 Keychain profile 公证并装订两个最终 DMG，执行 Gatekeeper
+   与只读挂载回读，重新计算最终大小和 SHA-256。
+9. 提交最终 README/SDD 发布源码并推送 `main`；创建 `v0.2.3` tag 与公开 Latest Release，
+   上传两个 DMG 和 `SHA256SUMS.txt`，回读服务器端资产与 CI 后补齐发布证据。
 
 ## 权限、安全与隐私
 
@@ -87,6 +96,8 @@ DeepViewer 不迁移或复制其内容。开发启动和正式 Runtime 继续使
 - 图片：依赖上游 rc.2 图片套件并检查桌面 Runtime 的 sharp/libvips 架构可用性。
 - 封包：双架构 Runtime manifest/原生库架构、ASAR allowlist、符号链接 containment、敏感值扫描、
   逐 Mach-O 严格签名、DMG 签名与 `hdiutil verify`。
+- 公开发布：notary Accepted、ticket staple/validate、Gatekeeper、只读挂载应用、tag/Release target、
+  远端资产名称/大小/digest、Latest 与 GitHub Actions CI。
 - 人工：开发窗口、品牌 mark/name、会话、输入框、预览、订阅真实账户和 About 版本。
 
 ## 备选方案
@@ -100,6 +111,6 @@ DeepViewer 不迁移或复制其内容。开发启动和正式 Runtime 继续使
 ## 设计决定
 
 - 决策：Approved by direct maintainer instructions；2026-08-22 追加双架构签名候选包、文档
-  同步与 `main` 合并设计
+  同步与 `main` 合并设计，随后追加 0.2.3 产品图、公证与公开发布设计
 - 审批人：Duoasa
 - 日期：2026-08-22

@@ -27,6 +27,7 @@ updated: 2026-08-22
 | AC-006 | 自动 + 人工 | Pass | 侧栏品牌槽位组合测试覆盖 mark/name 独立注册和本地 profile 无 DSH fallback；维护者在开发版视觉确认后指示继续封包 |
 | AC-007 | 自动 | Pass | arm64/x64 Runtime 全新生成；两包均通过隐私审计、34 个 Mach-O 严格签名验证、主程序架构回读、DMG 签名与 `hdiutil verify` |
 | AC-008 | 自动 | Pass | README、SDD 与候选记录已同步；发布分支已推送，远端 `main` 由 `2e82e3a` 非强制快进到包含候选记录的 `eb2ed36` |
+| AC-009 | 自动 | Pending | 维护者已提供 0.2.3 产品图并批准公开发布；产品图归档、最终 README、公证、tag/Release、资产和 CI 回读待执行 |
 
 ## 插件兼容矩阵
 
@@ -75,7 +76,8 @@ updated: 2026-08-22
 - 上游 Web E2E golden 尚未全部改写为 DeepViewer 的品牌标题、绝对预览路径和手动侧栏契约；产品源码、桌面回归、DSH GUI 回归与 production build 均通过，本规格不把该补充套件误报为绿色。
 - arm64 候选 DMG 为 `555,493,094` bytes，SHA-256 `f25eb317efe8f2f6e5b9ce07efeb53c540a055dd18c5fb9708ed25ad288a8d06`。
 - x64 候选 DMG 为 `589,229,970` bytes，SHA-256 `253ba602c62ee1dccfd9db99cdf694271e896972518f590662ff1344f2278c92`。
-- 两个候选包已签名但未 Apple 公证、未 staple、未上传 GitHub Release；不能描述为公开可下载版本。
+- 两个候选包已签名；Apple 公证、staple、公开 GitHub Release 与资产回读已获维护者批准，完成前
+  仍不能描述为公开可下载版本。
 
 ## 结论
 
