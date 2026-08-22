@@ -26,7 +26,7 @@ updated: 2026-08-22
 | AC-005 | 自动 + 人工 | Pass / Pending Manual | Electron Dev 已启动；日志确认两个插件启用、唯一 loopback Runtime 就绪；品牌视觉由维护者确认，其余人工流程待完成 |
 | AC-006 | 自动 + 人工 | Pass | 侧栏品牌槽位组合测试覆盖 mark/name 独立注册和本地 profile 无 DSH fallback；维护者在开发版视觉确认后指示继续封包 |
 | AC-007 | 自动 | Pass | arm64/x64 Runtime 全新生成；两包均通过隐私审计、34 个 Mach-O 严格签名验证、主程序架构回读、DMG 签名与 `hdiutil verify` |
-| AC-008 | 自动 | Pending | README、SDD 与候选记录同步中；发布分支和远端 `main` 推送待执行 |
+| AC-008 | 自动 | Pending | README、SDD 与候选记录已同步到源码提交 `d57c045`；发布分支和远端 `main` 推送待执行 |
 
 ## 插件兼容矩阵
 

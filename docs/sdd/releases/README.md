@@ -8,6 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
+| `v0.2.3` | Signed local candidate / Not public | 2026-08-22 | DV-0015 | [DeepViewer 0.2.3 (Build 1) candidate](v0.2.3-candidate.md) |
 | `v0.2.2-build.2` | Public hotfix / Latest | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 2)](v0.2.2-build.2.md) |
 | `v0.2.2` | Public preview / Rollback | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 1)](v0.2.2.md) |
 | `v0.2.1` | Public preview / Rollback | 2026-08-19 | DV-0007, DV-0008, DV-0010—DV-0013 | [DeepViewer 0.2.1](v0.2.1.md) |
@@ -17,7 +18,8 @@
 
 ## 记录要求
 
-每个版本至少记录：
+每个版本至少记录；尚未公开的候选版本对 tag、GitHub Release 地址和发布时间明确记为
+`null` / 未发布：
 
 - Git tag、源代码提交和 GitHub Release 地址
 - 每个安装资产的目标平台、架构、大小和 SHA-256

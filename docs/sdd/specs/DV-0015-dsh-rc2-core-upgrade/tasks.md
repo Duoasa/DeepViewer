@@ -22,7 +22,7 @@ updated: 2026-08-22
 - [x] T-006 `[AC-001—AC-005]` 在 `verification.md` 记录自动证据与 Pending Manual 状态。
 - [x] T-007 `[R-008, AC-006]` 修复 rc.2 侧栏品牌槽位，拆分 DeepViewer SVG mark 与文本 name，
   补充本地 profile 组合回归并重启开发版供维护者确认。
-- [ ] T-008 `[R-010, AC-008]` 同步双语 README、SDD 规格、插件登记和候选版本记录。
+- [x] T-008 `[R-010, AC-008]` 同步双语 README、SDD 规格、插件登记和候选版本记录。
 - [x] T-009 `[R-009, NFR-005, AC-007]` 全新生成并验证 arm64/x64 Runtime、应用和 Developer ID
   签名 DMG，记录大小与 SHA-256。
 - [ ] T-010 `[R-010, AC-008]` 完成发布分支提交与推送，快进合并到远端 `main` 并回读远端状态。
