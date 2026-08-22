@@ -2,7 +2,7 @@
 id: DV-0015
 title: DeepSeek Harness 0.1.1-rc.2 core upgrade and DeepViewer 0.2.3 - Verification
 status: Implementing
-updated: 2026-08-22
+updated: 2026-08-23
 ---
 
 # DV-0015：验证
@@ -27,7 +27,7 @@ updated: 2026-08-22
 | AC-006 | 自动 + 人工 | Pass | 侧栏品牌槽位组合测试覆盖 mark/name 独立注册和本地 profile 无 DSH fallback；维护者在开发版视觉确认后指示继续封包 |
 | AC-007 | 自动 | Pass | arm64/x64 Runtime 全新生成；两包均通过隐私审计、34 个 Mach-O 严格签名验证、主程序架构回读、DMG 签名与 `hdiutil verify` |
 | AC-008 | 自动 | Pass | README、SDD 与候选记录已同步；发布分支已推送，远端 `main` 由 `2e82e3a` 非强制快进到包含候选记录的 `eb2ed36` |
-| AC-009 | 自动 | Pending | 原始 0.2.3 产品图、最终 README、双架构公证/装订/Gatekeeper/只读挂载与校验清单通过；tag/Release、远端资产和 CI 回读待执行 |
+| AC-009 | 自动 | Pass | `v0.2.3` tag/Latest Release 指向发布提交；原始产品图、README、双架构公证资产和校验清单已发布，三个远端资产大小/digest 与本地一致，发布源码 CI 通过 |
 
 ## 插件兼容矩阵
 
@@ -59,6 +59,10 @@ updated: 2026-08-22
 - `shasum -a 256 -c SHA256SUMS.txt`：Pass；两个最终装订 DMG 均为 `OK`。
 - `git push -u origin codex/v0.2.3-dsh-rc2`：Pass；远端发布分支创建并回读。
 - `git push origin HEAD:main`：Pass；刷新后 `origin/main...HEAD` 为 `0 2`，远端 `main` 非强制快进到 `eb2ed36`。
+- `git tag -a v0.2.3` / `git push origin refs/tags/v0.2.3`：Pass；annotated tag 解引用到发布提交 `25de065`。
+- `gh release create v0.2.3 ... --verify-tag --latest`：Pass；公开 Release 创建并上传 arm64/x64 DMG 与校验清单。
+- GitHub Release/API 回读：Pass；Latest 为 `v0.2.3`，三个资产均为 `uploaded`，远端大小与
+  `sha256:` digest 逐项匹配，发布源码 CI #32583344771 通过。
 - `DSH_SNAPSHOT=replay pnpm run test:web:built`（补充、非门禁）：安装 Chromium 并生成完整 build record 后启动；全套因 DeepViewer 既有品牌标题、绝对预览路径和窄屏手动侧栏契约与上游 E2E golden 不同而中止。定向复跑确认均为已登记产品差异；不将此命令记为 Pass。
 - `pnpm desktop:dev`：Pass；2026-08-22 22:30（Asia/Shanghai）启动 Electron，日志记录 `SUBSCRIPTIONS_ENABLED version=0.3.1`、`PREVIEW_ENABLED version=0.1.0` 和单一 `runtime ready origin=http://127.0.0.1:49891`。
 

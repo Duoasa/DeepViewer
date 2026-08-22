@@ -4,7 +4,7 @@ title: DeepSeek Harness 0.1.1-rc.2 core upgrade and DeepViewer 0.2.3
 status: Implementing
 owner: Duoasa
 created: 2026-08-22
-updated: 2026-08-22
+updated: 2026-08-23
 depends_on: [DV-0011, DV-0012, DV-0014]
 ---
 

@@ -2,7 +2,7 @@
 id: DV-0015
 title: DeepSeek Harness 0.1.1-rc.2 core upgrade and DeepViewer 0.2.3 - Design
 status: Implementing
-updated: 2026-08-22
+updated: 2026-08-23
 ---
 
 # DV-0015：设计

@@ -2,7 +2,7 @@
 id: DV-0015
 title: DeepSeek Harness 0.1.1-rc.2 core upgrade and DeepViewer 0.2.3 - Tasks
 status: Implementing
-updated: 2026-08-22
+updated: 2026-08-23
 ---
 
 # DV-0015：实施任务
@@ -31,7 +31,7 @@ updated: 2026-08-22
   下载入口、当前版本说明与最终校验值。
 - [x] T-012 `[R-011, NFR-005, AC-009]` 使用 Keychain profile 公证并装订 arm64/x64 DMG，
   完成 Gatekeeper、磁盘镜像和只读挂载应用回读，生成 `SHA256SUMS.txt`。
-- [ ] T-013 `[R-011, AC-009]` 推送发布源码与 `v0.2.3` tag，创建 Latest GitHub Release，上传并
+- [x] T-013 `[R-011, AC-009]` 推送发布源码与 `v0.2.3` tag，创建 Latest GitHub Release，上传并
   回读三个资产，确认发布提交 CI 后补齐最终发布记录。
 
 ## 延后事项
