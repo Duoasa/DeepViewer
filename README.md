@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2"><strong>Download DeepViewer 0.2.2 (Build 2)</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3"><strong>Download DeepViewer 0.2.3</strong></a>
   ·
-  <a href="#source-status-023">0.2.3 source status</a>
+  <a href="#whats-new-in-023">What's new in 0.2.3</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
@@ -37,7 +37,7 @@ the pinned local runtime into a normal macOS application and provides a desktop
 shell designed for a visual, controllable agent experience.
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 About page with DeepSeek Harness 0.1.0-rc.8">
+  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 About page with DeepSeek Harness 0.1.1-rc.2">
 </p>
 
 > [!NOTE]
@@ -45,18 +45,17 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.2.2-build.2` is the latest macOS preview (app version `0.2.2`, build `2`) and
-> bundles DeepSeek Harness `0.1.0-rc.8`. It preserves the maintainer-accepted
-> 0.2.1 interface, prevents rc.8 from opening a second system-browser window,
-> and has passed the automated gates. rc.8
-> subscription account flows remain a maintainer check, and this is still an
-> early preview rather than a stable release.
+> `v0.2.3` is the latest macOS preview (app version `0.2.3`, build `1`) and
+> bundles DeepSeek Harness `0.1.1-rc.2`. It adapts both built-in plugins and the
+> rc.2 UI contract, restores the independent DeepViewer mark and name, and has
+> passed the automated build, privacy, signing, notarization, and release gates.
+> Subscription PC-009 remains a maintainer check, and this is still an early
+> preview rather than a stable release.
 
 > [!TIP]
-> The `main` source now targets DeepViewer `0.2.3` Build `1` with DeepSeek
-> Harness `0.1.1-rc.2`. The signed 0.2.3 packages described below are local
-> release candidates, not notarized or uploaded downloads; 0.2.2 Build 2
-> remains the latest public package.
+> DeepViewer 0.2.2 Build 2 remains available as the rc.8 rollback package. The
+> 0.2.3 downloads are Developer ID signed, Apple-notarized, ticket-stapled, and
+> published separately for Apple Silicon and Intel Macs.
 
 ## Why DeepViewer
 
@@ -74,21 +73,25 @@ shell designed for a visual, controllable agent experience.
 ## Quick start
 
 1. Download the package that matches your Mac from the
-   [0.2.2 Build 2 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2).
+   [0.2.3 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open DeepViewer. It starts the bundled Harness automatically and loads the
    local workspace when the runtime is ready.
 
 | Mac | Download | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon (`arm64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-arm64.dmg) | `13a33ff50f2772b7ba5fc31fb9eb1012b6874211e9e7ac10832ca4f142a848f4` |
-| Intel (`x64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-x64.dmg) | `21c1b52ac28d712b2b9b52acc9e1f904777b4a0b650d824538fd2612337e5dd3` |
+| Apple Silicon (`arm64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-arm64.dmg) | `4c86ca24958f74f9e049d5a97bb34cb51415724188065f8fdd501b6ca47b8adb` |
+| Intel (`x64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-x64.dmg) | `1857891ae3b8a610656d7b6f77442e1aed6e7bfb6d5e57097c9b4669d552aec8` |
 
 The release also includes a
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/SHA256SUMS.txt)
 manifest for command-line verification.
 
-## Source status: 0.2.3
+## What's new in 0.2.3
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 About page with app version 0.2.3 Build 1 and DeepSeek Harness 0.1.1-rc.2">
+</p>
 
 - Pins the only bundled core to the immutable DeepSeek Harness
   `dsh-v0.1.1-rc.2` tag (`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`).
@@ -101,15 +104,15 @@ manifest for command-line verification.
 - Updates the rc.2 sidebar brand contract: the DeepViewer symbol and the text
   name `DeepViewer` occupy independent slots, including in local builds, so
   the UI cannot fall back to the DSH whale and `DSH Local Build` placeholder.
-- Builds independent arm64 and x64 release-candidate Runtimes and DMGs from
-  allowlisted inputs. Both candidates pass privacy auditing and strict
-  Developer ID application/DMG signature verification; publication and Apple
-  notarization remain separate maintainer-authorized steps.
+- Builds independent arm64 and x64 Runtimes and DMGs from allowlisted inputs.
+  Both packages pass privacy auditing, strict Developer ID application/DMG
+  signature verification, Apple notarization, ticket stapling, Gatekeeper,
+  disk-image verification, and read-only mounted-app assessment.
 
 The complete implementation and verification scope is tracked by
-[`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md). Public users
-should continue to install 0.2.2 Build 2 until a 0.2.3 GitHub Release is
-published.
+[`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md) and the
+[`0.2.3 release record`](docs/sdd/releases/v0.2.3.md). DeepViewer 0.2.2 Build 2
+remains available as the previous rc.8 rollback release.
 
 ## What's new in 0.2.2
 

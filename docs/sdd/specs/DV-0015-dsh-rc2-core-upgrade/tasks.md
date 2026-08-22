@@ -27,9 +27,9 @@ updated: 2026-08-22
 - [x] T-009 `[R-009, NFR-005, AC-007]` 全新生成并验证 arm64/x64 Runtime、应用和 Developer ID
   签名 DMG，记录大小与 SHA-256。
 - [x] T-010 `[R-010, AC-008]` 完成发布分支提交与推送，快进合并到远端 `main` 并回读远端状态。
-- [ ] T-011 `[R-011, AC-009]` 保存维护者提供的原始 0.2.3 产品图，更新双语 README 顶图、
+- [x] T-011 `[R-011, AC-009]` 保存维护者提供的原始 0.2.3 产品图，更新双语 README 顶图、
   下载入口、当前版本说明与最终校验值。
-- [ ] T-012 `[R-011, NFR-005, AC-009]` 使用 Keychain profile 公证并装订 arm64/x64 DMG，
+- [x] T-012 `[R-011, NFR-005, AC-009]` 使用 Keychain profile 公证并装订 arm64/x64 DMG，
   完成 Gatekeeper、磁盘镜像和只读挂载应用回读，生成 `SHA256SUMS.txt`。
 - [ ] T-013 `[R-011, AC-009]` 推送发布源码与 `v0.2.3` tag，创建 Latest GitHub Release，上传并
   回读三个资产，确认发布提交 CI 后补齐最终发布记录。

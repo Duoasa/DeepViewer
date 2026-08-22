@@ -27,7 +27,7 @@ updated: 2026-08-22
 | AC-006 | 自动 + 人工 | Pass | 侧栏品牌槽位组合测试覆盖 mark/name 独立注册和本地 profile 无 DSH fallback；维护者在开发版视觉确认后指示继续封包 |
 | AC-007 | 自动 | Pass | arm64/x64 Runtime 全新生成；两包均通过隐私审计、34 个 Mach-O 严格签名验证、主程序架构回读、DMG 签名与 `hdiutil verify` |
 | AC-008 | 自动 | Pass | README、SDD 与候选记录已同步；发布分支已推送，远端 `main` 由 `2e82e3a` 非强制快进到包含候选记录的 `eb2ed36` |
-| AC-009 | 自动 | Pending | 维护者已提供 0.2.3 产品图并批准公开发布；产品图归档、最终 README、公证、tag/Release、资产和 CI 回读待执行 |
+| AC-009 | 自动 | Pending | 原始 0.2.3 产品图、最终 README、双架构公证/装订/Gatekeeper/只读挂载与校验清单通过；tag/Release、远端资产和 CI 回读待执行 |
 
 ## 插件兼容矩阵
 
@@ -55,6 +55,8 @@ updated: 2026-08-22
 - `pnpm run release:pack -- --family vendor` / `--family dsh`（DSH）：Pass；分别生成 9 / 227 个固定 tarball。
 - `pnpm run runtime`（Desktop）：Pass；全新生成 arm64/x64 Runtime，并校验 rc.2 核心、两个内置插件和原生模块架构。
 - `node scripts/package.mjs --sign`（Desktop）：Pass；两个应用隐私审计、Developer ID 严格嵌套验签、DMG 完整性与磁盘镜像签名验证均通过。
+- `node scripts/notarize.mjs --keychain-profile=<redacted>`：Pass；arm64/x64 均为 Apple Accepted，ticket staple/validate、Gatekeeper、DMG 与只读挂载应用评估通过。
+- `shasum -a 256 -c SHA256SUMS.txt`：Pass；两个最终装订 DMG 均为 `OK`。
 - `git push -u origin codex/v0.2.3-dsh-rc2`：Pass；远端发布分支创建并回读。
 - `git push origin HEAD:main`：Pass；刷新后 `origin/main...HEAD` 为 `0 2`，远端 `main` 非强制快进到 `eb2ed36`。
 - `DSH_SNAPSHOT=replay pnpm run test:web:built`（补充、非门禁）：安装 Chromium 并生成完整 build record 后启动；全套因 DeepViewer 既有品牌标题、绝对预览路径和窄屏手动侧栏契约与上游 E2E golden 不同而中止。定向复跑确认均为已登记产品差异；不将此命令记为 Pass。
@@ -74,10 +76,9 @@ updated: 2026-08-22
 
 - PC-009 依赖维护者真实账户与外部服务。
 - 上游 Web E2E golden 尚未全部改写为 DeepViewer 的品牌标题、绝对预览路径和手动侧栏契约；产品源码、桌面回归、DSH GUI 回归与 production build 均通过，本规格不把该补充套件误报为绿色。
-- arm64 候选 DMG 为 `555,493,094` bytes，SHA-256 `f25eb317efe8f2f6e5b9ce07efeb53c540a055dd18c5fb9708ed25ad288a8d06`。
-- x64 候选 DMG 为 `589,229,970` bytes，SHA-256 `253ba602c62ee1dccfd9db99cdf694271e896972518f590662ff1344f2278c92`。
-- 两个候选包已签名；Apple 公证、staple、公开 GitHub Release 与资产回读已获维护者批准，完成前
-  仍不能描述为公开可下载版本。
+- arm64 最终 DMG 为 `555,495,477` bytes，SHA-256 `4c86ca24958f74f9e049d5a97bb34cb51415724188065f8fdd501b6ca47b8adb`。
+- x64 最终 DMG 为 `589,232,353` bytes，SHA-256 `1857891ae3b8a610656d7b6f77442e1aed6e7bfb6d5e57097c9b4669d552aec8`。
+- 两个最终包已签名、公证并装订；公开 GitHub Release 与资产回读完成前仍不视为已发布。
 
 ## 结论
 

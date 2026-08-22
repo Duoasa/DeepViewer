@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2"><strong>下载 DeepViewer 0.2.2（Build 2）</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3"><strong>下载 DeepViewer 0.2.3</strong></a>
   ·
-  <a href="#023-源码状态">0.2.3 源码状态</a>
+  <a href="#023-更新内容">0.2.3 更新内容</a>
   ·
   <a href="#隐私设计">隐私</a>
   ·
@@ -37,22 +37,21 @@ Agent 工作台。它把固定版本的本地 Runtime 封装进普通 macOS 应�
 Agent 体验设计的桌面外壳。
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 关于页面与 DeepSeek Harness 0.1.0-rc.8">
+  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 关于页面与 DeepSeek Harness 0.1.1-rc.2">
 </p>
 
 > [!NOTE]
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> `v0.2.2-build.2` 是当前最新的 macOS 预览版（应用版本 `0.2.2`、构建号 `2`），
-> 内置 DeepSeek Harness `0.1.0-rc.8`，保持维护者已验收的 0.2.1 界面，并已通过
-> 自动门禁，同时阻止 rc.8 在应用启动时额外打开系统浏览器。rc.8 订阅账户流程仍待维护者复验，且本版仍属项目早期
-> 预览，并非稳定版本。
+> `v0.2.3` 是当前最新的 macOS 预览版（应用版本 `0.2.3`、构建号 `1`），内置
+> DeepSeek Harness `0.1.1-rc.2`。本版完成两个内置插件与 rc.2 UI 契约适配，恢复独立的
+> DeepViewer 图标和名称，并通过自动构建、隐私、签名、公证与发布门禁。订阅 PC-009 仍待
+> 维护者人工复验，且本版仍属项目早期预览，并非稳定版本。
 
 > [!TIP]
-> `main` 源码现已面向 DeepViewer `0.2.3` Build `1` 与 DeepSeek Harness
-> `0.1.1-rc.2`。下文记录的 0.2.3 签名包属于本地候选产物，尚未公证或上传；当前可公开下载的
-> 最新版本仍是 0.2.2 Build 2。
+> DeepViewer 0.2.2 Build 2 继续保留为 rc.8 回滚版本。0.2.3 的 Apple Silicon 与 Intel
+> 安装包均已完成 Developer ID 签名、Apple 公证和 ticket 装订，并分别公开发布。
 
 ## 为什么选择 DeepViewer
 
@@ -69,21 +68,25 @@ Agent 体验设计的桌面外壳。
 
 ## 快速开始
 
-1. 从 [0.2.2 Build 2 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2)
+1. 从 [0.2.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3)
    下载与你的 Mac 处理器匹配的版本。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开 DeepViewer。应用会自动启动内置 Harness，并在 Runtime 就绪后进入本地工作区。
 
 | Mac | 下载 | SHA-256 |
 | --- | --- | --- |
-| Apple Silicon（`arm64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-arm64.dmg) | `13a33ff50f2772b7ba5fc31fb9eb1012b6874211e9e7ac10832ca4f142a848f4` |
-| Intel（`x64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/DeepViewer-0.2.2-macos-x64.dmg) | `21c1b52ac28d712b2b9b52acc9e1f904777b4a0b650d824538fd2612337e5dd3` |
+| Apple Silicon（`arm64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-arm64.dmg) | `4c86ca24958f74f9e049d5a97bb34cb51415724188065f8fdd501b6ca47b8adb` |
+| Intel（`x64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-x64.dmg) | `1857891ae3b8a610656d7b6f77442e1aed6e7bfb6d5e57097c9b4669d552aec8` |
 
 Release 同时提供
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/SHA256SUMS.txt)
+[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/SHA256SUMS.txt)
 供命令行核验。
 
-## 0.2.3 源码状态
+## 0.2.3 更新内容
+
+<p align="center">
+  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 关于页面，显示应用版本 0.2.3 Build 1 与 DeepSeek Harness 0.1.1-rc.2">
+</p>
 
 - 将包内唯一核心固定到官方不可变 DeepSeek Harness `dsh-v0.1.1-rc.2` 标签
   （`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`）。
@@ -93,11 +96,12 @@ Release 同时提供
   多问题输入、Markdown 宽表格和子代理标题导航。
 - 适配 rc.2 新侧栏品牌契约：DeepViewer 图标与文本名称 `DeepViewer` 分别占用独立槽位，
   本地构建也不会回退成 DSH 鲸鱼与 `DSH Local Build`。
-- 从 allowlist 输入独立生成 arm64/x64 候选 Runtime 与 DMG；两个候选包均通过隐私审计、
-  Developer ID 应用及 DMG 严格签名验证。公开发布与 Apple 公证仍需维护者另行授权。
+- 从 allowlist 输入独立生成 arm64/x64 Runtime 与 DMG；两个安装包均通过隐私审计、Developer
+  ID 应用及 DMG 严格签名、Apple 公证、ticket 装订、Gatekeeper、磁盘镜像校验与只读挂载应用评估。
 
-完整实现与验证范围见 [`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md)。
-在 0.2.3 GitHub Release 正式发布前，公开用户应继续安装 0.2.2 Build 2。
+完整实现与验证范围见 [`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md) 与
+[`0.2.3 发布记录`](docs/sdd/releases/v0.2.3.md)。DeepViewer 0.2.2 Build 2 继续保留为上一版
+rc.8 回滚 Release。
 
 ## 0.2.2 更新内容
 
