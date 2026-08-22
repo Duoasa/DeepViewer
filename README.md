@@ -20,7 +20,7 @@
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2"><strong>Download DeepViewer 0.2.2 (Build 2)</strong></a>
   ·
-  <a href="#whats-new-in-022">What’s new</a>
+  <a href="#source-status-023">0.2.3 source status</a>
   ·
   <a href="#privacy-by-design">Privacy</a>
   ·
@@ -52,6 +52,12 @@ shell designed for a visual, controllable agent experience.
 > subscription account flows remain a maintainer check, and this is still an
 > early preview rather than a stable release.
 
+> [!TIP]
+> The `main` source now targets DeepViewer `0.2.3` Build `1` with DeepSeek
+> Harness `0.1.1-rc.2`. The signed 0.2.3 packages described below are local
+> release candidates, not notarized or uploaded downloads; 0.2.2 Build 2
+> remains the latest public package.
+
 ## Why DeepViewer
 
 | | |
@@ -81,6 +87,29 @@ shell designed for a visual, controllable agent experience.
 The release also includes a
 [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/SHA256SUMS.txt)
 manifest for command-line verification.
+
+## Source status: 0.2.3
+
+- Pins the only bundled core to the immutable DeepSeek Harness
+  `dsh-v0.1.1-rc.2` tag (`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`).
+- Adapts and revalidates `dsh-plugin-subscriptions@0.3.1` and
+  `@deepviewer/dsh-plugin-preview@0.1.0` against the rc.2 Host, Client,
+  provider, model, settings, preview, and fallback contracts.
+- Preserves JSONL as the default session backend while adopting rc.2 image
+  handling, Files API reuse, visual-model constraints, multi-question input,
+  wide Markdown tables, and subagent title navigation.
+- Updates the rc.2 sidebar brand contract: the DeepViewer symbol and the text
+  name `DeepViewer` occupy independent slots, including in local builds, so
+  the UI cannot fall back to the DSH whale and `DSH Local Build` placeholder.
+- Builds independent arm64 and x64 release-candidate Runtimes and DMGs from
+  allowlisted inputs. Both candidates pass privacy auditing and strict
+  Developer ID application/DMG signature verification; publication and Apple
+  notarization remain separate maintainer-authorized steps.
+
+The complete implementation and verification scope is tracked by
+[`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md). Public users
+should continue to install 0.2.2 Build 2 until a 0.2.3 GitHub Release is
+published.
 
 ## What's new in 0.2.2
 
@@ -258,10 +287,11 @@ for the complete asset and verification evidence.
   Apple Silicon; physical Intel Mac acceptance remains pending.
 - Subscription providers use external, non-stable protocols. Login has been
   manually validated on 0.2.1; the complete login, status, model/tool call and
-  logout flow remains a provider-specific 0.2.2 check.
-- rc.8's optional SQLite session backend cannot read the earlier pre-release
-  schema in place. DeepViewer defaults to JSONL; custom SQLite users must keep
-  their old database and use a new rc.8 database or roll back to 0.2.1.
+  logout flow remains a provider-specific 0.2.3 check.
+- DeepViewer defaults to JSONL and does not provide a migration for custom
+  optional SQLite databases. Custom SQLite users should retain their old
+  database and validate a new rc.2 database separately or roll back before
+  changing storage configuration.
 - The preview browser supports workspace static sites, not arbitrary dev-server URLs,
   editing, or a full general-purpose browser.
 - Windows packaging, automatic updates, crash reporting, and a stable support
@@ -307,7 +337,7 @@ cd DeepViewer
 pnpm install
 
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout 141eb6fef83422698aef7a981029e843e8161534
+git -C upstream/deepseek-harness checkout b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
 pnpm --dir upstream/deepseek-harness install
 pnpm --dir upstream/deepseek-harness run build:official
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
@@ -353,7 +383,7 @@ DeepViewer's original code is released under the [MIT License](LICENSE).
 DeepSeek Harness and all third-party components retain their respective
 copyright notices and licenses. The current desktop baseline is pinned to
 DeepSeek Harness commit
-`141eb6fef83422698aef7a981029e843e8161534` (`0.1.0-rc.8`).
+`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e` (`0.1.1-rc.2`).
 
 ## Feedback
 

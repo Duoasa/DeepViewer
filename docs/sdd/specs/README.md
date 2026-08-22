@@ -18,10 +18,11 @@
 | [DV-0012](DV-0012-preview-sidebar-plugin/spec.md) | 代码与实时网页预览侧栏插件 | Implementing | Duoasa | 2026-08-18 |
 | [DV-0013](DV-0013-finder-reveal-generated-files/spec.md) | 在 Finder 中显示生成文件 | Implementing | Duoasa | 2026-08-18 |
 | [DV-0014](DV-0014-dsh-rc8-core-upgrade/spec.md) | DeepSeek Harness rc.8 核心升级与 0.2.2 发布 | Implementing | Duoasa | 2026-08-20 |
+| [DV-0015](DV-0015-dsh-rc2-core-upgrade/spec.md) | DeepSeek Harness 0.1.1-rc.2 核心升级与 0.2.3 | Implementing | Duoasa | 2026-08-22 |
 
 ## 下一个编号
 
-`DV-0015`
+`DV-0016`
 
 ## 目录规则
 

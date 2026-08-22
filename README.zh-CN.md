@@ -20,7 +20,7 @@
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.2-build.2"><strong>下载 DeepViewer 0.2.2（Build 2）</strong></a>
   ·
-  <a href="#022-更新内容">版本更新</a>
+  <a href="#023-源码状态">0.2.3 源码状态</a>
   ·
   <a href="#隐私设计">隐私</a>
   ·
@@ -48,6 +48,11 @@ Agent 体验设计的桌面外壳。
 > 内置 DeepSeek Harness `0.1.0-rc.8`，保持维护者已验收的 0.2.1 界面，并已通过
 > 自动门禁，同时阻止 rc.8 在应用启动时额外打开系统浏览器。rc.8 订阅账户流程仍待维护者复验，且本版仍属项目早期
 > 预览，并非稳定版本。
+
+> [!TIP]
+> `main` 源码现已面向 DeepViewer `0.2.3` Build `1` 与 DeepSeek Harness
+> `0.1.1-rc.2`。下文记录的 0.2.3 签名包属于本地候选产物，尚未公证或上传；当前可公开下载的
+> 最新版本仍是 0.2.2 Build 2。
 
 ## 为什么选择 DeepViewer
 
@@ -77,6 +82,22 @@ Agent 体验设计的桌面外壳。
 Release 同时提供
 [`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.2-build.2/SHA256SUMS.txt)
 供命令行核验。
+
+## 0.2.3 源码状态
+
+- 将包内唯一核心固定到官方不可变 DeepSeek Harness `dsh-v0.1.1-rc.2` 标签
+  （`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`）。
+- 按 rc.2 Host、Client、provider、model、settings、preview 与降级契约，重新适配并验证
+  `dsh-plugin-subscriptions@0.3.1` 和 `@deepviewer/dsh-plugin-preview@0.1.0`。
+- 默认会话后端继续使用 JSONL，同时接入 rc.2 图片处理、Files API 复用、视觉模型约束、
+  多问题输入、Markdown 宽表格和子代理标题导航。
+- 适配 rc.2 新侧栏品牌契约：DeepViewer 图标与文本名称 `DeepViewer` 分别占用独立槽位，
+  本地构建也不会回退成 DSH 鲸鱼与 `DSH Local Build`。
+- 从 allowlist 输入独立生成 arm64/x64 候选 Runtime 与 DMG；两个候选包均通过隐私审计、
+  Developer ID 应用及 DMG 严格签名验证。公开发布与 Apple 公证仍需维护者另行授权。
+
+完整实现与验证范围见 [`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md)。
+在 0.2.3 GitHub Release 正式发布前，公开用户应继续安装 0.2.2 Build 2。
 
 ## 0.2.2 更新内容
 
@@ -219,10 +240,10 @@ Release 同时提供
 ## 当前限制
 
 - x64 版本已通过架构、包体和 Apple Silicon + Rosetta 基础验证；真实 Intel Mac 验收仍待完成。
-- 订阅提供方依赖外部非稳定协议；0.2.1 登录已人工验证，0.2.2 的登录、状态、实际模型/
+- 订阅提供方依赖外部非稳定协议；0.2.1 登录已人工验证，0.2.3 的登录、状态、实际模型/
   工具调用和登出完整流程仍需按提供方复验。
-- rc.8 的可选 SQLite 会话后端不能原位读取早期预发布 schema。DeepViewer 默认使用
-  JSONL；自定义 SQLite 用户必须保留旧数据库，为 rc.8 新建数据库或回滚到 0.2.1。
+- DeepViewer 默认使用 JSONL，且不为自定义可选 SQLite 数据库提供迁移。自定义 SQLite 用户
+  应保留旧数据库，单独验证新的 rc.2 数据库，或在改变存储配置前回滚。
 - 预览浏览器只支持工作区静态站点，不支持任意 dev-server URL、编辑或完整通用浏览器能力。
 - 本预览版不包含 Windows、自动更新、崩溃上报或稳定支持承诺。
 - 当前 Runtime 优先保证完整性，DMG 体积较大；体积优化将在产品路径稳定后进行。
@@ -260,7 +281,7 @@ cd DeepViewer
 pnpm install
 
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout 141eb6fef83422698aef7a981029e843e8161534
+git -C upstream/deepseek-harness checkout b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
 pnpm --dir upstream/deepseek-harness install
 pnpm --dir upstream/deepseek-harness run build:official
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
@@ -297,7 +318,7 @@ DeepViewer 的 [SDD 文档系统](docs/sdd/README.md) 是产品基线、架构�
 
 DeepViewer 原创代码采用 [MIT License](LICENSE) 开源。DeepSeek Harness 与第三方组件保留
 各自的版权声明和许可证。当前桌面基线固定在 DeepSeek Harness 提交
-`141eb6fef83422698aef7a981029e843e8161534`（`0.1.0-rc.8`）。
+`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`（`0.1.1-rc.2`）。
 
 ## 反馈
 

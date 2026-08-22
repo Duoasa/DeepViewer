@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, realpath, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -22,6 +22,12 @@ async function createPlugin(root: string, version = SUBSCRIPTIONS_PLUGIN_VERSION
     main: 'lib/index.js',
     exports: {
       './client': { default: './lib/client.js' },
+    },
+    peerDependencies: {
+      '@deepseek-ai/dsh-attachment': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-home-paths': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-llm': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-tools': '0.1.1-rc.2',
     },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
@@ -70,6 +76,17 @@ describe('subscriptions plugin integration (DV-0011)', () => {
 
     await createPlugin(root, '0.3.0')
     expect(resolveSubscriptionsPlugin(root, home, false)).toEqual({
+      enabled: false,
+      diagnostic: 'SUBSCRIPTIONS_UNAVAILABLE reason=manifest-invalid',
+    })
+
+    const staleRoot = await mkdtemp(join(tmpdir(), 'deepviewer-subscriptions-stale-harness-'))
+    const stalePlugin = await createPlugin(staleRoot)
+    const staleManifestPath = join(stalePlugin, 'package.json')
+    const staleManifest = JSON.parse(await readFile(staleManifestPath, 'utf8'))
+    staleManifest.peerDependencies['@deepseek-ai/dsh-llm'] = '^0.1.0-rc.5'
+    await writeFile(staleManifestPath, `${JSON.stringify(staleManifest, null, 2)}\n`)
+    expect(resolveSubscriptionsPlugin(staleRoot, home, false)).toEqual({
       enabled: false,
       diagnostic: 'SUBSCRIPTIONS_UNAVAILABLE reason=manifest-invalid',
     })

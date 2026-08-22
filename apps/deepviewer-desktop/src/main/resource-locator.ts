@@ -15,6 +15,24 @@ export const SUBSCRIPTIONS_PLUGIN_NAME = 'dsh-plugin-subscriptions'
 export const SUBSCRIPTIONS_PLUGIN_VERSION = '0.3.1'
 export const PREVIEW_PLUGIN_NAME = '@deepviewer/dsh-plugin-preview'
 export const PREVIEW_PLUGIN_VERSION = '0.1.0'
+const DSH_PLUGIN_PEER_VERSION = '0.1.1-rc.2'
+const CORDIS_PLUGIN_PEER_VERSION = '4.0.1'
+const REQUIRED_SUBSCRIPTIONS_PEERS = [
+  '@deepseek-ai/dsh-attachment',
+  '@deepseek-ai/dsh-home-paths',
+  '@deepseek-ai/dsh-llm',
+  '@deepseek-ai/dsh-tools',
+] as const
+const REQUIRED_PREVIEW_DSH_PEERS = [
+  '@deepseek-ai/dsh-client-connection',
+  '@deepseek-ai/dsh-client-locale',
+  '@deepseek-ai/dsh-client-runtime',
+  '@deepseek-ai/dsh-client-ui-conversation',
+  '@deepseek-ai/dsh-client-ui-deliverables',
+  '@deepseek-ai/dsh-client-ui-layout',
+  '@deepseek-ai/dsh-client-ui-primitives',
+  '@deepseek-ai/dsh-client-ui-slots',
+] as const
 const REQUIRED_SUBSCRIPTIONS_CLIENT_INJECTIONS = [
   '@deepseek-ai/dsh-client-runtime',
   '@deepseek-ai/dsh-client-ui-settings',
@@ -90,7 +108,7 @@ export function buildHarnessWebArgs(
     ...patches.flatMap(path => ['--patch', path]),
     '--port',
     '0',
-    // rc.8 opens the system browser by default; the desktop shell owns the UI.
+    // The Harness web profile opens the system browser by default; the desktop shell owns the UI.
     '--no-open',
   ]
 }
@@ -99,6 +117,14 @@ function packagePath(root: string, relativePath: string): string | undefined {
   const candidate = resolve(root, relativePath)
   if (candidate !== root && !candidate.startsWith(`${root}${sep}`)) return undefined
   return existsSync(candidate) ? candidate : undefined
+}
+
+function hasExactPeers(
+  peers: Record<string, unknown> | undefined,
+  names: readonly string[],
+  version: string,
+): boolean {
+  return peers !== undefined && names.every(name => peers[name] === version)
 }
 
 function prepareProfileLink(pluginRoot: string, dshHome: string, pluginName: string): boolean {
@@ -147,6 +173,7 @@ export function resolveSubscriptionsPlugin(
       license?: unknown
       main?: unknown
       exports?: Record<string, unknown>
+      peerDependencies?: Record<string, unknown>
       dsh?: {
         bundle?: { patch?: unknown }
         client?: { platform?: unknown; inject?: unknown }
@@ -171,6 +198,7 @@ export function resolveSubscriptionsPlugin(
       && manifest.dsh?.client?.platform === 'web'
       && Array.isArray(injections)
       && REQUIRED_SUBSCRIPTIONS_CLIENT_INJECTIONS.every(name => injections.includes(name))
+      && hasExactPeers(manifest.peerDependencies, REQUIRED_SUBSCRIPTIONS_PEERS, DSH_PLUGIN_PEER_VERSION)
       && patchPath !== undefined
     if (!valid || patchPath === undefined) {
       return { enabled: false, diagnostic: 'SUBSCRIPTIONS_UNAVAILABLE reason=manifest-invalid' }
@@ -207,6 +235,7 @@ export function resolvePreviewPlugin(
       license?: unknown
       main?: unknown
       exports?: Record<string, unknown>
+      peerDependencies?: Record<string, unknown>
       dsh?: { bundle?: { patch?: unknown }; client?: { platform?: unknown; inject?: unknown } }
     }
     const clientExport = manifest.exports?.['./client']
@@ -228,6 +257,8 @@ export function resolvePreviewPlugin(
       && manifest.dsh?.client?.platform === 'web'
       && Array.isArray(injections)
       && REQUIRED_PREVIEW_CLIENT_INJECTIONS.every(name => injections.includes(name))
+      && manifest.peerDependencies?.['@deepseek-ai/cordis'] === CORDIS_PLUGIN_PEER_VERSION
+      && hasExactPeers(manifest.peerDependencies, REQUIRED_PREVIEW_DSH_PEERS, DSH_PLUGIN_PEER_VERSION)
       && patchPath !== undefined
     if (!valid || patchPath === undefined) {
       return { enabled: false, diagnostic: 'PREVIEW_UNAVAILABLE reason=manifest-invalid' }

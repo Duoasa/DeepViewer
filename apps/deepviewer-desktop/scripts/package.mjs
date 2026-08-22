@@ -39,14 +39,15 @@ if (!Number.isSafeInteger(appBuildNumber) || appBuildNumber < 1) {
   throw new Error(`invalid DeepViewer build number: ${String(appBuildNumber)}`)
 }
 const appBuildVersion = String(appBuildNumber)
-const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'
-const expectedHarnessVersion = '0.1.0-rc.8'
+const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'
+const expectedHarnessVersion = '0.1.1-rc.2'
 const expectedRuntimePlugins = [
   {
     name: 'dsh-plugin-subscriptions',
     version: '0.3.1',
     license: 'MIT',
     adapter: 'deepviewer-remaining-usage-v1',
+    dshPeerVersion: '0.1.1-rc.2',
   },
   {
     name: '@deepviewer/dsh-plugin-preview',

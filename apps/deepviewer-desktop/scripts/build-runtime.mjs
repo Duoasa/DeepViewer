@@ -18,6 +18,7 @@ import { gunzipSync } from 'node:zlib'
 import { downloadArtifact } from '@electron/get'
 import {
   adaptSubscriptionsPlugin,
+  SUBSCRIPTIONS_DSH_PEER_VERSION,
   SUBSCRIPTIONS_UI_ADAPTER_ID,
 } from './adapt-subscriptions-plugin.mjs'
 
@@ -29,8 +30,8 @@ const packRoots = [
   resolve(upstreamRoot, 'dist', 'deepviewer', 'dsh'),
 ]
 const electronVersion = '43.4.0'
-const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'
-const expectedHarnessVersion = '0.1.0-rc.8'
+const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'
+const expectedHarnessVersion = '0.1.1-rc.2'
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'
 const previewPluginName = '@deepviewer/dsh-plugin-preview'
@@ -188,6 +189,7 @@ function sanitizeSubscriptionsPlugin(runtimeRoot) {
   if (!existsSync(manifestPath)) {
     throw new Error(`installed ${subscriptionsPluginName} is missing from the Runtime`)
   }
+  adaptSubscriptionsPlugin(pluginRoot)
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
   if (
     manifest.name !== subscriptionsPluginName
@@ -197,7 +199,6 @@ function sanitizeSubscriptionsPlugin(runtimeRoot) {
   ) {
     throw new Error(`installed ${subscriptionsPluginName} metadata is invalid`)
   }
-  adaptSubscriptionsPlugin(pluginRoot)
   delete manifest.devDependencies
   delete manifest.scripts
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
@@ -206,6 +207,7 @@ function sanitizeSubscriptionsPlugin(runtimeRoot) {
     version: subscriptionsPluginVersion,
     license: 'MIT',
     adapter: SUBSCRIPTIONS_UI_ADAPTER_ID,
+    dshPeerVersion: SUBSCRIPTIONS_DSH_PEER_VERSION,
   }
 }
 

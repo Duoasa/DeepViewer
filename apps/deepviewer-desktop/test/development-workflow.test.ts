@@ -21,6 +21,14 @@ const wordmarkOverride = readFileSync(
   resolve(appRoot, 'upstream-overrides/ui-primitives/BrandWordmark.tsx'),
   'utf8',
 )
+const brandSlotComponentsOverride = readFileSync(
+  resolve(appRoot, 'upstream-overrides/ui-brand-official/Brand.tsx'),
+  'utf8',
+)
+const brandSlotRegistrationOverride = readFileSync(
+  resolve(appRoot, 'upstream-overrides/ui-brand-official/index.ts'),
+  'utf8',
+)
 const sidebarWordmarkLayoutOverride = readFileSync(
   resolve(appRoot, 'upstream-overrides/ui-sidebar/BrandWordmark.module.css'),
   'utf8',
@@ -251,23 +259,26 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(upstreamOverrideSync).toContain('stageSubscriptionsPlugin')
     expect(upstreamOverrideSync).toContain("const subscriptionsPluginVersion = '0.3.1'")
     expect(upstreamOverrideSync).toContain('SUBSCRIPTIONS_UI_ADAPTER_ID')
+    expect(upstreamOverrideSync).toContain('SUBSCRIPTIONS_DSH_PEER_VERSION')
     expect(runtimeBuild).toContain('plugins: packagedPlugins')
     expect(runtimeBuild).toContain('adaptSubscriptionsPlugin(pluginRoot)')
+    expect(runtimeBuild).toContain('dshPeerVersion: SUBSCRIPTIONS_DSH_PEER_VERSION')
     expect(packageScript).toContain("adapter: 'deepviewer-remaining-usage-v1'")
+    expect(packageScript).toContain("dshPeerVersion: '0.1.1-rc.2'")
   })
 
-  it('pins DeepViewer 0.2.2 Build 2 and the rc.8 release boundary', () => {
+  it('pins DeepViewer 0.2.3 Build 1 and the rc.2 release boundary', () => {
     const runtimeBuild = readFileSync(resolve(appRoot, 'scripts/build-runtime.mjs'), 'utf8')
 
-    expect(appManifest.version).toBe('0.2.2')
-    expect(appManifest.buildNumber).toBe(2)
-    expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.0-rc.8'")
-    expect(runtimeBuild).toContain("const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'")
-    expect(packageScript).toContain("const expectedHarnessVersion = '0.1.0-rc.8'")
-    expect(packageScript).toContain("const expectedHarnessCommit = '141eb6fef83422698aef7a981029e843e8161534'")
+    expect(appManifest.version).toBe('0.2.3')
+    expect(appManifest.buildNumber).toBe(1)
+    expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.1-rc.2'")
+    expect(runtimeBuild).toContain("const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'")
+    expect(packageScript).toContain("const expectedHarnessVersion = '0.1.1-rc.2'")
+    expect(packageScript).toContain("const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'")
   })
 
-  it('builds the first-party preview plugin against the pinned rc.8 client contracts', () => {
+  it('builds the first-party preview plugin against the pinned rc.2 client contracts', () => {
     const previewManifest = JSON.parse(readFileSync(
       resolve(appRoot, 'dsh-plugins/preview/package.json'),
       'utf8',
@@ -276,8 +287,15 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
 
     expect(previewManifest.name).toBe('@deepviewer/dsh-plugin-preview')
     expect(previewManifest.version).toBe('0.1.0')
-    expect(new Set(Object.values(previewManifest.peerDependencies))).toContain('0.1.0-rc.8')
-    expect(Object.values(previewManifest.peerDependencies)).not.toContain('0.1.0-rc.7')
+    expect(previewManifest.peerDependencies['@deepseek-ai/cordis']).toBe('4.0.1')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-connection']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-locale']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-runtime']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-conversation']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-deliverables']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-layout']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-primitives']).toBe('0.1.1-rc.2')
+    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-slots']).toBe('0.1.1-rc.2')
     expect(previewManifest.dsh.client.inject).toContain('@deepseek-ai/dsh-client-ui-deliverables')
     expect(upstreamOverrideSync).toContain('stagePreviewPlugin')
     expect(upstreamOverrideSync).toContain('buildPreviewPlugin')
@@ -375,7 +393,23 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(upstreamOverrideSync).toContain("'tool-row-preview-first-open'")
   })
 
-  it('keeps the DeepViewer sidebar wordmark as a tracked inline React SVG override', () => {
+  it('splits the DeepViewer sidebar brand into an inline mark and text name', () => {
+    expect(brandSlotComponentsOverride).toContain('export function OfficialBrandMark')
+    expect(brandSlotComponentsOverride).toContain('viewBox="0 0 144 144"')
+    expect(brandSlotComponentsOverride).toContain('width={size}')
+    expect(brandSlotComponentsOverride).toContain('height={size}')
+    expect(brandSlotComponentsOverride.match(/<path\b/gu)).toHaveLength(2)
+    expect(brandSlotComponentsOverride.match(/fill="currentColor"/gu)).toHaveLength(2)
+    expect(brandSlotComponentsOverride).toContain('export function OfficialBrandName')
+    expect(brandSlotComponentsOverride).toContain('return <span>DeepViewer</span>')
+    expect(brandSlotRegistrationOverride).toContain("ctx.slots.register({ name: 'sidebar.brand.mark' }")
+    expect(brandSlotRegistrationOverride).toContain("ctx.slots.register({ name: 'sidebar.brand.name' }")
+    expect(brandSlotRegistrationOverride).not.toContain('DSH_CLIENT_BUILD_PROFILE')
+    expect(upstreamOverrideSync).toContain("'deepviewer-brand-slot-components'")
+    expect(upstreamOverrideSync).toContain("'deepviewer-brand-slot-registration'")
+
+    // Keep the full wordmark override for other existing DeepViewer surfaces;
+    // the rc.2 sidebar no longer renders it directly.
     expect(wordmarkOverride).toContain('export function BrandWordmark')
     expect(wordmarkOverride).toContain('export interface BrandWordmarkProps')
     expect(wordmarkOverride).toContain('size = 24')

@@ -17,6 +17,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   adaptSubscriptionsPlugin,
+  SUBSCRIPTIONS_DSH_PEER_VERSION,
   SUBSCRIPTIONS_UI_ADAPTER_ID,
 } from './adapt-subscriptions-plugin.mjs'
 
@@ -76,6 +77,42 @@ const targetPath = resolve(
   'BrandWordmark.tsx',
 )
 const fileOverrides = [
+  {
+    name: 'deepviewer-brand-slot-components',
+    sourcePath: resolve(
+      appRoot,
+      'upstream-overrides',
+      'ui-brand-official',
+      'Brand.tsx',
+    ),
+    targetPath: resolve(
+      upstreamRoot,
+      'packages',
+      'client',
+      'ui-brand-official',
+      'src',
+      'client',
+      'Brand.tsx',
+    ),
+  },
+  {
+    name: 'deepviewer-brand-slot-registration',
+    sourcePath: resolve(
+      appRoot,
+      'upstream-overrides',
+      'ui-brand-official',
+      'index.ts',
+    ),
+    targetPath: resolve(
+      upstreamRoot,
+      'packages',
+      'client',
+      'ui-brand-official',
+      'src',
+      'client',
+      'index.ts',
+    ),
+  },
   {
     name: 'deepviewer-preview-file-router',
     sourcePath: resolve(
@@ -1396,6 +1433,292 @@ export type DetailsSlotProps = PropsRuntime<'details'> & PropsRenderSlots<'conve
     markerKind: 'code',
   },
 ]
+
+// DeepViewer intentionally changes several upstream presentation contracts. Keep the
+// generated checkout's narrow GUI assertions aligned so upstream regressions still fail.
+const testContractReplacements = [
+  {
+    name: 'brand-official-deepviewer-split-name',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-brand-official', 'tests', 'browser-plugin.client.spec.tsx'),
+    before: "    expect(name.container.querySelector('svg')?.getAttribute('viewBox')).toBe('26 0 156 24')",
+    after: `    expect(name.getByText('DeepViewer')).toBeTruthy()
+    expect(name.container.querySelector('svg')).toBeNull()`,
+  },
+  {
+    name: 'brand-official-deepviewer-local-profile-registration',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-brand-official', 'tests', 'browser-plugin.client.spec.tsx'),
+    before: `  it('leaves every slot empty outside the official build profile', async () => {
+    vi.stubEnv('DSH_CLIENT_BUILD_PROFILE', 'local')
+    const subject = await bench()
+    await subject.ctx.plugin({ inject: [...inject], apply }).await()
+    for (const hole of HOLES) expect(subject.slots.entries(hole)).toHaveLength(0)
+  })`,
+    after: `  it('fills every brand slot in the local DeepViewer build profile', async () => {
+    vi.stubEnv('DSH_CLIENT_BUILD_PROFILE', 'local')
+    const subject = await bench()
+    await subject.ctx.plugin({ inject: [...inject], apply }).await()
+    for (const hole of HOLES) expect(subject.slots.entries(hole)).toHaveLength(1)
+  })`,
+  },
+  {
+    name: 'brand-wordmark-deepviewer-geometry',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-primitives', 'tests', 'icons.client.spec.tsx'),
+    before: `    expect(svg.getAttribute('width')).toBe('182')
+    expect(svg.getAttribute('viewBox')).toBe('0 0 182 24')
+
+    view.rerender(<primitives.BrandWordmark includeMark={false} />)
+    expect(svg.getAttribute('width')).toBe('156')
+    expect(svg.getAttribute('viewBox')).toBe('26 0 156 24')`,
+    after: `    expect(svg.getAttribute('width')).toBe('124.5')
+    expect(svg.getAttribute('viewBox')).toBe('0 0 747 144')
+
+    view.rerender(<primitives.BrandWordmark includeMark={false} />)
+    expect(svg.getAttribute('width')).toBe('95.16666666666667')
+    expect(svg.getAttribute('viewBox')).toBe('176 0 571 144')`,
+  },
+  {
+    name: 'deepviewer-hero-chrome-contract',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-conversation', 'tests', 'skeleton.client.spec.tsx'),
+    before: `  it('renders the English preview badge through the hero locale seat', () => {
+    const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
+    const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
+    expect(view.getByText('Into the Unknown')).toBeTruthy()
+    expect(view.getByText('Preview')).toBeTruthy()
+    expect(renderSlot).toHaveBeenCalledOnce()
+    expect(renderSlot.mock.calls[0]?.[0]).toBe('conversation.hero.brand.mark')
+    const brandMarkOwner = renderSlot.mock.calls[0]?.[1]
+    if (brandMarkOwner === undefined || !('size' in brandMarkOwner) || !('className' in brandMarkOwner)) {
+      throw new Error('hero brand-mark owner must provide size and className')
+    }
+    expect(brandMarkOwner.size).toBe(34)
+    expect(brandMarkOwner.className).toBeTypeOf('string')
+    expect(renderSlot.mock.calls[0]?.[2]?.fallback).toBeTruthy()
+  })`,
+    after: `  it('renders the DeepViewer welcome without the upstream preview badge', () => {
+    const renderSlot = vi.fn<HeroShellProps['renderSlot']>(() => null)
+    const view = render(<HeroShell t={makeTranslate(en, commonEn)} renderSlot={renderSlot} />)
+    expect(view.getByText('What shall we build?')).toBeTruthy()
+    expect(view.queryByText('Preview')).toBeNull()
+    expect(view.container.querySelector('svg')).toBeTruthy()
+    expect(renderSlot).not.toHaveBeenCalled()
+  })`,
+  },
+  {
+    name: 'deepviewer-hero-zh-copy',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-conversation', 'tests', 'skeleton.client.spec.tsx'),
+    before: "'探索未至之境'",
+    after: "'让我们做点什么'",
+    expectedMatches: 4,
+  },
+  {
+    name: 'deepviewer-hero-no-preview-badge',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-conversation', 'tests', 'skeleton.client.spec.tsx'),
+    before: "    expect(b.view.getByText('预览版')).toBeTruthy()",
+    after: "    expect(b.view.queryByText('预览版')).toBeNull()",
+  },
+  {
+    name: 'details-multiview-inject-contract',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-conversation', 'tests', 'apply-inject.client.spec.tsx'),
+    before: `    expect(Object.keys(injected)).toEqual(['closeDetails'])
+    injected.closeDetails()
+    expect(b.layoutFake.closeDetails).toHaveBeenCalledTimes(1)`,
+    after: `    expect(Object.keys(injected)).toEqual(['closeDetails', 'selectDetailsView', 'views'])
+    const views = injected.views
+    const selectDetailsView = injected.selectDetailsView
+    if (!views || !selectDetailsView) throw new Error('details multiview inject contract is incomplete')
+    expect(views.list().map(view => view.id)).toEqual(['tool'])
+    selectDetailsView('preview')
+    expect(b.layoutFake.openDetails).toHaveBeenCalledWith('preview')
+    injected.closeDetails()
+    expect(b.layoutFake.closeDetails).toHaveBeenCalledTimes(1)`,
+  },
+  {
+    name: 'details-no-duplicate-close-title',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-tool', 'tests', 'terminal-card.client.spec.tsx'),
+    before: "  it('the close button reaches closeDetails', () => {",
+    after: "  it('leaves the shell close action outside the details content', () => {",
+  },
+  {
+    name: 'details-no-duplicate-close-assertion',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-tool', 'tests', 'terminal-card.client.spec.tsx'),
+    before: `    fireEvent.click(view.getByRole('button', { name: '关闭详情' }))
+    expect(closeDetails).toHaveBeenCalledTimes(1)`,
+    after: `    expect(view.queryByRole('button', { name: '关闭详情' })).toBeNull()
+    expect(closeDetails).not.toHaveBeenCalled()`,
+  },
+  {
+    name: 'details-active-view-owner-test',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-layout', 'tests', 'app-frame.client.spec.tsx'),
+    before: "    expect(slotCalls.find(c => c.key === 'details')!.props).toEqual({})",
+    after: "    expect(slotCalls.find(c => c.key === 'details')!.props).toEqual({ activeView: 'tool' })",
+  },
+  {
+    name: 'manual-sidebar-continuity-tests',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-layout', 'tests', 'app-frame.client.spec.tsx'),
+    before: `describe('AppFrame — narrow-viewport auto-collapse', () => {
+  it('mounts collapsed below the breakpoint with no sidebar handle', () => {
+    frameWidth = 980
+    const { frame, slotCalls } = mountFrame()
+    expect(tracks(frame)).toEqual([SIDEBAR_COLLAPSED, 0])
+    expect(frame.hasAttribute('data-sidebar-collapsed')).toBe(true)
+    expect(slotCalls.filter(c => c.key === 'sidebar').at(-1)!.props).toEqual({ collapsed: true, width: SIDEBAR_COLLAPSED })
+    expect(frame.querySelectorAll('[class*="handle"]')).toHaveLength(0)
+  })
+
+  it('narrow toggle re-expands over the squeezed center and back', () => {
+    frameWidth = 980
+    const { frame, instance } = mountFrame()
+    act(() => { instance.actions.toggleSidebar() })
+    expect(tracks(frame)).toEqual([280, 0])
+    expect(frame.hasAttribute('data-sidebar-collapsed')).toBe(false)
+    expect(frame.querySelectorAll('[class*="handle"]')).toHaveLength(1)
+    act(() => { instance.actions.toggleSidebar() })
+    expect(tracks(frame)).toEqual([SIDEBAR_COLLAPSED, 0])
+  })
+
+  it('a wide-closed preference re-expands at the contract default while narrow', () => {
+    frameWidth = 1920
+    const { frame, instance } = mountFrame()
+    act(() => { instance.actions.toggleSidebar() }) // close while wide: preference 0
+    frameWidth = 980
+    act(() => { fireResize?.(); vi.advanceTimersByTime(20) })
+    act(() => { instance.actions.toggleSidebar() })
+    expect(tracks(frame)).toEqual([280, 0])
+    expect(instance.getSnapshot().sidebar).toBe(0) // preference untouched
+  })
+
+  it('shrinking across the breakpoint auto-collapses; re-widening restores the drag width', () => {
+    const { frame, instance } = mountFrame()
+    act(() => { instance.actions.setSidebar(400) })
+    frameWidth = 980
+    act(() => { fireResize?.(); vi.advanceTimersByTime(20) })
+    expect(tracks(frame)).toEqual([SIDEBAR_COLLAPSED, 0])
+    frameWidth = 1920
+    act(() => { fireResize?.(); vi.advanceTimersByTime(20) })
+    expect(tracks(frame)).toEqual([400, 0])
+  })
+})`,
+    after: `describe('AppFrame — DeepViewer manual sidebar continuity', () => {
+  it('keeps the sidebar open below the upstream auto-collapse breakpoint', () => {
+    frameWidth = 980
+    const { frame, slotCalls } = mountFrame()
+    expect(tracks(frame)).toEqual([280, 0])
+    expect(frame.hasAttribute('data-sidebar-collapsed')).toBe(false)
+    expect(slotCalls.filter(c => c.key === 'sidebar').at(-1)!.props).toEqual({ collapsed: false, width: 280 })
+    expect(frame.querySelectorAll('[class*="handle"]')).toHaveLength(1)
+  })
+
+  it('lets the user explicitly close and reopen the sidebar while narrow', () => {
+    frameWidth = 980
+    const { frame, instance } = mountFrame()
+    act(() => { instance.actions.toggleSidebar() })
+    expect(tracks(frame)).toEqual([SIDEBAR_COLLAPSED, 0])
+    expect(frame.hasAttribute('data-sidebar-collapsed')).toBe(true)
+    expect(frame.querySelectorAll('[class*="handle"]')).toHaveLength(0)
+    act(() => { instance.actions.toggleSidebar() })
+    expect(tracks(frame)).toEqual([280, 0])
+  })
+
+  it('preserves a wide-closed preference across resize until explicit reopen', () => {
+    frameWidth = 1920
+    const { frame, instance } = mountFrame()
+    act(() => { instance.actions.toggleSidebar() })
+    frameWidth = 980
+    act(() => { fireResize?.(); vi.advanceTimersByTime(20) })
+    expect(tracks(frame)).toEqual([SIDEBAR_COLLAPSED, 0])
+    expect(instance.getSnapshot().sidebar).toBe(0)
+    act(() => { instance.actions.toggleSidebar() })
+    expect(tracks(frame)).toEqual([280, 0])
+    expect(instance.getSnapshot().sidebar).toBe(280)
+  })
+
+  it('preserves a dragged width while shrinking and re-widening', () => {
+    const { frame, instance } = mountFrame()
+    act(() => { instance.actions.setSidebar(400) })
+    frameWidth = 980
+    act(() => { fireResize?.(); vi.advanceTimersByTime(20) })
+    expect(tracks(frame)).toEqual([400, 0])
+    frameWidth = 1920
+    act(() => { fireResize?.(); vi.advanceTimersByTime(20) })
+    expect(tracks(frame)).toEqual([400, 0])
+  })
+})`,
+  },
+  {
+    name: 'layout-store-default-details-view',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-layout', 'tests', 'layout-store.client.spec.ts'),
+    before: 'expect(store.getSnapshot()).toEqual({ sidebar: SIDEBAR_DEFAULT, details: 0, narrow: false, narrowExpanded: false })',
+    after: "expect(store.getSnapshot()).toEqual({ sidebar: SIDEBAR_DEFAULT, details: 0, detailsView: 'tool', narrow: false, narrowExpanded: false })",
+  },
+  {
+    name: 'layout-store-narrow-details-view',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-layout', 'tests', 'layout-store.client.spec.ts'),
+    before: 'expect(store.getSnapshot()).toEqual({ sidebar: 400, details: 0, narrow: true, narrowExpanded: true })',
+    after: "expect(store.getSnapshot()).toEqual({ sidebar: 400, details: 0, detailsView: 'tool', narrow: true, narrowExpanded: true })",
+  },
+  {
+    name: 'layout-store-recreated-details-view',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-layout', 'tests', 'layout-store.client.spec.ts'),
+    before: `      sidebar: SIDEBAR_DEFAULT,
+      details: 0,
+      narrow: false,`,
+    after: `      sidebar: SIDEBAR_DEFAULT,
+      details: 0,
+      detailsView: 'tool',
+      narrow: false,`,
+  },
+  {
+    name: 'settings-test-about-registration',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'apply.client.spec.ts'),
+    before: "    expect(resolveSlotLabel(entry.options.label)).toBe('通用设置')",
+    after: `    expect(resolveSlotLabel(entry.options.label)).toBe('通用设置')
+    expect(before.slots.entries('settings.section').map(item => item.options.id)).toEqual(['general', 'about'])`,
+  },
+  {
+    name: 'settings-test-list-seat-count',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'apply.client.spec.ts'),
+    before: '      expect(after.slots.entries(name)).toHaveLength(1)',
+    after: "      expect(after.slots.entries(name)).toHaveLength(name === 'settings.section' ? 2 : 1)",
+  },
+  {
+    name: 'settings-test-live-list-seat-count',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'apply.client.spec.ts'),
+    before: '      expect(b.slots.entries(name)).toHaveLength(1)',
+    after: "      expect(b.slots.entries(name)).toHaveLength(name === 'settings.section' ? 2 : 1)",
+  },
+  {
+    name: 'settings-test-back-to-app-copy',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'apply.client.spec.ts'),
+    before: "    expect(b.locale.bind('settings')('close')).toBe('Close')",
+    after: "    expect(b.locale.bind('settings')('close')).toBe('Back to app')",
+  },
+  {
+    name: 'settings-component-back-to-app-copy',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'components.client.spec.tsx'),
+    before: "    expect(screen.getByText('Close')).toBeTruthy()",
+    after: "    expect(screen.getByText('Back to app')).toBeTruthy()",
+  },
+  {
+    name: 'settings-shell-about-baseline',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'shell.client.spec.ts'),
+    before: `    const GENERAL = { id: 'general', order: 0, label: 'general.nav' }
+    expect(sections.getSnapshot()).toEqual([GENERAL])`,
+    after: `    const GENERAL = { id: 'general', order: 0, label: 'general.nav' }
+    const ABOUT = { id: 'about', order: 1000, label: 'about.nav' }
+    expect(sections.getSnapshot()).toEqual([GENERAL, ABOUT])`,
+  },
+  {
+    name: 'settings-shell-about-order',
+    targetPath: resolve(upstreamRoot, 'packages', 'client', 'ui-settings-general', 'tests', 'shell.client.spec.ts'),
+    before: `      GENERAL,
+      { id: 'a', order: 0, label: '' },
+      { id: 'z', order: 20, label: 'Z' },`,
+    after: `      GENERAL,
+      { id: 'a', order: 0, label: '' },
+      { id: 'z', order: 20, label: 'Z' },
+      ABOUT,`,
+  },
+]
 const buildStampPath = resolve(upstreamRoot, '.deepviewer-overrides-build')
 
 function subscriptionsPluginDigest(root) {
@@ -1544,7 +1867,7 @@ function stageSubscriptionsPluginPeers() {
 export function stageSubscriptionsPlugin() {
   validateSubscriptionsPlugin(subscriptionsPluginSource)
   const sourceDigest = subscriptionsPluginDigest(subscriptionsPluginSource)
-  const desiredStamp = `${sourceDigest}:${SUBSCRIPTIONS_UI_ADAPTER_ID}\n`
+  const desiredStamp = `${sourceDigest}:${SUBSCRIPTIONS_UI_ADAPTER_ID}:${SUBSCRIPTIONS_DSH_PEER_VERSION}\n`
   const packageCurrent = (
     existsSync(subscriptionsPluginTarget)
     && lstatSync(subscriptionsPluginTarget).isDirectory()
@@ -1562,7 +1885,7 @@ export function stageSubscriptionsPlugin() {
   const peersChanged = stageSubscriptionsPluginPeers()
   if (packageCurrent && !adapterChanged && !peersChanged) return false
   process.stdout.write(
-    `Staged ${subscriptionsPluginName}@${subscriptionsPluginVersion} with ${SUBSCRIPTIONS_UI_ADAPTER_ID}.\n`,
+    `Staged ${subscriptionsPluginName}@${subscriptionsPluginVersion} with ${SUBSCRIPTIONS_UI_ADAPTER_ID} for DSH ${SUBSCRIPTIONS_DSH_PEER_VERSION}.\n`,
   )
   return true
 }
@@ -1681,6 +2004,22 @@ export function syncUpstreamTextOverride({
   return true
 }
 
+function syncUpstreamTestContract({ name, targetPath, before, after, expectedMatches = 1 }) {
+  if (!existsSync(targetPath)) throw new Error(`Missing upstream test contract target: ${name}`)
+  const current = readFileSync(targetPath, 'utf8')
+  const beforeMatches = current.split(before).length - 1
+  const afterMatches = current.split(after).length - 1
+  if (afterMatches === expectedMatches) return false
+  if (beforeMatches !== expectedMatches || afterMatches !== 0) {
+    throw new Error(
+      `DeepViewer test contract anchor mismatch: ${name} (before=${String(beforeMatches)}, after=${String(afterMatches)})`,
+    )
+  }
+  writeFileSync(targetPath, current.replaceAll(before, after))
+  process.stdout.write(`Synced DeepViewer test contract: ${name}.\n`)
+  return true
+}
+
 function overrideDigest() {
   const digest = createHash('sha256')
   digest.update(readFileSync(sourcePath))
@@ -1698,6 +2037,12 @@ function overrideDigest() {
     digest.update(override.name)
     digest.update(readFileSync(override.sourcePath))
   }
+  for (const override of testContractReplacements) {
+    digest.update(override.name)
+    digest.update(override.before)
+    digest.update(override.after)
+    digest.update(String(override.expectedMatches ?? 1))
+  }
   return digest.digest('hex')
 }
 
@@ -1714,7 +2059,10 @@ async function main() {
   const textChanged = textOverrides
     .map(override => syncUpstreamTextOverride(override))
     .some(Boolean)
-  const changed = previewChanged || wordmarkChanged || filesChanged || cssChanged || textChanged
+  const testContractsChanged = testContractReplacements
+    .map(override => syncUpstreamTestContract(override))
+    .some(Boolean)
+  const changed = previewChanged || wordmarkChanged || filesChanged || cssChanged || textChanged || testContractsChanged
   const sourceDigest = overrideDigest()
   const builtDigest = existsSync(buildStampPath) ? readFileSync(buildStampPath, 'utf8').trim() : ''
   const needsBuild = changed || builtDigest !== sourceDigest
@@ -1725,7 +2073,7 @@ async function main() {
     return
   }
 
-  // rc.8 client types consume remote contracts emitted by the host build.
+  // Client types consume remote contracts emitted by the host build.
   // Build both faces so a clean pinned checkout is reproducible.
   await run('pnpm', ['run', 'build:lib'], { cwd: upstreamRoot })
   await buildPreviewPlugin()

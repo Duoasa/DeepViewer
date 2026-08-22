@@ -55,6 +55,17 @@ async function createPlugin(root: string, version = PREVIEW_PLUGIN_VERSION): Pro
     license: 'MIT',
     main: 'lib/index.js',
     exports: { './client': { default: './lib/client.js' } },
+    peerDependencies: {
+      '@deepseek-ai/cordis': '4.0.1',
+      '@deepseek-ai/dsh-client-connection': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-locale': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-runtime': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-ui-conversation': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-ui-deliverables': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-ui-layout': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-ui-primitives': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-client-ui-slots': '0.1.1-rc.2',
+    },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
       client: {
@@ -191,6 +202,17 @@ describe('DeepViewer preview plugin integration', () => {
     })
     await createPlugin(root, '0.2.0')
     expect(resolvePreviewPlugin(root, home, false)).toEqual({
+      enabled: false,
+      diagnostic: 'PREVIEW_UNAVAILABLE reason=manifest-invalid',
+    })
+
+    const staleRoot = await temporaryRoot()
+    const stalePlugin = await createPlugin(staleRoot)
+    const staleManifestPath = join(stalePlugin, 'package.json')
+    const staleManifest = JSON.parse(await readFile(staleManifestPath, 'utf8'))
+    staleManifest.peerDependencies['@deepseek-ai/dsh-client-runtime'] = '0.1.0-rc.8'
+    await writeFile(staleManifestPath, JSON.stringify(staleManifest))
+    expect(resolvePreviewPlugin(staleRoot, home, false)).toEqual({
       enabled: false,
       diagnostic: 'PREVIEW_UNAVAILABLE reason=manifest-invalid',
     })

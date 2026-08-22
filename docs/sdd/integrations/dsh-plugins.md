@@ -16,8 +16,8 @@
 
 | ID | 插件 | 固定版本 | 状态 | 最近验证内核 | 最近结论 | 证据 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DeepSeek Harness `0.1.0-rc.8` | PC-001—PC-008 自动检查与双架构正式封包通过；PC-009 真实账户登录/调用/登出待人工复验 | [DV-0014 验证](../specs/DV-0014-dsh-rc8-core-upgrade/verification.md) |
-| `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Active` | DeepSeek Harness `0.1.0-rc.8` | PC-001—PC-008 自动检查、rc.8 host/client 契约构建与双架构正式封包通过 | [DV-0014 验证](../specs/DV-0014-dsh-rc8-core-upgrade/verification.md) |
+| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DeepSeek Harness `0.1.1-rc.2` | PC-001—PC-008 自动检查、开发启动和双架构签名候选封包通过；PC-009 真实账户登录/调用/登出待人工复验 | [DV-0015 验证](../specs/DV-0015-dsh-rc2-core-upgrade/verification.md) |
+| `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Active` | DeepSeek Harness `0.1.1-rc.2` | PC-001—PC-008 自动检查、rc.2 host/client/Web 构建、开发启动和双架构签名候选封包通过 | [DV-0015 验证](../specs/DV-0015-dsh-rc2-core-upgrade/verification.md) |
 
 ### DVP-0001：订阅提供方
 
@@ -26,7 +26,7 @@
 - 展示适配：`deepviewer-remaining-usage-v1`；插件升级时必须重新验证 client 锚点、剩余量语义和
   中英文文案。
 - 数据与安全：`v0.2.1` 公开预览版批准使用隔离 DSH home 下的原子 `0600` 文件作为临时等价
-  方案，`v0.2.2` 核心升级不改变该边界；稳定版前仍须完成 Keychain 迁移或重新批准安全边界。
+  方案，`v0.2.3` rc.2 核心升级不改变该边界；稳定版前仍须完成 Keychain 迁移或重新批准安全边界。
 - 当前限制：外部订阅服务并非稳定公共协议；真实账户登录已通过，状态/用量、实际调用与登出
   仍需人工冒烟。
 
