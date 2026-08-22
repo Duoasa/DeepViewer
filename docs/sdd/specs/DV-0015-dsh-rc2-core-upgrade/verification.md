@@ -26,7 +26,7 @@ updated: 2026-08-22
 | AC-005 | 自动 + 人工 | Pass / Pending Manual | Electron Dev 已启动；日志确认两个插件启用、唯一 loopback Runtime 就绪；品牌视觉由维护者确认，其余人工流程待完成 |
 | AC-006 | 自动 + 人工 | Pass | 侧栏品牌槽位组合测试覆盖 mark/name 独立注册和本地 profile 无 DSH fallback；维护者在开发版视觉确认后指示继续封包 |
 | AC-007 | 自动 | Pass | arm64/x64 Runtime 全新生成；两包均通过隐私审计、34 个 Mach-O 严格签名验证、主程序架构回读、DMG 签名与 `hdiutil verify` |
-| AC-008 | 自动 | Pending | README、SDD 与候选记录已同步到源码提交 `d57c045`；发布分支和远端 `main` 推送待执行 |
+| AC-008 | 自动 | Pass | README、SDD 与候选记录已同步；发布分支已推送，远端 `main` 由 `2e82e3a` 非强制快进到包含候选记录的 `eb2ed36` |
 
 ## 插件兼容矩阵
 
@@ -54,6 +54,8 @@ updated: 2026-08-22
 - `pnpm run release:pack -- --family vendor` / `--family dsh`（DSH）：Pass；分别生成 9 / 227 个固定 tarball。
 - `pnpm run runtime`（Desktop）：Pass；全新生成 arm64/x64 Runtime，并校验 rc.2 核心、两个内置插件和原生模块架构。
 - `node scripts/package.mjs --sign`（Desktop）：Pass；两个应用隐私审计、Developer ID 严格嵌套验签、DMG 完整性与磁盘镜像签名验证均通过。
+- `git push -u origin codex/v0.2.3-dsh-rc2`：Pass；远端发布分支创建并回读。
+- `git push origin HEAD:main`：Pass；刷新后 `origin/main...HEAD` 为 `0 2`，远端 `main` 非强制快进到 `eb2ed36`。
 - `DSH_SNAPSHOT=replay pnpm run test:web:built`（补充、非门禁）：安装 Chromium 并生成完整 build record 后启动；全套因 DeepViewer 既有品牌标题、绝对预览路径和窄屏手动侧栏契约与上游 E2E golden 不同而中止。定向复跑确认均为已登记产品差异；不将此命令记为 Pass。
 - `pnpm desktop:dev`：Pass；2026-08-22 22:30（Asia/Shanghai）启动 Electron，日志记录 `SUBSCRIPTIONS_ENABLED version=0.3.1`、`PREVIEW_ENABLED version=0.1.0` 和单一 `runtime ready origin=http://127.0.0.1:49891`。
 
