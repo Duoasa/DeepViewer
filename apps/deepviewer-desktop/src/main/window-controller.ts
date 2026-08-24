@@ -156,6 +156,12 @@ export class WindowController {
     this.window.webContents.send('runtime:status', status)
   }
 
+  sendActivityIslandPreferences(preferences: unknown): void {
+    if (this.window === undefined || this.window.isDestroyed()) return
+    if (!this.isRuntimeSurface(this.window.webContents.getURL())) return
+    this.window.webContents.send('activity-island:preferences', preferences)
+  }
+
   isLaunchSurface(url: string): boolean {
     try {
       return new URL(url).href === this.launchSurfaceUrl

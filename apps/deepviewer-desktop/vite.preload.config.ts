@@ -2,16 +2,20 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   build: {
-    ssr: 'src/preload/index.ts',
+    ssr: true,
     target: 'node24',
     outDir: '.desktop/build',
     emptyOutDir: false,
     sourcemap: true,
     rollupOptions: {
+      input: {
+        preload: 'src/preload/index.ts',
+        'island-preload': 'src/preload/island.ts',
+      },
       external: ['electron'],
       output: {
         format: 'cjs',
-        entryFileNames: 'preload.cjs',
+        entryFileNames: '[name].cjs',
       },
     },
   },

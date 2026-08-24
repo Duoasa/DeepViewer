@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>DeepViewer Activity Island</title>
+  </head>
+  <body>
+    <main
+      id="island"
+      class="island"
+      data-presentation="hidden"
+      data-state="standby"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <div class="shadow-host">
+        <section class="surface" aria-label="DeepViewer 任务状态">
+          <canvas id="orb-canvas" class="orb" aria-hidden="true"></canvas>
+          <div class="expanded-copy">
+            <div class="kicker-row">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="kicker" class="kicker">DeepViewer</span>
+            </div>
+            <div id="status-title" class="status-title">空闲</div>
+            <div id="operation" class="operation">DeepViewer 会话已就绪</div>
+          </div>
+          <div id="compact-title" class="compact-title">空闲</div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="./island.ts"></script>
+  </body>
+</html>

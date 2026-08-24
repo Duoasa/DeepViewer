@@ -1,5 +1,10 @@
 import { join } from 'node:path'
 import { app, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
+import type { ActivityIslandPreferencesPatch } from '../shared/activity-island.js'
+import { ActivityIslandCoordinator } from './activity-island-coordinator.js'
+import { ActivityIslandPreferencesStore } from './activity-island-preferences-store.js'
+import { validateActivityIslandActivity } from './activity-island-validation.js'
+import { ActivityIslandWindowController } from './activity-island-window-controller.js'
 import {
   DEEPVIEWER_APP_NAME,
   resolveDeepViewerIconPath,
@@ -23,6 +28,10 @@ let quitting = false
 let launchSpec: ReturnType<typeof resolveHarnessLaunch> | undefined
 let logger: FileLogger
 let runtime: RuntimeManager
+let activityIsland: ActivityIslandWindowController
+let activityIslandCoordinator: ActivityIslandCoordinator
+let activityIslandPreferences: ActivityIslandPreferencesStore
+let runtimeActivitySequence = 0
 const windows = new WindowController()
 
 function assertLaunchSurface(event: Electron.IpcMainInvokeEvent): void {
@@ -31,10 +40,22 @@ function assertLaunchSurface(event: Electron.IpcMainInvokeEvent): void {
   if (!windows.isLaunchSurface(frameUrl)) throw new Error('IPC is only available to the DeepViewer launch surface')
 }
 
-function assertRuntimeSurface(event: Electron.IpcMainEvent): void {
+function assertRuntimeSurface(event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent): void {
   const frameUrl = event.senderFrame?.url
   if (frameUrl === undefined) throw new Error('IPC sender frame is unavailable')
   if (!windows.isRuntimeSurface(frameUrl)) throw new Error('IPC is only available to the Harness runtime surface')
+}
+
+function unavailableRuntimeActivity() {
+  runtimeActivitySequence += 1
+  return {
+    schemaVersion: 1 as const,
+    sequence: Date.now() * 1_000 + runtimeActivitySequence % 1_000,
+    sessionId: 'deepviewer-runtime',
+    state: 'unavailable' as const,
+    title: 'DeepViewer Runtime',
+    occurredAt: Date.now(),
+  }
 }
 
 async function startRuntime(): Promise<void> {
@@ -75,9 +96,23 @@ if (gotLock) {
       logger.error('desktop', `unsupported platform in DV-0003: ${process.platform}`)
     }
     runtime = new RuntimeManager(new DarwinProcessAdapter(), logger)
+    activityIslandPreferences = new ActivityIslandPreferencesStore(
+      join(app.getPath('userData'), 'activity-island.json'),
+      logger,
+    )
+    activityIsland = new ActivityIslandWindowController(logger)
+    activityIslandCoordinator = new ActivityIslandCoordinator(
+      activityIslandPreferences.get(),
+      state => activityIsland.render(state),
+    )
     runtime.onStatus(status => {
       windows.sendStatus(status)
-      if (status.phase === 'failed') void windows.showStatus(status)
+      if (status.phase === 'failed') {
+        activityIslandCoordinator.updateActivity(unavailableRuntimeActivity())
+        void windows.showStatus(status)
+      } else if (status.phase === 'starting' || status.phase === 'ready') {
+        activityIslandCoordinator.updateActivity(null)
+      }
     })
 
     ipcMain.handle('runtime:get-status', (event) => {
@@ -99,11 +134,38 @@ if (gotLock) {
       if (source !== 'light' && source !== 'dark') return
       nativeTheme.themeSource = source
     })
+    ipcMain.on('activity-island:publish', (event, value: unknown) => {
+      assertRuntimeSurface(event)
+      if (value === null) {
+        activityIslandCoordinator.updateActivity(null)
+        return
+      }
+      const activity = validateActivityIslandActivity(value)
+      if (activity === null) {
+        logger.error('activity-island', 'rejected invalid Runtime activity projection')
+        return
+      }
+      activityIslandCoordinator.updateActivity(activity)
+    })
+    ipcMain.handle('activity-island:get-preferences', (event) => {
+      assertRuntimeSurface(event)
+      return activityIslandPreferences.get()
+    })
+    ipcMain.handle('activity-island:set-preferences', (event, patch: unknown) => {
+      assertRuntimeSurface(event)
+      const preferences = activityIslandPreferences.update(
+        patch as ActivityIslandPreferencesPatch,
+      )
+      activityIslandCoordinator.updatePreferences(preferences)
+      windows.sendActivityIslandPreferences(preferences)
+      return preferences
+    })
 
-    windows.create({
+    const mainWindow = windows.create({
       logDirectory,
       locale: app.getLocale(),
     })
+    activityIsland.attachMainWindow(mainWindow)
     void startRuntime()
   })
 
@@ -114,6 +176,8 @@ if (gotLock) {
     if (quitting || runtime === undefined) return
     event.preventDefault()
     quitting = true
+    activityIslandCoordinator?.dispose()
+    activityIsland?.dispose()
     void runtime.stop().finally(() => app.exit(0))
   })
 }

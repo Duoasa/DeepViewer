@@ -1,0 +1,7 @@
+ctx.slots.inject('settings.section', () => ctx.slots.register({
+  name: 'settings.section',
+  id: 'activity-island',
+  order: 40,
+  label: () => t('island.nav'),
+  locale: NS,
+}, ActivityIslandSection))

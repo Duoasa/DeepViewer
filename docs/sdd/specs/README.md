@@ -19,10 +19,11 @@
 | [DV-0013](DV-0013-finder-reveal-generated-files/spec.md) | 在 Finder 中显示生成文件 | Implementing | Duoasa | 2026-08-18 |
 | [DV-0014](DV-0014-dsh-rc8-core-upgrade/spec.md) | DeepSeek Harness rc.8 核心升级与 0.2.2 发布 | Implementing | Duoasa | 2026-08-20 |
 | [DV-0015](DV-0015-dsh-rc2-core-upgrade/spec.md) | DeepSeek Harness 0.1.1-rc.2 核心升级与 0.2.3 | Implementing | Duoasa | 2026-08-22 |
+| [DV-0016](DV-0016-single-task-activity-island/spec.md) | 单任务灵动岛与 0.2.4 开发版 | Implementing | Duoasa | 2026-08-24 |
 
 ## 下一个编号
 
-`DV-0016`
+`DV-0017`
 
 ## 目录规则
 

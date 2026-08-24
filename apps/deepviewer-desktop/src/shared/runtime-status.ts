@@ -1,3 +1,5 @@
+import type { ActivityIslandDesktopApi } from './activity-island.js'
+
 export type RuntimePhase = 'stopped' | 'starting' | 'ready' | 'stopping' | 'failed'
 export type NativeThemeSource = 'light' | 'dark'
 
@@ -9,7 +11,7 @@ export interface RuntimeStatusView {
   userMessage?: string
 }
 
-export interface DeepViewerDesktopApi {
+export interface DeepViewerDesktopApi extends ActivityIslandDesktopApi {
   getRuntimeStatus(): Promise<RuntimeStatusView>
   retryRuntime(): Promise<void>
   openLogDirectory(): Promise<void>

@@ -177,6 +177,14 @@ const aboutLocalesEn = readFileSync(
   resolve(appRoot, 'upstream-overrides/ui-settings-general/AboutLocales.en.fragment'),
   'utf8',
 )
+const activityIslandPublisher = readFileSync(
+  resolve(appRoot, 'upstream-overrides/ui-conversation/DeepViewerActivityPublisher.tsx'),
+  'utf8',
+)
+const activityIslandSettings = readFileSync(
+  resolve(appRoot, 'upstream-overrides/ui-settings-general/ActivityIslandSection.tsx'),
+  'utf8',
+)
 const modelsTitleZh = readFileSync(
   resolve(appRoot, 'upstream-overrides/ui-settings-models/ModelsTitle.zh.fragment'),
   'utf8',
@@ -267,10 +275,10 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(packageScript).toContain("dshPeerVersion: '0.1.1-rc.2'")
   })
 
-  it('pins DeepViewer 0.2.3 Build 1 and the rc.2 release boundary', () => {
+  it('builds DeepViewer 0.2.4 Build 1 on the rc.2 release boundary', () => {
     const runtimeBuild = readFileSync(resolve(appRoot, 'scripts/build-runtime.mjs'), 'utf8')
 
-    expect(appManifest.version).toBe('0.2.3')
+    expect(appManifest.version).toBe('0.2.4')
     expect(appManifest.buildNumber).toBe(1)
     expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.1-rc.2'")
     expect(runtimeBuild).toContain("const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'")
@@ -536,6 +544,20 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(upstreamOverrideSync).toContain("'settings-back-to-app-zh'")
     expect(upstreamOverrideSync).toContain("'about-deepviewer-icon'")
     expect(upstreamOverrideSync).toContain('harnessManifest.version')
+  })
+
+  it('adds a single-task activity island to the rc.2 conversation and settings shell', () => {
+    expect(activityIslandPublisher).toContain("snapshot.runningCalls.length")
+    expect(activityIslandPublisher).toContain("state = 'awaitingConfirmation'")
+    expect(activityIslandPublisher).toContain('publishActivityIsland(null)')
+    expect(activityIslandSettings).toContain("orbAnimation: 'particleOrb'")
+    expect(activityIslandSettings).toContain('compactDelaySeconds: 20')
+    expect(activityIslandSettings).toContain('hideDelaySeconds: 100')
+    expect(activityIslandSettings.toLowerCase()).not.toContain('connection')
+    expect(upstreamOverrideSync).toContain("'activity-island-publisher'")
+    expect(upstreamOverrideSync).toContain("'activity-island-settings-component'")
+    expect(upstreamOverrideSync).toContain("'activity-island-publisher-seat'")
+    expect(upstreamOverrideSync).toContain("'activity-island-settings-registration'")
   })
 
   it('integrates subscriptions as the second panel on the Models page', () => {
