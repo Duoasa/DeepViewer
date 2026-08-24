@@ -8,6 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
+| `v0.2.4-preview.1` | Public source preview / Preparing | 2026-08-24 | DV-0016 | [DeepViewer 0.2.4 Activity Island source preview](v0.2.4-preview.1.md) |
 | `v0.2.3` | Public preview / Preparing Latest | 2026-08-22 | DV-0015 | [DeepViewer 0.2.3 (Build 1)](v0.2.3.md) |
 | `v0.2.2-build.2` | Public hotfix / Latest | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 2)](v0.2.2-build.2.md) |
 | `v0.2.2` | Public preview / Rollback | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 1)](v0.2.2.md) |

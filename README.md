@@ -44,6 +44,12 @@ shell designed for a visual, controllable agent experience.
 > DeepViewer is a community project. It is not affiliated with or endorsed by
 > DeepSeek.
 
+> [!CAUTION]
+> This branch is the source-only `v0.2.4-preview.1` Activity Island preview.
+> It is isolated from the packaged `v0.2.3` public release and does not include
+> an application bundle, DMG, signing, notarization, or stable-support promise.
+> Use `v0.2.3` if you want the current packaged build.
+
 > [!IMPORTANT]
 > `v0.2.3` is the latest macOS preview (app version `0.2.3`, build `1`) and
 > bundles DeepSeek Harness `0.1.1-rc.2`. It adapts both built-in plugins and the
@@ -56,6 +62,37 @@ shell designed for a visual, controllable agent experience.
 > DeepViewer 0.2.2 Build 2 remains available as the rc.8 rollback package. The
 > 0.2.3 downloads are Developer ID signed, Apple-notarized, ticket-stapled, and
 > published separately for Apple Silicon and Intel Macs.
+
+## 0.2.4 source preview
+
+`v0.2.4-preview.1` adds the QuotaView-style single-task Activity Island to the
+`v0.2.3` / Harness rc.2 baseline. It follows only the currently selected
+DeepViewer Session, provides Particle Orb and Ripple Glow animations, and adds
+an independent settings section for visibility and compact/hide delays. It does
+not include a multi-task island or a second connection flow.
+
+Build and run this source preview on macOS with Node.js 24 and pnpm 11.19.0:
+
+```sh
+git clone --branch v0.2.4-preview.1 --depth 1 https://github.com/Duoasa/DeepViewer.git
+cd DeepViewer
+pnpm install --frozen-lockfile
+
+git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
+git -C upstream/deepseek-harness checkout b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
+pnpm --dir upstream/deepseek-harness install --frozen-lockfile
+pnpm --dir upstream/deepseek-harness run build:official
+pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
+pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
+
+pnpm --filter @deepviewer/desktop runtime:arm64  # Apple Silicon
+# pnpm --filter @deepviewer/desktop runtime:x64 # Intel Mac
+pnpm desktop:dev
+```
+
+The source-preview scope and smoke evidence are recorded in
+[`DV-0016`](docs/sdd/specs/DV-0016-single-task-activity-island/spec.md) and the
+[`v0.2.4-preview.1` release record](docs/sdd/releases/v0.2.4-preview.1.md).
 
 ## Why DeepViewer
 

@@ -27,6 +27,7 @@ updated: 2026-08-24
 | AC-006 | 自动 | Pass | IPC validator、有限载荷与设置归一化测试通过 |
 | AC-007 | 静态 + 人工 | 静态 Pass / Pending Manual | panel 参数、主屏定位与显示变化重定位测试通过；多屏实机移动由维护者确认 |
 | AC-008 | 自动 | Pass | rc.2 覆盖同步、类型检查、目标测试、Harness/Web/Desktop 构建及 Runtime 启动冒烟通过 |
+| AC-009 | Git / 远端回读 | Pending | 等待独立预览分支与源码标签推送后回读；不上传安装资产 |
 
 ## 执行的命令
 
