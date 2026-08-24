@@ -27,7 +27,7 @@ updated: 2026-08-24
 | AC-006 | 自动 | Pass | IPC validator、有限载荷与设置归一化测试通过 |
 | AC-007 | 静态 + 人工 | 静态 Pass / Pending Manual | panel 参数、主屏定位与显示变化重定位测试通过；多屏实机移动由维护者确认 |
 | AC-008 | 自动 | Pass | rc.2 覆盖同步、类型检查、目标测试、Harness/Web/Desktop 构建及 Runtime 启动冒烟通过 |
-| AC-009 | Git / 远端回读 | Pending | 等待独立预览分支与源码标签推送后回读；不上传安装资产 |
+| AC-009 | Git / 远端回读 | Pass | 独立分支 `DV/preview-0.2.4-activity-island` 与源码标签 `v0.2.4-preview.1` 已发布；`main`、`v0.2.3` 未移动，且未上传安装资产 |
 
 ## 执行的命令
 
@@ -49,6 +49,8 @@ updated: 2026-08-24
   - 结果：Pass；主进程、两个 preload、主 Renderer 与 island Renderer 均生成
 - `DEEPVIEWER_PROFILE=development electron .`
   - 结果：Pass；日志记录 `SUBSCRIPTIONS_ENABLED`、`PREVIEW_ENABLED`，Harness 从启动到 `runtime ready` 约 2.4 秒；随后主动停止并确认监听端口关闭
+- `git ls-remote origin refs/heads/main refs/heads/DV/preview-0.2.4-activity-island refs/tags/v0.2.3 refs/tags/v0.2.3^{} refs/tags/v0.2.4-preview.1 refs/tags/v0.2.4-preview.1^{}`
+  - 结果：Pass；远端分支与标签可回读，正式 `main` 和 `v0.2.3` 指针保持不变
 
 ## 人工检查
 
