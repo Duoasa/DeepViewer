@@ -44,7 +44,7 @@ Agent 体验设计的桌面外壳。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!CAUTION]
-> 当前分支是仅提供源码的 `v0.2.4-preview.1` 灵动岛预览版，与已有安装包的
+> 当前分支是仅提供源码的 `v0.2.4-preview.2` 灵动岛预览版，与已有安装包的
 > `v0.2.3` 公开版隔离。它不提供应用包、DMG、签名、公证或稳定支持承诺；需要现成安装包的
 > 用户请继续使用 `v0.2.3`。
 
@@ -60,14 +60,15 @@ Agent 体验设计的桌面外壳。
 
 ## 0.2.4 源码预览版
 
-`v0.2.4-preview.1` 在 `v0.2.3` / Harness rc.2 基线上加入 QuotaView 同款单任务灵动岛。
-它只跟随当前选中的 DeepViewer 会话，提供粒子球、波澜光晕，以及独立的显示、缩小延迟和
-隐藏延迟设置；不包含多任务岛，也不增加第二套连接流程。
+`v0.2.4-preview.2` 在 `v0.2.3` / Harness rc.2 基线上把 QuotaView 同款单任务灵动岛无缝
+集成到 DeepViewer 主顶栏。它只跟随当前选中的会话，设置页复用岛的真实 WebGL 粒子球与
+波澜光晕，支持浅色/深色顶栏、固定对齐的会话 token 摘要和以中心为基准的收缩动画。透明岛
+只跟随获得焦点的 DeepViewer 窗口，不再跨应用浮动；本版不包含多任务岛，也不增加第二套连接流程。
 
 在 macOS 上使用 Node.js 24 和 pnpm 11.19.0 编译并运行源码预览版：
 
 ```sh
-git clone --branch v0.2.4-preview.1 --depth 1 https://github.com/Duoasa/DeepViewer.git
+git clone --branch v0.2.4-preview.2 --depth 1 https://github.com/Duoasa/DeepViewer.git
 cd DeepViewer
 pnpm install --frozen-lockfile
 
@@ -84,7 +85,7 @@ pnpm desktop:dev
 ```
 
 源码预览范围和冒烟证据见 [`DV-0016`](docs/sdd/specs/DV-0016-single-task-activity-island/spec.md)
-与 [`v0.2.4-preview.1` 发布记录](docs/sdd/releases/v0.2.4-preview.1.md)。
+与 [`v0.2.4-preview.2` 发布记录](docs/sdd/releases/v0.2.4-preview.2.md)。
 
 ## 为什么选择 DeepViewer
 

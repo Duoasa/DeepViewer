@@ -45,7 +45,7 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!CAUTION]
-> This branch is the source-only `v0.2.4-preview.1` Activity Island preview.
+> This branch is the source-only `v0.2.4-preview.2` Activity Island preview.
 > It is isolated from the packaged `v0.2.3` public release and does not include
 > an application bundle, DMG, signing, notarization, or stable-support promise.
 > Use `v0.2.3` if you want the current packaged build.
@@ -65,16 +65,19 @@ shell designed for a visual, controllable agent experience.
 
 ## 0.2.4 source preview
 
-`v0.2.4-preview.1` adds the QuotaView-style single-task Activity Island to the
-`v0.2.3` / Harness rc.2 baseline. It follows only the currently selected
-DeepViewer Session, provides Particle Orb and Ripple Glow animations, and adds
-an independent settings section for visibility and compact/hide delays. It does
-not include a multi-task island or a second connection flow.
+`v0.2.4-preview.2` integrates the QuotaView-style single-task Activity Island
+into the main DeepViewer titlebar on the `v0.2.3` / Harness rc.2 baseline. It
+follows only the selected Session, reuses the real WebGL Particle Orb and Ripple
+Glow renderer in Settings, supports light and dark titlebars, and keeps session
+token statistics aligned in the existing header. The transparent island shrinks
+around its center and follows the focused DeepViewer window without floating
+over other applications. It does not include a multi-task island or a second
+connection flow.
 
 Build and run this source preview on macOS with Node.js 24 and pnpm 11.19.0:
 
 ```sh
-git clone --branch v0.2.4-preview.1 --depth 1 https://github.com/Duoasa/DeepViewer.git
+git clone --branch v0.2.4-preview.2 --depth 1 https://github.com/Duoasa/DeepViewer.git
 cd DeepViewer
 pnpm install --frozen-lockfile
 
@@ -92,7 +95,7 @@ pnpm desktop:dev
 
 The source-preview scope and smoke evidence are recorded in
 [`DV-0016`](docs/sdd/specs/DV-0016-single-task-activity-island/spec.md) and the
-[`v0.2.4-preview.1` release record](docs/sdd/releases/v0.2.4-preview.1.md).
+[`v0.2.4-preview.2` release record](docs/sdd/releases/v0.2.4-preview.2.md).
 
 ## Why DeepViewer
 
