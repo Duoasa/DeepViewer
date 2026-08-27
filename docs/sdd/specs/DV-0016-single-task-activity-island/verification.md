@@ -27,7 +27,7 @@ updated: 2026-08-28
 | AC-006 | 自动 | Pass | IPC validator、有限载荷与设置归一化测试通过 |
 | AC-007 | 自动 + 人工 | 自动 Pass / Pending Manual | 普通 child window 参数、禁止原生 `panel`/always-on-top、主内容锚点坐标与 move/resize/show/restore/focus/blur/hide/minimize 生命周期契约通过；契约同时要求失焦隐藏及禁止对可见岛重复 `showInactive()`，实机应用切换由维护者确认 |
 | AC-008 | 自动 | Pass | rc.2 覆盖同步、类型检查、目标测试、Harness/Web/Desktop 构建及 Runtime 启动冒烟通过 |
-| AC-009 | Git / 远端回读 | Pass | 独立分支、源码标签及仅含 GitHub 自动源码归档的 Pre-release 已发布；`main`、`v0.2.3` 未移动，且未上传安装资产 |
+| AC-009 | Git / 远端回读 | Pass | 独立分支、`v0.2.4-preview.2` 源码标签及仅含 GitHub 自动源码归档的 Pre-release 已发布；`main`、`v0.2.3` 与 `v0.2.4-preview.1` 未移动，且未上传安装资产 |
 | AC-010 | 静态 + 人工 | 静态 Pass / Pending Manual | `StatsLine` 文字在 Runtime DOM 内镜像到标题栏宿主，composer 来源隐藏；主内容 safe area 保持原有 `48px`，宿主固定于 `96px`、与“对话 / 轨迹”标签文字行垂直对齐且不贴底部分隔线，并且不订阅 presentation；最终位置由维护者确认 |
 | AC-011 | 静态 + 人工 | 静态 Pass / Pending Manual | 契约测试确认 surface 无底色、边框、模糊和阴影，并覆盖浅底深字、深底浅字前景令牌；最终观感由维护者确认 |
 | AC-012 | 静态 + 人工 | 静态 Pass / Pending Manual | 设置卡片直接实例化岛的 canonical WebGL renderer，契约测试排除 CSS gradient/手绘预览；视觉由维护者确认 |
@@ -63,10 +63,11 @@ updated: 2026-08-28
 - `DEEPVIEWER_PROFILE=development electron .`
   - 结果：Pass；开发运行器重建并重启，日志记录 `SUBSCRIPTIONS_ENABLED`、`PREVIEW_ENABLED`，
     Harness 从启动到 `runtime ready` 约 0.9 秒；开发版保持开启供维护者检查
-- `git ls-remote origin refs/heads/main refs/heads/DV/preview-0.2.4-activity-island refs/tags/v0.2.3 refs/tags/v0.2.3^{} refs/tags/v0.2.4-preview.1 refs/tags/v0.2.4-preview.1^{}`
-  - 结果：Pass；远端分支与标签可回读，正式 `main` 和 `v0.2.3` 指针保持不变
+- `git ls-remote origin refs/heads/main refs/heads/DV/preview-0.2.4-activity-island refs/tags/v0.2.3 refs/tags/v0.2.3^{} refs/tags/v0.2.4-preview.1 refs/tags/v0.2.4-preview.1^{} refs/tags/v0.2.4-preview.2 refs/tags/v0.2.4-preview.2^{}`
+  - 结果：Pass；远端分支与新标签可回读，`main`、`v0.2.3` 和 `v0.2.4-preview.1` 指针保持不变
 - GitHub Pre-release 页面与自动源码归档回读
-  - 结果：Pass；Release 标记为 `Pre-release`，ZIP 与 tar.gz 归档均返回 HTTP 200，未附加安装资产
+  - 结果：Pass；Release 为非草稿 `Pre-release`、附加资产列表为空；下载的自动源码 ZIP 指向
+    `482b809b8a3cdc2dc8058c8cf76a78df26afe685`，归档清单未包含 `.app`、DMG 或本地未跟踪副本
 
 ## 人工检查
 
