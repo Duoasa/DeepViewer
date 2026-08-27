@@ -4,6 +4,7 @@ import type { ActivityIslandScheduler } from '../src/main/activity-island-coordi
 import {
   normalizeActivityIslandPreferences,
   validateActivityIslandActivity,
+  validateActivityIslandAnchor,
 } from '../src/main/activity-island-validation.js'
 import type {
   ActivityIslandActivity,
@@ -79,6 +80,18 @@ describe('activity island validation', () => {
     expect(accepted?.title).toHaveLength(120)
     expect(validateActivityIslandActivity({ ...activity('working'), state: 'secret' })).toBeNull()
     expect(validateActivityIslandActivity({ ...activity('working'), sessionId: '' })).toBeNull()
+  })
+
+  it('accepts only finite, bounded titlebar anchors', () => {
+    expect(validateActivityIslandAnchor({ x: 320, y: 0, width: 900, height: 48 })).toEqual({
+      x: 320,
+      y: 0,
+      width: 900,
+      height: 48,
+    })
+    expect(validateActivityIslandAnchor({ x: -1, y: 0, width: 900, height: 48 })).toBeNull()
+    expect(validateActivityIslandAnchor({ x: 0, y: 0, width: Infinity, height: 48 })).toBeNull()
+    expect(validateActivityIslandAnchor({ x: 0, y: 0, width: 20_001, height: 48 })).toBeNull()
   })
 })
 

@@ -36,7 +36,6 @@ export function createActivityIslandWindowOptions(
 ): BrowserWindowConstructorOptions {
   return {
     ...ACTIVITY_ISLAND_WINDOW_SIZE,
-    type: 'panel',
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
@@ -49,7 +48,7 @@ export function createActivityIslandWindowOptions(
     skipTaskbar: true,
     show: false,
     hasShadow: false,
-    alwaysOnTop: true,
+    alwaysOnTop: false,
     hiddenInMissionControl: true,
     webPreferences: {
       preload,

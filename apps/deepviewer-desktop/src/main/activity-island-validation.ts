@@ -4,12 +4,14 @@ import {
 } from '../shared/activity-island.js'
 import type {
   ActivityIslandActivity,
+  ActivityIslandAnchor,
   ActivityIslandPreferences,
   ActivityIslandPreferencesPatch,
 } from '../shared/activity-island.js'
 
 const ACTIVITY_STATES = new Set<string>(ACTIVITY_ISLAND_STATES)
 const CONTROL_CHARACTERS = /[\u0000-\u001f\u007f-\u009f]/gu
+const MAXIMUM_ANCHOR_VALUE = 20_000
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -90,4 +92,16 @@ export function validateActivityIslandActivity(value: unknown): ActivityIslandAc
     title,
     occurredAt: value.occurredAt as number,
   }
+}
+
+export function validateActivityIslandAnchor(value: unknown): ActivityIslandAnchor | null {
+  if (!isRecord(value)) return null
+  const { x, y, width, height } = value
+  if (typeof x !== 'number' || !Number.isFinite(x)
+    || typeof y !== 'number' || !Number.isFinite(y)
+    || typeof width !== 'number' || !Number.isFinite(width)
+    || typeof height !== 'number' || !Number.isFinite(height)) return null
+  if (x < 0 || y < 0 || width <= 0 || height <= 0) return null
+  if ([x, y, width, height].some(entry => entry > MAXIMUM_ANCHOR_VALUE)) return null
+  return { x, y, width, height }
 }

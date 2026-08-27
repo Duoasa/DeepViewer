@@ -83,15 +83,20 @@ describe('main window options', () => {
     )
   })
 
-  it('mirrors session stats into the structural chat safe area without an overlay bar', () => {
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('#deepviewer-macos-session-stats')
+  it('publishes the titlebar anchor and fixes session stats at its lower reference position', () => {
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-main-safe-area]')
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('text-align: center')
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('pointer-events: none')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('#deepviewer-macos-session-stats')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-session-stats-source]')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('new ResizeObserver(syncActivityIslandAnchor)')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('publishActivityIslandAnchor?.(anchor)')
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('StatsLine.module.css')
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('deepviewerMacosSessionStatsSource')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('statsDisplay.textContent = text')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('top: 96px')
+    expect(MACOS_WINDOW_CHROME_CSS).not.toContain(
+      '[data-deepviewer-macos-main-safe-area] {\n  height: 160px',
+    )
+    expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('getActivityIslandLayout')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('onActivityIslandLayout')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('--deepviewer-sidebar-safe-width')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('columnObserver')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('ensureToolbar')

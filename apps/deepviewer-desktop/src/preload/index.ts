@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   ActivityIslandActivity,
+  ActivityIslandAnchor,
   ActivityIslandPreferences,
   ActivityIslandPreferencesPatch,
 } from '../shared/activity-island.js'
@@ -17,6 +18,9 @@ const api: DeepViewerDesktopApi = {
   setNativeThemeSource: (source: NativeThemeSource) => ipcRenderer.send('desktop:set-native-theme', source),
   publishActivityIsland: (activity: ActivityIslandActivity | null) => {
     ipcRenderer.send('activity-island:publish', activity)
+  },
+  publishActivityIslandAnchor: (anchor: ActivityIslandAnchor) => {
+    ipcRenderer.send('activity-island:anchor', anchor)
   },
   getActivityIslandPreferences: () => ipcRenderer.invoke(
     'activity-island:get-preferences',

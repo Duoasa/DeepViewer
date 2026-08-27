@@ -556,6 +556,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(activityIslandSettings.toLowerCase()).not.toContain('connection')
     expect(upstreamOverrideSync).toContain("'activity-island-publisher'")
     expect(upstreamOverrideSync).toContain("'activity-island-settings-component'")
+    expect(upstreamOverrideSync).toContain("'activity-island-shared-orb-renderer'")
     expect(upstreamOverrideSync).toContain("'activity-island-publisher-seat'")
     expect(upstreamOverrideSync).toContain("'activity-island-settings-registration'")
   })

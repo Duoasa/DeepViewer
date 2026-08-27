@@ -263,6 +263,24 @@ const fileOverrides = [
     ),
   },
   {
+    name: 'activity-island-shared-orb-renderer',
+    sourcePath: resolve(
+      appRoot,
+      'upstream-overrides',
+      'ui-settings-general',
+      'ActivityIslandOrbRenderer.ts',
+    ),
+    targetPath: resolve(
+      upstreamRoot,
+      'packages',
+      'client',
+      'ui-settings-general',
+      'src',
+      'client',
+      'ActivityIslandOrbRenderer.ts',
+    ),
+  },
+  {
     name: 'activity-island-settings-styles',
     sourcePath: resolve(
       appRoot,

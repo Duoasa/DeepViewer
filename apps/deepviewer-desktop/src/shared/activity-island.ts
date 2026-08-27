@@ -36,8 +36,16 @@ export interface ActivityIslandRenderState {
   presentation: ActivityIslandPresentation
 }
 
+export interface ActivityIslandAnchor {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 export interface ActivityIslandDesktopApi {
   publishActivityIsland(activity: ActivityIslandActivity | null): void
+  publishActivityIslandAnchor(anchor: ActivityIslandAnchor): void
   getActivityIslandPreferences(): Promise<ActivityIslandPreferences>
   setActivityIslandPreferences(
     patch: ActivityIslandPreferencesPatch,

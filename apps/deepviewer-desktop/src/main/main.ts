@@ -3,7 +3,10 @@ import { app, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
 import type { ActivityIslandPreferencesPatch } from '../shared/activity-island.js'
 import { ActivityIslandCoordinator } from './activity-island-coordinator.js'
 import { ActivityIslandPreferencesStore } from './activity-island-preferences-store.js'
-import { validateActivityIslandActivity } from './activity-island-validation.js'
+import {
+  validateActivityIslandActivity,
+  validateActivityIslandAnchor,
+} from './activity-island-validation.js'
 import { ActivityIslandWindowController } from './activity-island-window-controller.js'
 import {
   DEEPVIEWER_APP_NAME,
@@ -146,6 +149,15 @@ if (gotLock) {
         return
       }
       activityIslandCoordinator.updateActivity(activity)
+    })
+    ipcMain.on('activity-island:anchor', (event, value: unknown) => {
+      assertRuntimeSurface(event)
+      const anchor = validateActivityIslandAnchor(value)
+      if (anchor === null) {
+        logger.error('activity-island', 'rejected invalid Runtime titlebar anchor')
+        return
+      }
+      activityIsland.updateAnchor(anchor)
     })
     ipcMain.handle('activity-island:get-preferences', (event) => {
       assertRuntimeSurface(event)

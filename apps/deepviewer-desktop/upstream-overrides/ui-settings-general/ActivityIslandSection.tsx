@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type { SettingsKey } from './locales.ts'
+import {
+  QuotaViewActivityOrbRenderer,
+} from './ActivityIslandOrbRenderer.ts'
+import type {
+  ActivityIslandOrbAnimation,
+} from './ActivityIslandOrbRenderer.ts'
 import css from './ActivityIslandSection.module.css'
 
-type OrbAnimation = 'particleOrb' | 'rippleGlow'
+type OrbAnimation = ActivityIslandOrbAnimation
 
 interface Preferences {
   enabled: boolean
@@ -31,6 +37,58 @@ function bridge(): DesktopSettingsBridge | undefined {
 }
 
 type Props = PropsRuntime<'settings.section'> & PropsLocale<'settings'>
+
+function ActivityIslandOrbPreview({ mode }: { mode: OrbAnimation }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (canvas === null) return
+    let renderer: QuotaViewActivityOrbRenderer
+    try {
+      renderer = new QuotaViewActivityOrbRenderer(canvas)
+    } catch {
+      return
+    }
+    renderer.setState('thinking')
+    renderer.setMode(mode)
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let frame = 0
+    const draw = (now: number): void => {
+      renderer.draw(now, reducedMotion.matches)
+      if (!reducedMotion.matches && document.visibilityState === 'visible') {
+        frame = window.requestAnimationFrame(draw)
+      } else {
+        frame = 0
+      }
+    }
+    const restart = (): void => {
+      if (frame !== 0) window.cancelAnimationFrame(frame)
+      frame = 0
+      renderer.draw(performance.now(), reducedMotion.matches)
+      if (!reducedMotion.matches && document.visibilityState === 'visible') {
+        frame = window.requestAnimationFrame(draw)
+      }
+    }
+
+    const resizeObserver = new ResizeObserver(restart)
+    resizeObserver.observe(canvas)
+    reducedMotion.addEventListener('change', restart)
+    document.addEventListener('visibilitychange', restart)
+    restart()
+
+    return () => {
+      if (frame !== 0) window.cancelAnimationFrame(frame)
+      resizeObserver.disconnect()
+      reducedMotion.removeEventListener('change', restart)
+      document.removeEventListener('visibilitychange', restart)
+      renderer.dispose()
+    }
+  }, [mode])
+
+  return <canvas ref={canvasRef} className={css.orbPreview} aria-hidden="true" />
+}
 
 export function ActivityIslandSection({ t }: Props) {
   const desktop = bridge()
@@ -98,7 +156,7 @@ export function ActivityIslandSection({ t }: Props) {
               aria-pressed={preferences.orbAnimation === mode}
               onClick={() => { update({ orbAnimation: mode }) }}
             >
-              <span className={mode === 'particleOrb' ? css.particlePreview : css.ripplePreview} aria-hidden="true" />
+              <ActivityIslandOrbPreview mode={mode} />
               <span>
                 <strong>{t(`island.animation.${mode}` as SettingsKey)}</strong>
                 <small>{t(`island.animation.${mode}.description` as SettingsKey)}</small>

@@ -77,19 +77,25 @@ body,
 
 #deepviewer-macos-session-stats {
   position: absolute;
-  inset: 0;
+  /* Keep the row inside the original conversation titlebar and align it with
+     the conversation/trajectory tabs without changing the header height. */
+  top: 96px;
+  left: 0;
+  width: 100%;
+  height: 20px;
   box-sizing: border-box;
   padding: 0 48px;
   overflow: hidden;
   color: var(--dsw-alias-label-tertiary, rgba(255, 255, 255, 0.58));
   font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
   font-size: 12px;
-  line-height: ${MACOS_TOP_SAFE_AREA_HEIGHT}px;
+  line-height: 20px;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
+  z-index: 1;
 }
 
 #deepviewer-macos-session-stats[hidden] {
@@ -379,6 +385,23 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
       statsDisplay.hidden = text === '';
     };
 
+    let activityIslandAnchorSignature = '';
+    const syncActivityIslandAnchor = () => {
+      const rect = mainSafeArea.getBoundingClientRect();
+      const anchor = {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      };
+      const signature = [anchor.x, anchor.y, anchor.width, anchor.height]
+        .map(value => value.toFixed(2))
+        .join(':');
+      if (signature === activityIslandAnchorSignature) return;
+      activityIslandAnchorSignature = signature;
+      window.deepviewerDesktop?.publishActivityIslandAnchor?.(anchor);
+    };
+
     let nativeThemeSource = '';
     const syncNativeTheme = () => {
       const source = document.body.hasAttribute('data-ds-dark-theme') ? 'dark' : 'light';
@@ -402,6 +425,8 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
       syncWorkspaceFade();
     });
     sidebarObserver.observe(sidebar, { childList: true, subtree: true });
+    const anchorObserver = new ResizeObserver(syncActivityIslandAnchor);
+    anchorObserver.observe(mainSafeArea);
     const statsObserver = new MutationObserver(syncStats);
     statsObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
     const themeObserver = new MutationObserver(syncNativeTheme);
@@ -410,6 +435,7 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
       attributeFilter: ['data-ds-dark-theme'],
     });
     sync();
+    syncActivityIslandAnchor();
     syncStats();
     syncNativeTheme();
     return true;

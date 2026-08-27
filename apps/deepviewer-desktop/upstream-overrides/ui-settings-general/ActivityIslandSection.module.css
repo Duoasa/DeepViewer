@@ -154,28 +154,11 @@
   line-height: 17px;
 }
 
-.particlePreview,
-.ripplePreview {
+.orbPreview {
   flex: none;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-}
-
-.particlePreview {
-  background:
-    radial-gradient(circle at 30% 28%, #c7d1ff 0 7%, transparent 8%),
-    radial-gradient(circle at 70% 20%, #8297ff 0 3%, transparent 4%),
-    radial-gradient(circle at 20% 76%, #748bff 0 4%, transparent 5%),
-    radial-gradient(circle at 38% 34%, #a6b9ff, #5668e8 38%, #2f287e 72%);
-  box-shadow: 0 0 16px rgba(80, 91, 232, 0.45);
-}
-
-.ripplePreview {
-  border: 1px solid rgba(110, 132, 255, 0.46);
-  background:
-    radial-gradient(circle, #c6d1ff 0 9%, #708dff 10% 20%, transparent 21% 38%, rgba(104, 119, 255, 0.5) 39% 42%, transparent 43% 62%, rgba(93, 91, 225, 0.34) 63% 66%, transparent 67%);
-  box-shadow: 0 0 17px rgba(77, 77, 224, 0.35);
+  width: 82px;
+  height: 82px;
+  margin: -19px;
 }
 
 .rangeRow {
