@@ -1,8 +1,9 @@
 {
   "name": "@deepviewer/desktop",
   "productName": "DeepViewer",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "buildNumber": 1,
+  "previewRelease": "0.2.5-preview.1",
   "private": true,
   "description": "DeepViewer desktop shell for DeepSeek Harness",
   "license": "MIT",
@@ -17,10 +18,8 @@
     "start": "pnpm build && electron .",
     "runtime": "node scripts/build-runtime.mjs",
     "runtime:arm64": "node scripts/build-runtime.mjs --arch=arm64",
-    "runtime:x64": "node scripts/build-runtime.mjs --arch=x64",
     "package": "pnpm build && pnpm run runtime && node scripts/package.mjs",
     "package:arm64": "pnpm build && pnpm run runtime:arm64 && node scripts/package.mjs --arch=arm64",
-    "package:x64": "pnpm build && pnpm run runtime:x64 && node scripts/package.mjs --arch=x64",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

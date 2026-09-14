@@ -11,14 +11,14 @@
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
   <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="macOS Apple Silicon and Intel" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-111111?logo=apple">
+  <img alt="macOS Apple Silicon" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
   <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness/discussions/2828"><img alt="Discuss on GitHub" src="https://img.shields.io/badge/Discuss-GitHub%20Discussions-181717?logo=github&logoColor=white"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3"><strong>Download DeepViewer 0.2.3</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1"><strong>Download 0.2.5 Preview (ARM)</strong></a>
   ·
   <a href="#whats-new-in-023">What's new in 0.2.3</a>
   ·
@@ -37,7 +37,7 @@ the pinned local runtime into a normal macOS application and provides a desktop
 shell designed for a visual, controllable agent experience.
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 About page with DeepSeek Harness 0.1.1-rc.2">
+  <img src="Resources/DeepViewer-0.2.5-preview.1.png" width="100%" alt="DeepViewer 0.2.5 Preview with DSH 0.1.5-rc.2">
 </p>
 
 > [!NOTE]
@@ -45,17 +45,11 @@ shell designed for a visual, controllable agent experience.
 > DeepSeek.
 
 > [!IMPORTANT]
-> `v0.2.3` is the latest macOS preview (app version `0.2.3`, build `1`) and
-> bundles DeepSeek Harness `0.1.1-rc.2`. It adapts both built-in plugins and the
-> rc.2 UI contract, restores the independent DeepViewer mark and name, and has
-> passed the automated build, privacy, signing, notarization, and release gates.
-> Subscription PC-009 remains a maintainer check, and this is still an early
-> preview rather than a stable release.
+> The current Preview is **v0.2.5-preview.1** (app 0.2.5 / Build 1), based on v0.2.3 and adapted to DSH 0.1.5-rc.2. It supports **Apple Silicon arm64 only** and uses the official preview with the existing top-right expand, collapse, and fullscreen controls.
+> This release has smoke coverage only; real-account workflows and interaction acceptance remain with the maintainer.
 
 > [!TIP]
-> DeepViewer 0.2.2 Build 2 remains available as the rc.8 rollback package. The
-> 0.2.3 downloads are Developer ID signed, Apple-notarized, ticket-stapled, and
-> published separately for Apple Silicon and Intel Macs.
+> [v0.2.3](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3) remains GitHub Latest, including its historical Intel package. This Preview uses a separate data directory and requires account and workspace setup on first launch.
 
 ## Why DeepViewer
 
@@ -63,7 +57,7 @@ shell designed for a visual, controllable agent experience.
 | --- | --- |
 | **Desktop first** | Launch the agent as a normal macOS application without manually running Node, npm, pnpm, or a Web UI command. |
 | **Self-contained runtime** | Ships the pinned Harness runtime and compatible execution environment inside the application. |
-| **Native Mac packages** | Provides separate arm64 and x64 packages for Apple Silicon and Intel Macs. |
+| **Native Mac packages** | This Preview provides an Apple Silicon arm64 package. |
 | **Integrated macOS shell** | Uses native traffic lights inside the application, a full-width drag region, and a Codex-style collapsible sidebar. |
 | **Local by default** | Runs Harness on a random `127.0.0.1` port and does not expose the service to the LAN. |
 | **Controlled lifecycle** | Starts, health-checks, monitors, retries, and stops Harness together with the desktop application. |
@@ -72,20 +66,21 @@ shell designed for a visual, controllable agent experience.
 
 ## Quick start
 
-1. Download the package that matches your Mac from the
-   [0.2.3 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3).
+1. Download the [ARM64 Preview DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.5-preview.1/DeepViewer-0.2.5-macos-arm64.dmg).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
-3. Open DeepViewer. It starts the bundled Harness automatically and loads the
-   local workspace when the runtime is ready.
+3. Configure an account and workspace on first launch. This Preview keeps its data in `~/Library/Application Support/DeepViewer Preview/0.2.5-preview.1`.
 
-| Mac | Download | SHA-256 |
-| --- | --- | --- |
-| Apple Silicon (`arm64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-arm64.dmg) | `4c86ca24958f74f9e049d5a97bb34cb51415724188065f8fdd501b6ca47b8adb` |
-| Intel (`x64`) | [Download DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-x64.dmg) | `1857891ae3b8a610656d7b6f77442e1aed6e7bfb6d5e57097c9b4669d552aec8` |
+Use [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.5-preview.1/SHA256SUMS.txt) to verify the download. Requires an Apple Silicon Mac running macOS 12 or later.
 
-The release also includes a
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/SHA256SUMS.txt)
-manifest for command-line verification.
+## What is new in 0.2.5 Preview
+
+- Pins official DSH `0.1.5-rc.2`, based on v0.2.3 without the 0.2.4 Activity Island development line.
+- Uses official file and web previews with the existing top-right expand, collapse, and fullscreen controls.
+- Adapts subscription status RPC and optional tool arguments; restores composer bottom spacing.
+- Ships ARM64 only and uses a separate Preview data directory.
+- Verification covers builds, artifact inspection, and smoke checks; manual acceptance remains pending.
+
+[Release record](docs/sdd/releases/v0.2.5-preview.1.md).
 
 ## What's new in 0.2.3
 
@@ -321,10 +316,9 @@ for the complete asset and verification evidence.
 
 For the prebuilt application:
 
-- A Mac with Apple Silicon or an Intel processor.
+- An Apple Silicon Mac for this Preview; Intel users can keep v0.2.3.
 - No global Node.js, npm, pnpm, or DeepSeek Harness installation is required.
-- macOS 10.15 or later is recommended for the standard notarized Developer ID
-  installation path.
+- macOS 12 or later (the bundled Electron minimum).
 
 For development:
 
@@ -340,14 +334,12 @@ cd DeepViewer
 pnpm install
 
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
+git -C upstream/deepseek-harness checkout fb2c4b9e698e30edb738bca4cf0618587db7d203
 pnpm --dir upstream/deepseek-harness install
-pnpm --dir upstream/deepseek-harness run build:official
+node apps/deepviewer-desktop/scripts/sync-upstream-overrides.mjs --build
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
 pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
 
-pnpm typecheck
-pnpm test
 pnpm desktop:build
 ```
 
@@ -362,7 +354,7 @@ Use the lightest explicit iteration tier that matches the task:
 pnpm desktop:dev          # build, watch, and restart an isolated development app
 pnpm desktop:dev:restart  # request one rebuild/restart from the active dev runner
 pnpm desktop:preview      # create an unsigned local arm64 DeepViewer Dev.app
-pnpm desktop:release      # rebuild, sign, and notarize both architectures; no upload
+pnpm desktop:release      # rebuild, sign, and notarize ARM64; no upload
 ```
 
 The development and preview tiers use the isolated `DeepViewer Dev` data
@@ -386,11 +378,11 @@ DeepViewer's original code is released under the [MIT License](LICENSE).
 DeepSeek Harness and all third-party components retain their respective
 copyright notices and licenses. The current desktop baseline is pinned to
 DeepSeek Harness commit
-`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e` (`0.1.1-rc.2`).
+`fb2c4b9e698e30edb738bca4cf0618587db7d203` (`0.1.5-rc.2`).
 
 ## Feedback
 
-Bug reports, Intel compatibility results, and focused feature proposals are
+Bug reports and focused feature proposals are
 welcome in [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues). Never
 include API keys, credentials, private workspace content, or unredacted logs in
 an issue.

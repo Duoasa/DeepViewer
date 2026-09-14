@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 import { app, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
 import {
   DEEPVIEWER_APP_NAME,
@@ -13,7 +14,13 @@ import { resolveHarnessLaunch } from './resource-locator.js'
 import { RuntimeManager, RuntimeLaunchError } from './runtime-manager.js'
 import { WindowController } from './window-controller.js'
 
-configureDevelopmentProfile(app)
+const developmentProfile = configureDevelopmentProfile(app, app.isPackaged ? process.env : { ...process.env, DEEPVIEWER_PROFILE: 'development' })
+if (app.isPackaged && !developmentProfile) {
+  const manifest = JSON.parse(readFileSync(join(app.getAppPath(), 'package.json'), 'utf8')) as { previewRelease?: string }
+  if (typeof manifest.previewRelease === 'string' && /^\d+\.\d+\.\d+-preview\.\d+$/u.test(manifest.previewRelease)) {
+    app.setPath('userData', join(app.getPath('appData'), 'DeepViewer Preview', manifest.previewRelease))
+  }
+}
 app.setName(DEEPVIEWER_APP_NAME)
 
 const gotLock = app.requestSingleInstanceLock()

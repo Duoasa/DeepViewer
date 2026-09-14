@@ -4,12 +4,15 @@
  * Keeps the Harness settings section/slot contracts intact while presenting
  * settings as a full-window application page instead of a centered modal.
  */
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  IconAgentPresetOutline16, IconChevronLeftOutline14, IconDataOutline16,
+  ConnectionIndicator, IconAgentPresetOutline16, IconChevronLeftOutline14, IconDataOutline16,
   IconPersonalizationOutline16, IconQuestionOutline14, IconSettingsOutline16, Portal,
 } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { ConnectionIndicatorState } from '@deepseek-ai/dsh-client-ui-primitives'
+const RECOVERY_CONFIRMATION_MS = 2_000
+
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
 import css from './SettingsRoot.module.css'
 
@@ -141,21 +144,36 @@ function SettingsPanel({ rows, renderSlot, activeId, onSelect, onClose }: PanelP
 
 /** Render the settings trigger and full-window page. */
 export function SettingsRoot(props: SettingsRootComponentProps) {
-  const { wide, useSections, useOnboardingSteps, useSessions, renderSlot } = props
+  const {
+    wide, reconnect, useConnectionState, useSections, useOnboardingSteps, useSessions, renderSlot, t,
+  } = props
   const [open, setOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | undefined>(undefined)
   const [completedOnboarding, setCompletedOnboarding] = useState<ReadonlySet<string>>(() => new Set())
+  const [showRecovery, setShowRecovery] = useState(false)
+  const triggerButton = useRef<HTMLButtonElement | null>(null)
+  const wasOpen = useRef(open)
   const close = useCallback(() => {
     setOpen(false)
     setActiveId(undefined)
   }, [])
+  // Restore after the close commit, when the dialog can no longer own focus.
+  useEffect(() => {
+    if (wasOpen.current && !open) triggerButton.current?.focus()
+    wasOpen.current = open
+  }, [open])
   const openSection = useCallback((id: string) => {
     setActiveId(id)
     setOpen(true)
   }, [])
 
-  const rows = useSections(state => state)
-  const onboardingSteps = useOnboardingSteps(state => state)
+  // The ledger tick keeps the nav rows fresh: registrants re-register with
+  // freshly localized text on locale change, and the trigger/header/close
+  // seats re-render through their own outlets' subscriptions.
+  const rows = useSections(s => s)
+  const connectionState = useConnectionState(state => state)
+  const previousConnectionState = useRef(connectionState)
+  const onboardingSteps = useOnboardingSteps(s => s)
   const onboardingActive = useSessions(state =>
     state.phase === 'ready'
     && (state.current === undefined || state.byId[state.current]?.blank === true))
@@ -168,6 +186,19 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
     setCompletedOnboarding(new Set())
   }, [onboardingActive])
 
+  useLayoutEffect(() => {
+    const previous = previousConnectionState.current
+    previousConnectionState.current = connectionState
+    if (connectionState !== 'connected') {
+      setShowRecovery(false)
+      return
+    }
+    if (previous !== 'disconnected' && previous !== 'connecting') return
+    setShowRecovery(true)
+    const timeout = window.setTimeout(() => { setShowRecovery(false) }, RECOVERY_CONFIRMATION_MS)
+    return () => { window.clearTimeout(timeout) }
+  }, [connectionState])
+
   const completeOnboardingStep = useCallback((id: string) => {
     setCompletedOnboarding((previous) => {
       if (previous.has(id)) return previous
@@ -175,17 +206,40 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
     })
   }, [])
 
+  let connectionIndicator: ConnectionIndicatorState | undefined
+  if (connectionState === 'disconnected') {
+    connectionIndicator = 'disconnected'
+  } else if (connectionState === 'connecting') {
+    connectionIndicator = 'connecting'
+  } else if (showRecovery) {
+    connectionIndicator = 'recovered'
+  }
+
   return (
     <>
-      <button
-        type="button"
-        className={clsx(css.trigger, !wide && css.rail)}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => { setOpen(true) }}
-      >
-        {renderSlot('settings.trigger', { wide })}
-      </button>
+      <div className={clsx(css.triggerRow, !wide && css.railRow)}>
+        <button
+          ref={triggerButton}
+          type="button"
+          className={clsx(css.trigger, !wide && css.rail)}
+          aria-label={t('trigger')}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          onClick={() => { setOpen(true) }}
+        >
+          {renderSlot('settings.trigger', { wide })}
+        </button>
+        <ConnectionIndicator
+          state={wide ? connectionIndicator : undefined}
+          disconnectedLabel={t('connection.error')}
+          reconnectLabel={t('connection.retry')}
+          connectingLabel={t('connection.connecting')}
+          recoveredLabel={t('connection.connected')}
+          reconnectActionLabel={t('connection.reconnect')}
+          restartActionLabel={t('connection.restart')}
+          onReconnect={reconnect}
+        />
+      </div>
       {open && (
         <SettingsPanel
           rows={rows}
@@ -195,6 +249,9 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
           onClose={close}
         />
       )}
+      {/* Dialog chrome and `#root` inert ownership live inside each step's
+          visible branch. A step still deciding (private facts loading)
+          renders null, so nothing paints or blocks while it decides. */}
       {onboardingStep !== undefined && renderSlot('settings.onboarding', {
         stepId: onboardingStep.id,
         complete: () => { completeOnboardingStep(onboardingStep.id) },

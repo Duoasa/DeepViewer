@@ -24,10 +24,10 @@ async function createPlugin(root: string, version = SUBSCRIPTIONS_PLUGIN_VERSION
       './client': { default: './lib/client.js' },
     },
     peerDependencies: {
-      '@deepseek-ai/dsh-attachment': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-home-paths': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-llm': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-tools': '0.1.1-rc.2',
+      '@deepseek-ai/dsh-attachment': '0.1.5-rc.2',
+      '@deepseek-ai/dsh-home-paths': '0.1.5-rc.2',
+      '@deepseek-ai/dsh-llm': '0.1.5-rc.2',
+      '@deepseek-ai/dsh-tools': '0.1.5-rc.2',
     },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },

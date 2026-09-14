@@ -1,7 +1,6 @@
-import type { HeroBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type { SidebarBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client'
 
-type DeepViewerBrandMarkProps = HeroBrandMarkOwnerProps & SidebarBrandMarkOwnerProps
+type DeepViewerBrandMarkProps = SidebarBrandMarkOwnerProps & { className?: string }
 
 /**
  * Render only the DeepViewer symbol. The sidebar owns spacing between this

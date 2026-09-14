@@ -15,6 +15,34 @@ export const MACOS_WINDOW_CHROME_CSS = `
   --deepviewer-window-control-right: max(16px, env(safe-area-inset-right));
 }
 
+/* Keep the existing right-corner controls while official DSH owns their actions. */
+[data-sidebar-right-expand],
+[data-sidebar-right-toggle],
+[data-sidebar-right-mode] {
+  position: fixed !important;
+  top: var(--deepviewer-window-control-top) !important;
+  right: var(--deepviewer-window-control-right) !important;
+  z-index: 50;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 4px !important;
+  pointer-events: auto;
+  -webkit-app-region: no-drag;
+}
+[data-sidebar-right-mode] {
+  right: calc(var(--deepviewer-window-control-right) + 32px) !important;
+}
+[data-sidebar-right-panel] > div {
+  padding-top: ${MACOS_TOP_SAFE_AREA_HEIGHT}px;
+}
+[data-sidebar-right-panel]::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: ${MACOS_TOP_SAFE_AREA_HEIGHT}px;
+  -webkit-app-region: drag;
+}
+
 html,
 body,
 #root,
@@ -219,7 +247,7 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
   const FRAME_STYLE =
     'style[data-plugin-css="@deepseek-ai/dsh-client-ui-layout/AppFrame.module.css"]';
   const STATS_STYLE =
-    'style[data-plugin-css="@deepseek-ai/dsh-client-ui-conversation/StatsLine.module.css"]';
+    'style[data-plugin-css="@deepseek-ai/dsh-client-ui-chat/StatsPills.module.css"]';
   const WORKSPACE_STYLE =
     'style[data-plugin-css="@deepseek-ai/dsh-client-ui-workspace/WorkspaceBrowser.module.css"]';
 
@@ -240,7 +268,7 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
     const panelIconClass = moduleClass(SIDEBAR_STYLE, 'panelIcon');
     const frameClass = moduleClass(FRAME_STYLE, 'frame');
     const mainColumnClass = moduleClass(FRAME_STYLE, 'centerCol');
-    const detailsColumnClass = moduleClass(FRAME_STYLE, 'detailsCol');
+    const detailsColumnClass = moduleClass(FRAME_STYLE, 'rightbarCol');
     const workspaceFadeClass = moduleClass(WORKSPACE_STYLE, 'fade');
     const workspaceListClass = moduleClass(WORKSPACE_STYLE, 'list');
     const sidebar = elementForClass(rootClass);

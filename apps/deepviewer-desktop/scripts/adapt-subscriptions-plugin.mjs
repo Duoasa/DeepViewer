@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-export const SUBSCRIPTIONS_UI_ADAPTER_ID = 'deepviewer-remaining-usage-v1'
-export const SUBSCRIPTIONS_DSH_PEER_VERSION = '0.1.1-rc.2'
+export const SUBSCRIPTIONS_UI_ADAPTER_ID = 'deepviewer-remaining-usage-dsh015-v2'
+export const SUBSCRIPTIONS_DSH_PEER_VERSION = '0.1.5-rc.2'
 
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'
@@ -99,11 +99,47 @@ function adaptedSubscriptionsManifest(manifestPath) {
     }
     manifest.peerDependencies[peer] = SUBSCRIPTIONS_DSH_PEER_VERSION
   }
+  manifest.peerDependencies['@deepseek-ai/cordis'] = '4.0.2'
+  manifest.files = [...new Set([...manifest.files, 'lib/LICENSE.dsh-gallery'])]
+  manifest.dsh.client.inject = manifest.dsh.client.inject.map(name => name === '@deepseek-ai/dsh-client-runtime' ? '@deepseek-ai/dsh-client-ui-session' : name)
   return `${JSON.stringify(manifest, null, 2)}\n`
+}
+
+/** Preserve DeepViewer's remaining-balance presentation when rebuilding the published sources. */
+export function adaptSubscriptionsClientSource(name, source) {
+  const replacements = name === 'locales.ts' ? [
+    ["usageSession: '5-hour window',", "usageSession: 'Periodic window',\n  usageRemaining: '{percent}% remaining',\n  usageLevelHealthy: 'available',\n  usageLevelLow: 'low',\n  usageLevelCritical: 'critical',"],
+    ["usageSession: '5 小时窗口',", "usageSession: '周期窗口',\n  usageRemaining: '剩余 {percent}%',\n  usageLevelHealthy: '充足',\n  usageLevelLow: '偏低',\n  usageLevelCritical: '紧张',"],
+  ] : name === 'SubscriptionsSection.tsx' ? [
+    ["function usageBarColor(usedPercent: number): string {\n  if (usedPercent >= 95) return 'var(--dsw-alias-state-error-primary)'\n  if (usedPercent >= 80) return 'var(--dsw-alias-state-warn-label)'", "function usageBalanceColor(remainingPercent: number): string {\n  if (remainingPercent < 20) return 'var(--dsw-alias-state-error-primary)'\n  if (remainingPercent < 50) return 'var(--dsw-alias-state-warn-label)'"],
+    ['const percent = Math.min(100, Math.max(0, window.usedPercent))', "const remainingPercent = 100 - Math.min(100, Math.max(0, window.usedPercent))\n                  const balanceColor = usageBalanceColor(remainingPercent)\n                  const level = remainingPercent < 20 ? 'usageLevelCritical' : remainingPercent < 50 ? 'usageLevelLow' : 'usageLevelHealthy'"],
+    ['<span>\n                          {`${String(Math.round(percent))}%`}', '<span style={{ color: balanceColor }}>\n                          {t(\'usageRemaining\', { percent: String(Math.round(remainingPercent)) })}\n                          {` · ${t(level)}`}'],
+    ['width: `${String(percent)}%`, background: usageBarColor(percent)', 'width: `${String(remainingPercent)}%`, background: balanceColor'],
+  ] : []
+  return replacements.reduce((content, [before, after]) => replaceRequired(content, before, after, `${name} source`), source)
 }
 
 /** Apply the tracked DeepViewer presentation and DSH compatibility adaptations to a staged plugin copy. */
 export function adaptSubscriptionsPlugin(pluginRoot) {
+  const hostPath = join(pluginRoot, 'lib', 'index.js')
+  const originalHost = readFileSync(hostPath, 'utf8')
+  let adaptedHost = replaceRequired(originalHost, 'CONTEXT_WINDOW_EXCEEDED_CODE, CallId,', 'CONTEXT_WINDOW_EXCEEDED_CODE, ToolCallId as CallId,', 'DSH tool-call identity rename')
+  adaptedHost = replaceRequired(adaptedHost,
+    'type: "function",\n\t\tname: tool.name,\n\t\tdescription: tool.description,\n\t\tparameters: tool.parameters',
+    // Responses may normalize an omitted strict flag and require optional
+    // escalation fields. DSH validates its original optional schema at execution.
+    'type: "function",\n\t\tname: tool.name,\n\t\tdescription: tool.description,\n\t\tstrict: false,\n\t\tparameters: tool.parameters',
+    'Responses optional tool arguments')
+  adaptedHost = replaceRequired(adaptedHost,
+    'ctx.inject(["connection"], (ctx$1) => {\n\t\tconst connection = ctx$1.get("connection");\n\t\tctx$1.effect(() => connection.rpc.handle(',
+    'ctx.inject(["connection", "webServer"], (ctx$1) => {\n\t\tif (ctx$1.webServer.host !== "127.0.0.1") throw new Error("DeepViewer subscriptions require loopback");\n\t\tconst connection = ctx$1.connection;\n\t\tconnection.rpc.handle(',
+    'DSH scoped RPC registration')
+  adaptedHost = replaceRequired(adaptedHost,
+    '}, { authority: "loopback" }), "dsh-plugin-subscriptions: /subscriptions-auth rpc channel");',
+    '}); // DeepViewer: authenticated Connection owns the route lifetime.',
+    'DSH authenticated RPC authority')
+  const hostChanged = adaptedHost !== originalHost
+  if (hostChanged) writeFileSync(hostPath, adaptedHost)
   const clientPath = join(pluginRoot, 'lib', 'client.js')
   const manifestPath = join(pluginRoot, 'package.json')
   if (!existsSync(clientPath)) throw new Error(`subscriptions client is missing: ${clientPath}`)
@@ -111,7 +147,9 @@ export function adaptSubscriptionsPlugin(pluginRoot) {
 
   const original = readFileSync(clientPath, 'utf8')
   const originalManifest = readFileSync(manifestPath, 'utf8')
-  const adapted = clientReplacements.reduce(
+  const adapted = original.includes('function usageBalanceColor(') && original.includes('usageRemaining:')
+    ? original
+    : clientReplacements.reduce(
     (value, replacement) => replaceRequired(
       value,
       replacement.before,
@@ -121,7 +159,7 @@ export function adaptSubscriptionsPlugin(pluginRoot) {
     original,
   )
   const adaptedManifest = adaptedSubscriptionsManifest(manifestPath)
-  if (adapted === original && adaptedManifest === originalManifest) return false
+  if (adapted === original && adaptedManifest === originalManifest) return hostChanged
   if (adapted !== original) writeFileSync(clientPath, adapted)
   if (adaptedManifest !== originalManifest) writeFileSync(manifestPath, adaptedManifest)
   return true

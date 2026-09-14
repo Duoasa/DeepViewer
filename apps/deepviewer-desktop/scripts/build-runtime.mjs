@@ -11,11 +11,10 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { mkdir, readdir, realpath } from 'node:fs/promises'
-import { homedir } from 'node:os'
 import { dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { homedir } from 'node:os'
 import { gunzipSync } from 'node:zlib'
-import { downloadArtifact } from '@electron/get'
 import {
   adaptSubscriptionsPlugin,
   SUBSCRIPTIONS_DSH_PEER_VERSION,
@@ -30,13 +29,10 @@ const packRoots = [
   resolve(upstreamRoot, 'dist', 'deepviewer', 'dsh'),
 ]
 const electronVersion = '43.4.0'
-const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'
-const expectedHarnessVersion = '0.1.1-rc.2'
+const expectedHarnessCommit = 'fb2c4b9e698e30edb738bca4cf0618587db7d203'
+const expectedHarnessVersion = '0.1.5-rc.2'
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'
-const previewPluginName = '@deepviewer/dsh-plugin-preview'
-const previewPluginVersion = '0.1.0'
-const previewPluginSource = resolve(upstreamRoot, '.deepviewer', 'plugins', 'preview')
 const appManifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
 const deepviewerVersion = appManifest.version
 if (typeof deepviewerVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(deepviewerVersion)) {
@@ -46,10 +42,10 @@ if (appManifest.dependencies?.[subscriptionsPluginName] !== subscriptionsPluginV
   throw new Error(`${subscriptionsPluginName} must be pinned to ${subscriptionsPluginVersion}`)
 }
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
-if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
+if (architectureOption !== undefined && architectureOption !== 'arm64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)
 }
-const architectures = architectureOption === undefined ? ['arm64', 'x64'] : [architectureOption]
+const architectures = architectureOption === undefined ? ['arm64'] : [architectureOption]
 const allowedBuildPackages = [
   '@google/genai',
   'esbuild',
@@ -105,7 +101,7 @@ function packedDependencies() {
 }
 
 function packSubscriptionsPlugin() {
-  const sourceRoot = resolve(projectRoot, 'node_modules', subscriptionsPluginName)
+  const sourceRoot = resolve(upstreamRoot, 'node_modules', subscriptionsPluginName)
   const manifestPath = join(sourceRoot, 'package.json')
   if (!existsSync(manifestPath)) {
     throw new Error(`${subscriptionsPluginName} is missing; run pnpm install first`)
@@ -142,47 +138,6 @@ function packSubscriptionsPlugin() {
   return tarballs[0]
 }
 
-function packPreviewPlugin() {
-  const manifestPath = join(previewPluginSource, 'package.json')
-  if (!existsSync(manifestPath)) {
-    throw new Error(`${previewPluginName} is missing; run the upstream override build first`)
-  }
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-  const clientPath = manifest.exports?.['./client']?.default
-  if (
-    manifest.name !== previewPluginName
-    || manifest.version !== previewPluginVersion
-    || manifest.license !== 'MIT'
-    || manifest.dsh?.bundle?.patch !== './cordis.patch.yml'
-    || manifest.dsh?.client?.platform !== 'web'
-    || typeof manifest.main !== 'string'
-    || typeof clientPath !== 'string'
-    || !existsSync(join(previewPluginSource, manifest.main))
-    || !existsSync(join(previewPluginSource, clientPath))
-  ) {
-    throw new Error(`invalid ${previewPluginName}@${previewPluginVersion} build`)
-  }
-  const destination = resolve(projectRoot, '.runtime', 'inputs', `deepviewer-preview-${previewPluginVersion}`)
-  rmSync(destination, { recursive: true, force: true })
-  mkdirSync(destination, { recursive: true })
-  execFileSync('pnpm', ['pack', '--pack-destination', destination], {
-    cwd: previewPluginSource,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  })
-  const tarballs = readdirSync(destination)
-    .filter(name => name.endsWith('.tgz'))
-    .map(name => join(destination, name))
-  if (tarballs.length !== 1) {
-    throw new Error(`expected one packed ${previewPluginName} tarball, found ${String(tarballs.length)}`)
-  }
-  const identity = packedIdentity(tarballs[0])
-  if (identity.name !== previewPluginName || identity.version !== previewPluginVersion) {
-    throw new Error(`packed preview plugin identity mismatch: ${identity.name}@${identity.version}`)
-  }
-  return tarballs[0]
-}
-
 function sanitizeSubscriptionsPlugin(runtimeRoot) {
   const pluginRoot = join(runtimeRoot, 'node_modules', subscriptionsPluginName)
   const manifestPath = join(pluginRoot, 'package.json')
@@ -211,31 +166,6 @@ function sanitizeSubscriptionsPlugin(runtimeRoot) {
   }
 }
 
-function sanitizePreviewPlugin(runtimeRoot) {
-  const pluginRoot = join(runtimeRoot, 'node_modules', ...previewPluginName.split('/'))
-  const manifestPath = join(pluginRoot, 'package.json')
-  if (!existsSync(manifestPath)) throw new Error(`installed ${previewPluginName} is missing from the Runtime`)
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-  const clientPath = manifest.exports?.['./client']?.default
-  if (
-    manifest.name !== previewPluginName
-    || manifest.version !== previewPluginVersion
-    || manifest.license !== 'MIT'
-    || typeof manifest.main !== 'string'
-    || typeof clientPath !== 'string'
-    || !existsSync(join(pluginRoot, manifest.main))
-    || !existsSync(join(pluginRoot, clientPath))
-    || !existsSync(join(pluginRoot, 'cordis.patch.yml'))
-    || !existsSync(join(pluginRoot, 'LICENSE'))
-  ) {
-    throw new Error(`installed ${previewPluginName} metadata is invalid`)
-  }
-  delete manifest.devDependencies
-  delete manifest.scripts
-  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
-  return { name: previewPluginName, version: previewPluginVersion, license: 'MIT' }
-}
-
 function run(command, args, options = {}) {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(command, args, { stdio: 'inherit', ...options })
@@ -247,58 +177,11 @@ function run(command, args, options = {}) {
   })
 }
 
-function cachedElectronArchive(arch) {
-  const filename = `electron-v${electronVersion}-darwin-${arch}.zip`
-  const cacheRoot = join(homedir(), 'Library', 'Caches', 'electron')
-  if (!existsSync(cacheRoot)) return undefined
-  for (const entry of readdirSync(cacheRoot, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    const candidate = join(cacheRoot, entry.name, filename)
-    if (existsSync(candidate)) return candidate
-  }
-  return undefined
-}
-
 async function installRuntimeDependencies(runtimeRoot, arch, args, baseEnvironment) {
-  if (arch === process.arch) {
-    await run('pnpm', args, { cwd: runtimeRoot, env: baseEnvironment })
-    return
+  if (process.platform !== 'darwin' || process.arch !== 'arm64' || arch !== 'arm64') {
+    throw new Error('DeepViewer Runtime requires a native macOS arm64 build host')
   }
-  if (process.platform !== 'darwin' || process.arch !== 'arm64' || arch !== 'x64') {
-    throw new Error(`cannot build darwin-${arch} dependencies from ${process.platform}-${process.arch}`)
-  }
-
-  const toolchainRoot = resolve(projectRoot, '.runtime', 'toolchains', `electron-v${electronVersion}-darwin-x64`)
-  const unpackedElectronExecutable = join(toolchainRoot, 'Electron.app', 'Contents', 'MacOS', 'Electron')
-  const packagedElectronExecutable = resolve(projectRoot, 'out', 'DeepViewer-darwin-x64', 'DeepViewer.app', 'Contents', 'MacOS', 'DeepViewer')
-  let electronExecutable = existsSync(packagedElectronExecutable) ? packagedElectronExecutable : unpackedElectronExecutable
-  const nodeExecutable = join(toolchainRoot, 'bin', 'node')
-  if (!existsSync(electronExecutable)) {
-    const archive = cachedElectronArchive('x64') ?? await downloadArtifact({
-        version: electronVersion,
-        artifactName: 'electron',
-        platform: 'darwin',
-        arch: 'x64',
-      })
-    rmSync(toolchainRoot, { recursive: true, force: true })
-    await mkdir(toolchainRoot, { recursive: true })
-    await run('ditto', ['-x', '-k', archive, toolchainRoot])
-    electronExecutable = unpackedElectronExecutable
-  }
-  await mkdir(dirname(nodeExecutable), { recursive: true })
-  rmSync(nodeExecutable, { force: true })
-  symlinkSync(electronExecutable, nodeExecutable)
-
-  const pnpmEntry = resolve(projectRoot, 'node_modules', 'pnpm', 'bin', 'pnpm.cjs')
-  if (!existsSync(pnpmEntry)) throw new Error(`pnpm runtime entry is missing at ${pnpmEntry}`)
-  await run(nodeExecutable, [pnpmEntry, ...args], {
-    cwd: runtimeRoot,
-    env: {
-      ...baseEnvironment,
-      ELECTRON_RUN_AS_NODE: '1',
-      PATH: `${dirname(nodeExecutable)}:${baseEnvironment.PATH ?? ''}`,
-    },
-  })
+  await run('pnpm', args, { cwd: runtimeRoot, env: baseEnvironment })
 }
 
 async function verifyContainedLinks(root) {
@@ -320,7 +203,7 @@ async function verifyContainedLinks(root) {
 
 function verifySelectedNativeBinary(path, arch) {
   const description = execFileSync('file', ['-b', path], { encoding: 'utf8' }).trim()
-  const expected = arch === 'arm64' ? 'arm64' : 'x86_64'
+  const expected = 'arm64'
   if (!description.includes(expected)) {
     throw new Error(`native module does not include ${expected}: ${path} (${description})`)
   }
@@ -368,7 +251,6 @@ function sanitizeReleaseBuildPaths(runtimeRoot) {
 
 const dependencies = packedDependencies()
 dependencies.set(subscriptionsPluginName, packSubscriptionsPlugin())
-dependencies.set(previewPluginName, packPreviewPlugin())
 const upstreamCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: upstreamRoot, encoding: 'utf8' }).trim()
 if (upstreamCommit !== expectedHarnessCommit) {
   throw new Error(`Harness checkout is ${upstreamCommit}; expected pinned commit ${expectedHarnessCommit}`)
@@ -405,7 +287,7 @@ for (const arch of architectures) {
     DSH_TELEMETRY_DISABLED: '1',
   })
 
-  const packagedPlugins = [sanitizeSubscriptionsPlugin(runtimeRoot), sanitizePreviewPlugin(runtimeRoot)]
+  const packagedPlugins = [sanitizeSubscriptionsPlugin(runtimeRoot)]
   const entry = join(runtimeRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
   if (!existsSync(entry)) throw new Error(`installed Harness entry is missing at ${entry}`)
   const spawnHelper = join(runtimeRoot, 'node_modules', 'node-pty', 'prebuilds', `darwin-${arch}`, 'spawn-helper')

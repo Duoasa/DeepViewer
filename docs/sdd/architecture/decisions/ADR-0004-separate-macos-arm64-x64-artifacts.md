@@ -1,7 +1,7 @@
 ---
 id: ADR-0004
 title: Separate macOS Apple Silicon and Intel artifacts
-status: Accepted
+status: Superseded
 date: 2026-08-15
 supersedes: []
 ---
@@ -49,3 +49,5 @@ DeepViewer 的 macOS 首发需要同时覆盖 Apple Silicon 新机和仍在大�
 - 更新 DV-0003 的构建脚本、验收条件和验证矩阵。
 - 在可用的 Intel Mac 或 CI macOS x64 runner 上补充原生运行证据。
 - 稳定发行规格决定签名、公证、DMG 布局和 Universal 包是否有价值。
+
+2026-09-14：本轮开发由 [ADR-0008](ADR-0008-arm64-official-dsh-preview.md) 替代；以上保留历史决策。

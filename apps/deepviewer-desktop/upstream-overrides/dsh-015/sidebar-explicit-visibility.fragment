@@ -1,0 +1,2 @@
+  const narrow = false
+  const sidebarCollapsed = layoutInfo.sidebar === 0

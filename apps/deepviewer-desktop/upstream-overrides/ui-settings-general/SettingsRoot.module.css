@@ -299,3 +299,8 @@
     scroll-behavior: auto;
   }
 }
+
+/* Current DSH connection recovery beside the stable settings trigger. */
+.triggerRow { display: flex; flex: none; align-items: center; gap: 4px; }
+.triggerRow .trigger { flex: 1; min-width: 0; }
+.triggerRow.railRow { width: 36px; }

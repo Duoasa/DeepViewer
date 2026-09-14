@@ -1,7 +1,7 @@
 ---
 id: ADR-0007
 title: Extensible details column and workspace-scoped preview plugin
-status: Accepted
+status: Superseded
 date: 2026-08-18
 supersedes: []
 ---
@@ -51,3 +51,5 @@ DeepViewer 需要类似 Codex 的代码与网页预览侧栏。DSH rc.7 的右�
 
 - 由 DV-0012 实现详情标签扩展与预览插件。
 - DSH 内核升级按 `DVP-0002` 检查 slot、RPC、静态路由和 sandbox 行为。
+
+2026-09-14：本轮开发由 [ADR-0008](ADR-0008-arm64-official-dsh-preview.md) 替代；以上保留历史决策。

@@ -8,6 +8,7 @@ export interface AppLogger {
 }
 
 const REDACTIONS: ReadonlyArray<[RegExp, string]> = [
+  [/([?&](?:token|access_token|refresh_token|code)=)[^&\s]+/gi, '$1[REDACTED]'],
   [/\b(authorization\s*[:=]\s*)(?:bearer\s+)?[^\s,;]+/gi, '$1[REDACTED]'],
   [/\b(DEEPSEEK_API_KEY\s*[:=]\s*)[^\s,;]+/gi, '$1[REDACTED]'],
   [/\bsk-[a-zA-Z0-9_-]{12,}\b/g, '[REDACTED_KEY]'],

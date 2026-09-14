@@ -81,6 +81,9 @@ async function stopElectron(child) {
 }
 
 async function runDevelopmentRunner() {
+  if (process.platform !== 'darwin' || process.arch !== 'arm64') {
+    throw new Error('DeepViewer development supports macOS arm64 only')
+  }
   const socketPath = developmentControlSocketPath()
   if (existsSync(socketPath)) {
     try {

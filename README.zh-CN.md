@@ -11,14 +11,14 @@
 <p align="center">
   <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="最新版本" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
   <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="支持 Apple Silicon 和 Intel Mac" src="https://img.shields.io/badge/macOS-Apple%20Silicon%20%7C%20Intel-111111?logo=apple">
+  <img alt="支持 Apple Silicon Mac" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
   <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
   <a href="LICENSE"><img alt="MIT 许可证" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness/discussions/2828"><img alt="在 GitHub 上讨论" src="https://img.shields.io/badge/Discuss-GitHub%20Discussions-181717?logo=github&logoColor=white"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3"><strong>下载 DeepViewer 0.2.3</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1"><strong>下载 0.2.5 Preview（ARM）</strong></a>
   ·
   <a href="#023-更新内容">0.2.3 更新内容</a>
   ·
@@ -37,21 +37,18 @@ Agent 工作台。它把固定版本的本地 Runtime 封装进普通 macOS 应�
 Agent 体验设计的桌面外壳。
 
 <p align="center">
-  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 关于页面与 DeepSeek Harness 0.1.1-rc.2">
+  <img src="Resources/DeepViewer-0.2.5-preview.1.png" width="100%" alt="DeepViewer 0.2.5 Preview，内置 DSH 0.1.5-rc.2">
 </p>
 
 > [!NOTE]
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> `v0.2.3` 是当前最新的 macOS 预览版（应用版本 `0.2.3`、构建号 `1`），内置
-> DeepSeek Harness `0.1.1-rc.2`。本版完成两个内置插件与 rc.2 UI 契约适配，恢复独立的
-> DeepViewer 图标和名称，并通过自动构建、隐私、签名、公证与发布门禁。订阅 PC-009 仍待
-> 维护者人工复验，且本版仍属项目早期预览，并非稳定版本。
+> 当前 Preview 为 **v0.2.5-preview.1**（应用 0.2.5 / Build 1），基于 v0.2.3 适配 DSH 0.1.5-rc.2，**仅支持 Apple Silicon arm64**。预览采用官方实现，保留右上角展开、收起和全屏操作。
+> 本次只完成冒烟测试，实机交互与真实账户流程仍待维护者验收。
 
 > [!TIP]
-> DeepViewer 0.2.2 Build 2 继续保留为 rc.8 回滚版本。0.2.3 的 Apple Silicon 与 Intel
-> 安装包均已完成 Developer ID 签名、Apple 公证和 ticket 装订，并分别公开发布。
+> [v0.2.3](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3) 继续作为 GitHub Latest，历史 Intel 安装包保留。新 Preview 使用独立数据目录，首次需要配置账户和工作区。
 
 ## 为什么选择 DeepViewer
 
@@ -59,7 +56,7 @@ Agent 体验设计的桌面外壳。
 | --- | --- |
 | **桌面优先** | 像普通 macOS 软件一样启动 Agent，无需手动执行 Node、npm、pnpm 或 Web UI 命令。 |
 | **自包含 Runtime** | 应用内包含固定版本的 Harness Runtime 和兼容执行环境。 |
-| **原生 Mac 安装包** | 分别提供 Apple Silicon arm64 与 Intel x64 安装包。 |
+| **原生 Mac 安装包** | 本轮 Preview 仅提供 Apple Silicon arm64 安装包。 |
 | **一体化 macOS 外壳** | 原生红绿灯位于应用内，顶部全宽可拖动，并提供 Codex 式完整侧栏收起。 |
 | **默认本地运行** | Harness 只监听随机分配的 `127.0.0.1` 端口，不向局域网开放服务。 |
 | **完整生命周期** | 桌面应用统一负责 Harness 的启动、健康检查、监控、重试和退出回收。 |
@@ -68,19 +65,21 @@ Agent 体验设计的桌面外壳。
 
 ## 快速开始
 
-1. 从 [0.2.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3)
-   下载与你的 Mac 处理器匹配的版本。
+1. 下载 [ARM64 Preview DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.5-preview.1/DeepViewer-0.2.5-macos-arm64.dmg)。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
-3. 打开 DeepViewer。应用会自动启动内置 Harness，并在 Runtime 就绪后进入本地工作区。
+3. 首次启动配置账户和工作区。此 Preview 的数据独立保存在 `~/Library/Application Support/DeepViewer Preview/0.2.5-preview.1`。
 
-| Mac | 下载 | SHA-256 |
-| --- | --- | --- |
-| Apple Silicon（`arm64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-arm64.dmg) | `4c86ca24958f74f9e049d5a97bb34cb51415724188065f8fdd501b6ca47b8adb` |
-| Intel（`x64`） | [下载 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/DeepViewer-0.2.3-macos-x64.dmg) | `1857891ae3b8a610656d7b6f77442e1aed6e7bfb6d5e57097c9b4669d552aec8` |
+Release 提供 [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.5-preview.1/SHA256SUMS.txt) 用于核验。仅支持 macOS 12 或更新版本的 Apple Silicon Mac。
 
-Release 同时提供
-[`SHA256SUMS.txt`](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.3/SHA256SUMS.txt)
-供命令行核验。
+## 0.2.5 Preview 更新内容
+
+- 固定到官方 DSH `0.1.5-rc.2`，不合入 0.2.4 灵动岛开发线。
+- 改用官方文件与网页预览，保留右上角展开、收起及全屏操作。
+- 适配订阅状态 RPC 与工具可选参数，修正输入框底部留白。
+- 仅生成 ARM64 Runtime 和安装包，使用隔离的 Preview 数据目录。
+- 验证范围为构建、包体检查和冒烟；实机验收保持待完成。
+
+[发布记录](docs/sdd/releases/v0.2.5-preview.1.md)。
 
 ## 0.2.3 更新内容
 
@@ -267,9 +266,9 @@ rc.8 回滚 Release。
 
 使用预构建应用：
 
-- 配备 Apple Silicon 或 Intel 处理器的 Mac。
+- 本 Preview 需要 Apple Silicon Mac；Intel 用户可继续使用 v0.2.3。
 - 无需全局安装 Node.js、npm、pnpm 或 DeepSeek Harness。
-- 建议使用 macOS 10.15 或更高版本，以走标准的 Developer ID 公证安装路径。
+- macOS 12 或更高版本（内置 Electron 的最低要求）。
 
 参与开发：
 
@@ -285,14 +284,12 @@ cd DeepViewer
 pnpm install
 
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
+git -C upstream/deepseek-harness checkout fb2c4b9e698e30edb738bca4cf0618587db7d203
 pnpm --dir upstream/deepseek-harness install
-pnpm --dir upstream/deepseek-harness run build:official
+node apps/deepviewer-desktop/scripts/sync-upstream-overrides.mjs --build
 pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
 pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
 
-pnpm typecheck
-pnpm test
 pnpm desktop:build
 ```
 
@@ -305,7 +302,7 @@ production build。工作流只有仓库只读权限，不会调用本地预览�
 pnpm desktop:dev          # 构建、监听并重启独立的开发应用
 pnpm desktop:dev:restart  # 请求当前开发 runner 重建并重启一次
 pnpm desktop:preview      # 生成未签名的本地 arm64 DeepViewer Dev.app
-pnpm desktop:release      # 重建、签名并公证双架构；不上传
+pnpm desktop:release      # 重建、签名并公证 ARM64；不上传
 ```
 
 开发与预览层使用隔离的 `DeepViewer Dev` 数据目录。除非维护者明确要求同步文档、本地验收包或
@@ -322,9 +319,8 @@ DeepViewer 的 [SDD 文档系统](docs/sdd/README.md) 是产品基线、架构�
 
 DeepViewer 原创代码采用 [MIT License](LICENSE) 开源。DeepSeek Harness 与第三方组件保留
 各自的版权声明和许可证。当前桌面基线固定在 DeepSeek Harness 提交
-`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`（`0.1.1-rc.2`）。
+`fb2c4b9e698e30edb738bca4cf0618587db7d203`（`0.1.5-rc.2`）。
 
 ## 反馈
 
-欢迎通过 [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues) 提交问题、Intel 兼容性
-结果和聚焦的功能建议。Issue 中不得包含 API Key、凭据、私有工作区内容或未脱敏日志。
+欢迎通过 [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues) 提交问题和聚焦的功能建议。Issue 中不得包含 API Key、凭据、私有工作区内容或未脱敏日志。

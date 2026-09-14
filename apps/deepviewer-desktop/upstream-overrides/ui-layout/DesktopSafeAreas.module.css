@@ -5,7 +5,7 @@
 }
 
 .sidebarCol,
-.detailsCol {
+.rightbarCol {
   display: flex;
   flex-direction: column;
 }
@@ -22,7 +22,7 @@
 
 /* Keep the 8px invisible resize hit target, but let the column border itself
    be the only visual drag affordance. */
-.handle[data-side='details']::after {
+.handle[data-side='rightbar']::after {
   content: none;
   display: none;
 }

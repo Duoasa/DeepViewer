@@ -9,7 +9,7 @@ const outputRoot = resolve(appRoot, '..', '..', 'out')
 const manifest = JSON.parse(await readFile(resolve(appRoot, 'package.json'), 'utf8'))
 const appVersion = manifest.version
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
-if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
+if (architectureOption !== undefined && architectureOption !== 'arm64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)
 }
 const profileOption = process.argv.find(argument => argument.startsWith('--keychain-profile='))
@@ -21,7 +21,7 @@ if (typeof keychainProfile !== 'string' || keychainProfile.trim() === '') {
 if (process.argv.some(argument => argument.startsWith('--apple-id') || argument.startsWith('--password'))) {
   throw new Error('plaintext Apple ID and password arguments are not supported; use a notarytool Keychain profile')
 }
-const architectures = architectureOption === undefined ? ['arm64', 'x64'] : [architectureOption]
+const architectures = architectureOption === undefined ? ['arm64'] : [architectureOption]
 const evidenceRoot = resolve(outputRoot, 'notarization', `v${appVersion}`)
 await mkdir(evidenceRoot, { recursive: true })
 

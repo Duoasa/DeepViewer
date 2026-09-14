@@ -16,29 +16,28 @@
 
 | ID | 插件 | 固定版本 | 状态 | 最近验证内核 | 最近结论 | 证据 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DeepSeek Harness `0.1.1-rc.2` | PC-001—PC-008 自动检查、开发启动和双架构签名候选封包通过；PC-009 真实账户登录/调用/登出待人工复验 | [DV-0015 验证](../specs/DV-0015-dsh-rc2-core-upgrade/verification.md) |
-| `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Active` | DeepSeek Harness `0.1.1-rc.2` | PC-001—PC-008 自动检查、rc.2 host/client/Web 构建、开发启动和双架构签名候选封包通过 | [DV-0015 验证](../specs/DV-0015-dsh-rc2-core-upgrade/verification.md) |
+| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DeepSeek Harness `0.1.5-rc.2` | ARM 开发构建及签名包启动/设置/认证冒烟通过；真实账户待验 | [DV-0017 验证](../specs/DV-0017-dsh-015-arm64-development/verification.md) |
+| `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Disabled` | DeepSeek Harness `0.1.5-rc.2` | 维护者要求使用官方预览；保留历史源码，停止 staging/启动/Runtime 构建 | [DV-0017 规格](../specs/DV-0017-dsh-015-arm64-development/spec.md) |
 
 ### DVP-0001：订阅提供方
 
 - 用途：接入订阅账户登录、状态/用量展示，以及插件提供的模型和工具。
 - 激活边界：开发版与正式 Runtime 默认启用；`DEEPVIEWER_DISABLE_SUBSCRIPTIONS=1` 可安全停用并退回纯核心。
-- 展示适配：`deepviewer-remaining-usage-v1`；插件升级时必须重新验证 client 锚点、剩余量语义和
+- 展示及接口适配：`deepviewer-remaining-usage-dsh015-v2`；插件升级时必须重新验证 client 锚点、剩余量语义和
   中英文文案。
 - 数据与安全：`v0.2.1` 公开预览版批准使用隔离 DSH home 下的原子 `0600` 文件作为临时等价
-  方案，`v0.2.3` rc.2 核心升级不改变该边界；稳定版前仍须完成 Keychain 迁移或重新批准安全边界。
-- 当前限制：外部订阅服务并非稳定公共协议；真实账户登录已通过，状态/用量、实际调用与登出
-  仍需人工冒烟。
+  方案；本次经维护者授权的 ARM Preview 延续该存储边界，使用独立 Preview 数据目录；尚未迁移到 Keychain。
+- 当前限制：本次只验证空账户状态，真实账户登录、状态/用量、实际调用与登出均待维护者验收。
 
 ### DVP-0002：代码与网页预览
 
 - 用途：在右侧详情栏浏览工作区文本文件，并隔离预览静态网页。
-- 激活边界：开发版与正式 Runtime 默认启用；`DEEPVIEWER_DISABLE_PREVIEW=1` 可停用并保留订阅/纯核心启动。
-- 上游接点：`details` owner props、`conversation.details.view`、会话标题栏 action、Connection RPC、
+- 激活边界：DV-0017 开发分支不启用此插件；官方预览不受旧 `DEEPVIEWER_DISABLE_PREVIEW` 开关控制。
+- 历史上游接点：`details` owner props、`conversation.details.view`、会话标题栏 action、Connection RPC、
   WebServer prefix route 和 deliverables turn data。
 - 数据与安全：仅允许已登记工作区；RPC 为 loopback-only；静态站使用短期 capability、路径/符号
   链接 containment、敏感路径 deny list、响应 CSP 与无同源权 iframe。
-- 当前限制：首版仅预览静态站点，不接受任意 dev-server URL；外部编辑依赖手动刷新。
+- 当前实现：官方 documentpreview/browser 和 sidebar-right 服务负责预览；桌面只保留原生文件桥接和右上角窗口控制布局。历史插件能力不得当作新核心的验证结论。
 
 ## DSH 内核更新检查表
 
