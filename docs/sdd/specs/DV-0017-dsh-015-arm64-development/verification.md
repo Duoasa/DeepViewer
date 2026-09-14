@@ -25,6 +25,7 @@ AC-001—AC-004 在下述范围通过；AC-005 为 Pending Manual；AC-006 的�
 | AC-002 | Pass | Electron 实际 arch 为 arm64；build-runtime/package/notarize 的 `--arch=x64` 均在执行构建或封包前拒绝；默认数组仅含 arm64。 |
 | AC-003 | Pass / smoke | 默认订阅组合与停用订阅的纯核心组合均启动；官方 documentpreview 样式资源加载，原生 chrome 安装完成；设置内显示三个订阅提供方，状态 RPC 返回 200 和未登录状态。实际文件渲染与按钮操作仍属于 AC-005。 |
 | AC-004 | Pass | 各配置使用独立空 userData；token 交换后页面 URL 不含 token；未认证根页面与订阅 RPC 返回 401；日志 token 脱敏；关闭应用后 Runtime 退出。 |
+| AC-006 | Pass | ARM64 签名、公证、净化与签名包冒烟通过；GitHub Pre-release 仅含 ARM DMG/校验清单，远端摘要与本地一致；详见发布记录。 |
 | AC-005 | Pending Manual | 视觉、会话调用、订阅登录/用量/登出、官方文件/网页预览、右上角展开收起/全屏、Finder 操作由维护者实机验收。 |
 
 ## 插件契约

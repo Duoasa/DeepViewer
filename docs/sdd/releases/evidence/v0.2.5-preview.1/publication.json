@@ -1,0 +1,29 @@
+{
+  "releaseUrl": "https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1",
+  "publishedAt": "2026-09-14T14:55:19Z",
+  "prerelease": true,
+  "draft": false,
+  "tagCommit": "0b9489d6bab88ab6175f331a001f706df8a87c53",
+  "stableLatest": "v0.2.3",
+  "notarization": {
+    "status": "Accepted",
+    "submissionId": "1bc493ff-b340-4bed-a0cd-5dd4df3763bf",
+    "stapled": true,
+    "gatekeeper": "Passed"
+  },
+  "assets": [
+    {
+      "name": "DeepViewer-0.2.5-macos-arm64.dmg",
+      "size": 556274262,
+      "digest": "sha256:950e90c4bac7dfb5e73102ce431c4908d0aa2cd2da652b9a15446ee3038b7249",
+      "state": "uploaded"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 99,
+      "digest": "sha256:3b7129b0934226b6509783fdbc1de785e265a9e411b9a36998ada5bacba02bd8",
+      "state": "uploaded"
+    }
+  ],
+  "downloadVerification": "Passed: downloaded DMG matches downloaded checksum; checksum file matches local and GitHub digest"
+}
