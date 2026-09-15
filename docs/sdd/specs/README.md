@@ -20,9 +20,13 @@
 | [DV-0014](DV-0014-dsh-rc8-core-upgrade/spec.md) | DeepSeek Harness rc.8 核心升级与 0.2.2 发布 | Implementing | Duoasa | 2026-08-20 |
 | [DV-0015](DV-0015-dsh-rc2-core-upgrade/spec.md) | DeepSeek Harness 0.1.1-rc.2 核心升级与 0.2.3 | Implementing | Duoasa | 2026-08-22 |
 
+| [DV-0017](DV-0017-dsh-015-arm64-development/spec.md) | DSH 0.1.5-rc.2 ARM 开发适配 | Implementing | Duoasa | 2026-09-14 |
+
+DV-0016 已由既有灵动岛开发分支使用，本次稳定版基线不引入该功能。
+
 ## 下一个编号
 
-`DV-0016`
+`DV-0018`
 
 ## 目录规则
 

@@ -41,6 +41,7 @@ describe('subscriptions usage presentation adapter (DV-0011)', () => {
     const root = await mkdtemp(join(tmpdir(), 'deepviewer-subscriptions-ui-'))
     await mkdir(join(root, 'lib'))
     await copyFile(sourceClient, join(root, 'lib', 'client.js'))
+    await copyFile(resolve(sourceClient, '../index.js'), join(root, 'lib', 'index.js'))
     await copyFile(sourceManifest, join(root, 'package.json'))
 
     expect(adapter.adaptSubscriptionsPlugin(root)).toBe(true)
@@ -54,10 +55,10 @@ describe('subscriptions usage presentation adapter (DV-0011)', () => {
     expect(client).not.toContain('usageSession: "5-hour window"')
     expect(client).not.toContain('usageSession: "5 小时窗口"')
     const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-    expect(manifest.peerDependencies['@deepseek-ai/dsh-attachment']).toBe('0.1.1-rc.2')
-    expect(manifest.peerDependencies['@deepseek-ai/dsh-home-paths']).toBe('0.1.1-rc.2')
-    expect(manifest.peerDependencies['@deepseek-ai/dsh-llm']).toBe('0.1.1-rc.2')
-    expect(manifest.peerDependencies['@deepseek-ai/dsh-tools']).toBe('0.1.1-rc.2')
+    expect(manifest.peerDependencies['@deepseek-ai/dsh-attachment']).toBe('0.1.5-rc.2')
+    expect(manifest.peerDependencies['@deepseek-ai/dsh-home-paths']).toBe('0.1.5-rc.2')
+    expect(manifest.peerDependencies['@deepseek-ai/dsh-llm']).toBe('0.1.5-rc.2')
+    expect(manifest.peerDependencies['@deepseek-ai/dsh-tools']).toBe('0.1.5-rc.2')
 
     await writeFile(join(root, 'lib', 'client.js'), 'export const incompatible = true\n')
     expect(() => adapter.adaptSubscriptionsPlugin(root)).toThrow(/anchor mismatch/u)

@@ -1,5 +1,4 @@
 import { EventEmitter } from 'node:events'
-import type { Readable } from 'node:stream'
 import type { AppLogger } from './logger.js'
 import type { PlatformProcessAdapter, RuntimeProcess, RuntimeSpawnSpec } from './platform/process-adapter.js'
 import type { RuntimePhase, RuntimeStatusView } from '../shared/runtime-status.js'
@@ -27,7 +26,7 @@ export class RuntimeLaunchError extends Error {
 
 type StatusListener = (status: RuntimeStatusView) => void
 
-const DEFAULT_READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+)(?:\s|$)/mu
+const DEFAULT_READY_PATTERN = /^dsh web: (http:\/\/127\.0\.0\.1:\d+(?:\/[^\s]*)?)(?:[ \t]|\r?\n)/mu
 const LOG_SECRET_PATTERNS = [
   /(\bBearer\s+)[A-Za-z0-9._~+/=-]+/giu,
   /([?&](?:code|token|access_token|refresh_token|id_token)=)[^&\s]+/giu,
@@ -54,6 +53,7 @@ export class RuntimeManager {
     changedAt: new Date().toISOString(),
   }
   private origin: string | undefined
+  private launchUrl: string | undefined
 
   constructor(adapter: PlatformProcessAdapter, logger: AppLogger) {
     this.adapter = adapter
@@ -74,7 +74,7 @@ export class RuntimeManager {
   }
 
   async start(spec: RuntimeLaunchSpec): Promise<string> {
-    if (this.status.phase === 'ready' && this.origin !== undefined) return this.origin
+    if (this.status.phase === 'ready' && this.launchUrl !== undefined) return this.launchUrl
     if (this.startPromise !== undefined) return this.startPromise
     if (this.stopPromise !== undefined) await this.stopPromise
 
@@ -112,6 +112,7 @@ export class RuntimeManager {
     const probeTimeoutMs = spec.probeTimeoutMs ?? 3_000
     const readinessPattern = spec.readinessPattern ?? DEFAULT_READY_PATTERN
     this.origin = undefined
+    this.launchUrl = undefined
     this.transition('starting', { attempt: this.status.attempt + 1 })
     for (const diagnostic of spec.startupDiagnostics ?? []) {
       this.logger.info('runtime:integration', diagnostic)
@@ -132,9 +133,10 @@ export class RuntimeManager {
     try {
       const origin = await this.waitUntilReady(runtime, readinessPattern, startTimeoutMs, probeTimeoutMs)
       if (this.runtime !== runtime) throw new RuntimeLaunchError('RUNTIME_REPLACED', 'Harness 启动已被新的生命周期替代。')
-      this.origin = origin
+      this.origin = new URL(origin).origin
+      this.launchUrl = origin
       this.transition('ready')
-      this.logger.info('runtime', `ready origin=${origin}`)
+      this.logger.info('runtime', `ready origin=${this.origin}`)
       return origin
     } catch (error) {
       const launchError = error instanceof RuntimeLaunchError
@@ -158,6 +160,16 @@ export class RuntimeManager {
     return new Promise((resolve, reject) => {
       let settled = false
       let stdoutBuffer = ''
+      let probing = false
+      const logTails = { stdout: '', stderr: '' }
+      const logChunk = (stream: 'stdout' | 'stderr', text: string): void => {
+        const lines = `${logTails[stream]}${text}`.split(/\r?\n/u)
+        const tail = lines.pop() ?? ''
+        logTails[stream] = tail.length > 65_536 ? '' : tail
+        for (const line of lines) {
+          if (line !== '') this.logger.info(`harness:${stream}`, redactRuntimeLog(line))
+        }
+      }
 
       const finish = (error?: RuntimeLaunchError, origin?: string): void => {
         if (settled) return
@@ -169,11 +181,13 @@ export class RuntimeManager {
 
       const inspectStdout = (chunk: Buffer | string): void => {
         const text = chunk.toString()
-        this.logRuntimeChunk('stdout', text)
+        logChunk('stdout', text)
+        if (settled || probing) return
         stdoutBuffer = `${stdoutBuffer}${text}`.slice(-8_192)
         const match = readinessPattern.exec(stdoutBuffer)
         if (match?.[1] === undefined) return
         const candidate = match[1]
+        probing = true
         void this.probe(candidate, probeTimeoutMs).then(
           () => finish(undefined, candidate),
           error => finish(new RuntimeLaunchError('RUNTIME_PROBE_FAILED', 'Harness 已启动，但本地页面健康检查失败。', { cause: error })),
@@ -181,7 +195,7 @@ export class RuntimeManager {
       }
 
       const inspectStderr = (chunk: Buffer | string): void => {
-        this.logRuntimeChunk('stderr', chunk.toString())
+        logChunk('stderr', chunk.toString())
       }
 
       runtime.child.stdout?.on('data', inspectStdout)
@@ -200,6 +214,7 @@ export class RuntimeManager {
         if (this.runtime === runtime && this.status.phase === 'ready') {
           this.runtime = undefined
           this.origin = undefined
+          this.launchUrl = undefined
           const error = new RuntimeLaunchError(
             'RUNTIME_EXITED',
             `Harness 意外退出（code=${String(code)}, signal=${String(signal)}）。`,
@@ -219,13 +234,28 @@ export class RuntimeManager {
     if (parsed.protocol !== 'http:' || parsed.hostname !== '127.0.0.1') {
       throw new Error(`refusing non-loopback runtime origin: ${origin}`)
     }
-    const response = await fetch(parsed, { signal: AbortSignal.timeout(timeoutMs) })
+    if (parsed.username !== '' || parsed.password !== '' || parsed.pathname !== '/' || parsed.hash !== '') {
+      throw new Error('refusing an invalid runtime launch URL')
+    }
+    const signal = AbortSignal.timeout(timeoutMs)
+    const response = await fetch(parsed, { signal, redirect: 'manual' })
+    if (response.status === 303 && response.headers.get('location') === '/') {
+      const cookies = response.headers.getSetCookie().map(cookie => cookie.split(';')[0]).join('; ')
+      await response.body?.cancel()
+      if (cookies === '') throw new Error('runtime authentication returned no session cookie')
+      const ready = await fetch(`${parsed.origin}/`, { signal, redirect: 'error', headers: { cookie: cookies } })
+      await ready.body?.cancel()
+      if (!ready.ok) throw new Error(`runtime probe returned HTTP ${String(ready.status)}`)
+      return
+    }
+    await response.body?.cancel()
     if (!response.ok) throw new Error(`runtime probe returned HTTP ${String(response.status)}`)
   }
 
   private async shutdown(deadlineMs: number): Promise<void> {
     const runtime = this.runtime
     this.origin = undefined
+    this.launchUrl = undefined
     if (runtime === undefined) {
       this.transition('stopped')
       return
@@ -266,9 +296,4 @@ export class RuntimeManager {
     this.events.emit('status', { ...next })
   }
 
-  private logRuntimeChunk(stream: 'stdout' | 'stderr', text: string): void {
-    for (const line of text.split(/\r?\n/u)) {
-      if (line !== '') this.logger.info(`harness:${stream}`, redactRuntimeLog(line))
-    }
-  }
 }

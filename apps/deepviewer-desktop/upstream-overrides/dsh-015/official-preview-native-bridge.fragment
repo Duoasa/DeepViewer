@@ -1,0 +1,18 @@
+// The native menu uses the same resource path and session authority as Chat links.
+ctx.effect(() => {
+  const open = (event: Event): void => {
+    const path: unknown = (event as CustomEvent<unknown>).detail
+    if (typeof path !== 'string' || !path.startsWith('/') || path.includes('\0')) return
+    const list = ctx.sessions.list.getSnapshot()
+    const sessionId = list.current
+    if (sessionId === undefined) return
+    try {
+      ctx.sidebarRight.openResource(fileAddressFor(sessionId, list.byId[sessionId]?.cwd, path))
+      event.preventDefault()
+    } catch {
+      // A switching/unmounted session cannot accept a native preview request.
+    }
+  }
+  window.addEventListener('deepviewer:preview-file', open)
+  return () => window.removeEventListener('deepviewer:preview-file', open)
+}, 'DeepViewer: native file preview')

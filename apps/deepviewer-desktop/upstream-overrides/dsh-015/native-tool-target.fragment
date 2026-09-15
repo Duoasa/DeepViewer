@@ -1,0 +1,2 @@
+                className={css.fileLink}
+                data-deepviewer-native-file-path={filePath}

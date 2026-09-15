@@ -8,7 +8,8 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
-| `v0.2.3` | Public preview / Latest | 2026-08-23 | DV-0015 | [DeepViewer 0.2.3 (Build 1)](v0.2.3.md) |
+| `v0.2.5-preview.1` | Release / Latest / ARM64 only | 2026-09-15 | DV-0017 | [DeepViewer 0.2.5](v0.2.5-preview.1.md) |
+| `v0.2.3` | Public preview / Previous Latest | 2026-08-23 | DV-0015 | [DeepViewer 0.2.3 (Build 1)](v0.2.3.md) |
 | `v0.2.2-build.2` | Public hotfix / Latest | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 2)](v0.2.2-build.2.md) |
 | `v0.2.2` | Public preview / Rollback | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 1)](v0.2.2.md) |
 | `v0.2.1` | Public preview / Rollback | 2026-08-19 | DV-0007, DV-0008, DV-0010—DV-0013 | [DeepViewer 0.2.1](v0.2.1.md) |

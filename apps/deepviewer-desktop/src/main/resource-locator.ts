@@ -15,8 +15,8 @@ export const SUBSCRIPTIONS_PLUGIN_NAME = 'dsh-plugin-subscriptions'
 export const SUBSCRIPTIONS_PLUGIN_VERSION = '0.3.1'
 export const PREVIEW_PLUGIN_NAME = '@deepviewer/dsh-plugin-preview'
 export const PREVIEW_PLUGIN_VERSION = '0.1.0'
-const DSH_PLUGIN_PEER_VERSION = '0.1.1-rc.2'
-const CORDIS_PLUGIN_PEER_VERSION = '4.0.1'
+const DSH_PLUGIN_PEER_VERSION = '0.1.5-rc.2'
+const CORDIS_PLUGIN_PEER_VERSION = '4.0.2'
 const REQUIRED_SUBSCRIPTIONS_PEERS = [
   '@deepseek-ai/dsh-attachment',
   '@deepseek-ai/dsh-home-paths',
@@ -26,7 +26,7 @@ const REQUIRED_SUBSCRIPTIONS_PEERS = [
 const REQUIRED_PREVIEW_DSH_PEERS = [
   '@deepseek-ai/dsh-client-connection',
   '@deepseek-ai/dsh-client-locale',
-  '@deepseek-ai/dsh-client-runtime',
+  '@deepseek-ai/dsh-client-ui-session',
   '@deepseek-ai/dsh-client-ui-conversation',
   '@deepseek-ai/dsh-client-ui-deliverables',
   '@deepseek-ai/dsh-client-ui-layout',
@@ -34,14 +34,14 @@ const REQUIRED_PREVIEW_DSH_PEERS = [
   '@deepseek-ai/dsh-client-ui-slots',
 ] as const
 const REQUIRED_SUBSCRIPTIONS_CLIENT_INJECTIONS = [
-  '@deepseek-ai/dsh-client-runtime',
+  '@deepseek-ai/dsh-client-ui-session',
   '@deepseek-ai/dsh-client-ui-settings',
   '@deepseek-ai/dsh-client-locale',
 ] as const
 const REQUIRED_PREVIEW_CLIENT_INJECTIONS = [
   '@deepseek-ai/dsh-client-connection',
   '@deepseek-ai/dsh-client-locale',
-  '@deepseek-ai/dsh-client-runtime',
+  '@deepseek-ai/dsh-client-ui-session',
   '@deepseek-ai/dsh-client-ui-conversation',
   '@deepseek-ai/dsh-client-ui-deliverables',
   '@deepseek-ai/dsh-client-ui-layout',
@@ -216,6 +216,7 @@ export function resolveSubscriptionsPlugin(
   }
 }
 
+/** @deprecated DVP-0002 is retained as source only; resolveHarnessLaunch uses official DSH preview. */
 export function resolvePreviewPlugin(
   harnessRoot: string,
   dshHome: string,
@@ -277,6 +278,9 @@ export function resolvePreviewPlugin(
 }
 
 export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
+  if (process.platform !== 'darwin' || process.arch !== 'arm64') {
+    throw new Error('DeepViewer 仅支持 Apple Silicon（macOS arm64）。')
+  }
   if (!compatibleNodeVersion(process.versions.node)) {
     throw new Error(`Electron Node ${process.versions.node} does not satisfy Harness engines.node (^22.19.0 || >=24.0.0)`)
   }
@@ -308,24 +312,20 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
   }
 
   const subscriptions = resolveSubscriptionsPlugin(harnessRoot, dshHome)
-  const preview = resolvePreviewPlugin(harnessRoot, dshHome)
+
   const coreArgs = buildHarnessWebArgs(nodeArgs)
   const argsWithPatches = (patches: readonly string[]): string[] => (
     buildHarnessWebArgs(nodeArgs, patches)
   )
-  const subscriptionArgs = subscriptions.enabled && subscriptions.patchPath !== undefined
-    ? argsWithPatches([subscriptions.patchPath])
-    : coreArgs
   const primaryPatches = [
     ...(subscriptions.enabled && subscriptions.patchPath !== undefined ? [subscriptions.patchPath] : []),
-    ...(preview.enabled && preview.patchPath !== undefined ? [preview.patchPath] : []),
   ]
   const launch: RuntimeLaunchSpec = {
     executable: process.execPath,
     args: primaryPatches.length === 0 ? coreArgs : argsWithPatches(primaryPatches),
     cwd: workspaceRoot,
     env: environment,
-    startupDiagnostics: [subscriptions.diagnostic, preview.diagnostic],
+    startupDiagnostics: [subscriptions.diagnostic, 'PREVIEW_OFFICIAL DSH=0.1.5-rc.2'],
     startTimeoutMs: app.isPackaged ? 120_000 : 60_000,
     stopTimeoutMs: 5_000,
     probeTimeoutMs: 5_000,
@@ -335,20 +335,7 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
     args: coreArgs,
     startupDiagnostics: ['SUBSCRIPTIONS_FALLBACK core-only'],
   }
-  if (preview.enabled) {
-    launch.fallback = {
-      ...launch,
-      args: subscriptionArgs,
-      startupDiagnostics: [subscriptions.enabled
-        ? 'PREVIEW_FALLBACK subscriptions-only'
-        : 'PREVIEW_FALLBACK core-only'],
-      ...(subscriptions.enabled
-        ? { integrationName: 'SUBSCRIPTIONS', fallbackDescription: 'core-only', fallback: coreFallback }
-        : {}),
-    }
-    launch.integrationName = 'PREVIEW'
-    launch.fallbackDescription = subscriptions.enabled ? 'subscriptions-only' : 'core-only'
-  } else if (subscriptions.enabled) {
+  if (subscriptions.enabled) {
     launch.integrationName = 'SUBSCRIPTIONS'
     launch.fallbackDescription = 'core-only'
     launch.fallback = coreFallback

@@ -39,27 +39,22 @@ if (!Number.isSafeInteger(appBuildNumber) || appBuildNumber < 1) {
   throw new Error(`invalid DeepViewer build number: ${String(appBuildNumber)}`)
 }
 const appBuildVersion = String(appBuildNumber)
-const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'
-const expectedHarnessVersion = '0.1.1-rc.2'
+const expectedHarnessCommit = 'fb2c4b9e698e30edb738bca4cf0618587db7d203'
+const expectedHarnessVersion = '0.1.5-rc.2'
 const expectedRuntimePlugins = [
   {
     name: 'dsh-plugin-subscriptions',
     version: '0.3.1',
     license: 'MIT',
-    adapter: 'deepviewer-remaining-usage-v1',
-    dshPeerVersion: '0.1.1-rc.2',
-  },
-  {
-    name: '@deepviewer/dsh-plugin-preview',
-    version: '0.1.0',
-    license: 'MIT',
+    adapter: 'deepviewer-remaining-usage-dsh015-v2',
+    dshPeerVersion: '0.1.5-rc.2',
   },
 ]
 const shouldSign = process.argv.includes('--sign')
 const isPreview = process.argv.includes('--preview')
 if (shouldSign && isPreview) throw new Error('--preview cannot be combined with --sign')
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
-if (architectureOption !== undefined && architectureOption !== 'arm64' && architectureOption !== 'x64') {
+if (architectureOption !== undefined && architectureOption !== 'arm64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)
 }
 if (isPreview && architectureOption !== undefined && architectureOption !== 'arm64') {
@@ -67,7 +62,7 @@ if (isPreview && architectureOption !== undefined && architectureOption !== 'arm
 }
 const architectures = isPreview
   ? ['arm64']
-  : architectureOption === undefined ? ['arm64', 'x64'] : [architectureOption]
+  : architectureOption === undefined ? ['arm64'] : [architectureOption]
 const signingKeychain = process.env.DEEPVIEWER_CODESIGN_KEYCHAIN
 const signingIdentity = shouldSign
   ? await resolveDeveloperIdApplication({

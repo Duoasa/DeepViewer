@@ -18,7 +18,7 @@ export function shouldUseDevelopmentProfile(
 }
 
 export function resolveDevelopmentUserDataPath(appDataPath: string): string {
-  return join(appDataPath, DEEPVIEWER_DEVELOPMENT_APP_NAME)
+  return join(appDataPath, DEEPVIEWER_DEVELOPMENT_APP_NAME, 'dsh-0.1.5-rc.2')
 }
 
 export function configureDevelopmentProfile(
@@ -30,7 +30,7 @@ export function configureDevelopmentProfile(
   }
   electronApp.setPath(
     'userData',
-    resolveDevelopmentUserDataPath(electronApp.getPath('appData')),
+    environment.DEEPVIEWER_DEV_USER_DATA ?? resolveDevelopmentUserDataPath(electronApp.getPath('appData')),
   )
   return true
 }

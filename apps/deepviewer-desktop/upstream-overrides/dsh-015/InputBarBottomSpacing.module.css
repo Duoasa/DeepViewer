@@ -1,0 +1,6 @@
+/* Match the empty composer's clearance after entering an active session,
+   including when the dock contains the stats row. */
+.root:not(.hero),
+.root:not(.hero):has([data-composer-stats]) {
+  padding-bottom: var(--deepviewer-composer-bottom-offset, 32px);
+}

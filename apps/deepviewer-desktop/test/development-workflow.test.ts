@@ -194,7 +194,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(shouldUseDevelopmentProfile('DeepViewer', 'development')).toBe(true)
     expect(shouldUseDevelopmentProfile('DeepViewer Dev', undefined)).toBe(true)
     expect(resolveDevelopmentUserDataPath('/Library/Application Support'))
-      .toBe('/Library/Application Support/DeepViewer Dev')
+      .toBe('/Library/Application Support/DeepViewer Dev/dsh-0.1.5-rc.2')
 
     const setPath = vi.fn()
     const developmentApp = {
@@ -206,7 +206,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
       .toBe(true)
     expect(setPath).toHaveBeenCalledWith(
       'userData',
-      '/Users/test/Library/Application Support/DeepViewer Dev',
+      '/Users/test/Library/Application Support/DeepViewer Dev/dsh-0.1.5-rc.2',
     )
 
     setPath.mockClear()
@@ -263,8 +263,8 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(runtimeBuild).toContain('plugins: packagedPlugins')
     expect(runtimeBuild).toContain('adaptSubscriptionsPlugin(pluginRoot)')
     expect(runtimeBuild).toContain('dshPeerVersion: SUBSCRIPTIONS_DSH_PEER_VERSION')
-    expect(packageScript).toContain("adapter: 'deepviewer-remaining-usage-v1'")
-    expect(packageScript).toContain("dshPeerVersion: '0.1.1-rc.2'")
+    expect(packageScript).toContain("adapter: 'deepviewer-remaining-usage-dsh015-v2'")
+    expect(packageScript).toContain("dshPeerVersion: '0.1.5-rc.2'")
   })
 
   it('pins DeepViewer 0.2.3 Build 1 and the rc.2 release boundary', () => {
@@ -272,35 +272,10 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
 
     expect(appManifest.version).toBe('0.2.3')
     expect(appManifest.buildNumber).toBe(1)
-    expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.1-rc.2'")
-    expect(runtimeBuild).toContain("const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'")
-    expect(packageScript).toContain("const expectedHarnessVersion = '0.1.1-rc.2'")
-    expect(packageScript).toContain("const expectedHarnessCommit = 'b150a551b8d465e31e418e1b2eaf5e79bbb7d28e'")
-  })
-
-  it('builds the first-party preview plugin against the pinned rc.2 client contracts', () => {
-    const previewManifest = JSON.parse(readFileSync(
-      resolve(appRoot, 'dsh-plugins/preview/package.json'),
-      'utf8',
-    ))
-    const runtimeBuild = readFileSync(resolve(appRoot, 'scripts/build-runtime.mjs'), 'utf8')
-
-    expect(previewManifest.name).toBe('@deepviewer/dsh-plugin-preview')
-    expect(previewManifest.version).toBe('0.1.0')
-    expect(previewManifest.peerDependencies['@deepseek-ai/cordis']).toBe('4.0.1')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-connection']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-locale']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-runtime']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-conversation']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-deliverables']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-layout']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-primitives']).toBe('0.1.1-rc.2')
-    expect(previewManifest.peerDependencies['@deepseek-ai/dsh-client-ui-slots']).toBe('0.1.1-rc.2')
-    expect(previewManifest.dsh.client.inject).toContain('@deepseek-ai/dsh-client-ui-deliverables')
-    expect(upstreamOverrideSync).toContain('stagePreviewPlugin')
-    expect(upstreamOverrideSync).toContain('buildPreviewPlugin')
-    expect(runtimeBuild).toContain('packPreviewPlugin()')
-    expect(packageScript).toContain("name: '@deepviewer/dsh-plugin-preview'")
+    expect(runtimeBuild).toContain("const expectedHarnessVersion = '0.1.5-rc.2'")
+    expect(runtimeBuild).toContain("const expectedHarnessCommit = 'fb2c4b9e698e30edb738bca4cf0618587db7d203'")
+    expect(packageScript).toContain("const expectedHarnessVersion = '0.1.5-rc.2'")
+    expect(packageScript).toContain("const expectedHarnessCommit = 'fb2c4b9e698e30edb738bca4cf0618587db7d203'")
   })
 
   it('pins the preview toggle to the window-level top-right overlay', () => {

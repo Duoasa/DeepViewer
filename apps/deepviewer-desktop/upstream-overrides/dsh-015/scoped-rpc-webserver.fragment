@@ -1,0 +1,7 @@
+() => {
+  // Cordis service accessors carry a shadow context. Resolve the carrier
+  // through the public lookup API while keeping registration on owner.effect.
+  const webServer = owner.get('webServer')
+  if (webServer === undefined) throw new Error('RPC channel requires a WebServer')
+  return webServer.register(route)
+},

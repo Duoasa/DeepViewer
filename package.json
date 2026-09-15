@@ -15,7 +15,6 @@
     "desktop:start": "pnpm --filter @deepviewer/desktop start",
     "desktop:package": "pnpm --filter @deepviewer/desktop package",
     "desktop:package:arm64": "pnpm --filter @deepviewer/desktop package:arm64",
-    "desktop:package:x64": "pnpm --filter @deepviewer/desktop package:x64",
     "desktop:build": "pnpm --filter @deepviewer/desktop build",
     "test": "pnpm --filter @deepviewer/desktop test",
     "typecheck": "pnpm --filter @deepviewer/desktop typecheck"
