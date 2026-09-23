@@ -1,12 +1,53 @@
-# DeepViewer
+<p align="center">
+  <img src="Resources/DeepViewer-0.3.3.png" width="160" alt="DeepViewer app icon">
+</p>
 
-DeepViewer is an independent, open-source macOS workspace built on [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It packages the agent runtime as an Apple Silicon desktop app and adds Work and Chat spaces, file delivery, a sidebar workbench, and desktop controls. It is a community project, not an official DeepSeek product.
+<h1 align="center">DeepViewer</h1>
 
-**Current release: 0.3.3 (Build 75)** · DeepSeek Harness `0.1.5-rc.2` · macOS Apple Silicon (arm64)
+<p align="center">
+  A visual, controllable, and customizable desktop workspace for DeepSeek Harness.
+</p>
 
-[Download the signed and Apple-notarized DMG](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) · [简体中文](README.zh-CN.md) · [Release notes](docs/sdd/releases/v0.3.3.md)
+<p align="center">
+  <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
+  <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
+  <img alt="macOS Apple Silicon" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
+  <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+  <a href="https://github.com/deepseek-ai/deepseek-harness/discussions/2828"><img alt="Discuss on GitHub" src="https://img.shields.io/badge/Discuss-GitHub%20Discussions-181717?logo=github&logoColor=white"></a>
+</p>
 
-<p align="center"><img src="Resources/screenshots/image-delivery.png" width="1100" alt="DeepViewer conversation delivering a generated image as a file attachment with a working sidebar preview"></p>
+<p align="center">
+  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3"><strong>Download 0.3.3 (ARM64)</strong></a>
+  ·
+  <a href="#what-changed-since-the-previous-public-release-025">What's new</a>
+  ·
+  <a href="#install-and-data">Privacy &amp; data</a>
+  ·
+  <a href="#build-from-source">Build from source</a>
+</p>
+
+<p align="center">
+  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+DeepViewer is an independent, open-source desktop agent workspace built on
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It bundles
+the pinned runtime into a macOS application and adds Work and Chat spaces,
+file delivery, a sidebar workbench, and desktop controls.
+
+<p align="center">
+  <img src="Resources/screenshots/image-delivery.png" width="100%" alt="DeepViewer 0.3.3 delivering a generated image with an attachment card and sidebar preview">
+</p>
+
+> [!NOTE]
+> DeepViewer is a community project. It is not affiliated with or endorsed by DeepSeek.
+
+> [!IMPORTANT]
+> The current release is **DeepViewer 0.3.3 / Build 75**, based on DeepSeek Harness `0.1.5-rc.2` and available for **Apple Silicon arm64 only**. The DMG is Developer ID signed and Apple-notarized. Final visual acceptance of migrated sessions, settings, and attachments remains with the maintainer.
+
+> [!TIP]
+> The [release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) includes a SHA-256 checksum. Installed and development data now use separate, version-independent directories; back up existing data before a major upgrade. The previous public [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remains available.
 
 ## What changed since the previous public release (0.2.5)
 
