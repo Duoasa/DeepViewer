@@ -1,6 +1,6 @@
 {
   "name": "@deepviewer/root",
-  "version": "0.1.1",
+  "version": "0.3.3",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.19.0",
@@ -17,6 +17,7 @@
     "desktop:package:arm64": "pnpm --filter @deepviewer/desktop package:arm64",
     "desktop:build": "pnpm --filter @deepviewer/desktop build",
     "test": "pnpm --filter @deepviewer/desktop test",
-    "typecheck": "pnpm --filter @deepviewer/desktop typecheck"
+    "typecheck": "pnpm --filter @deepviewer/desktop typecheck",
+    "desktop:smoke": "pnpm --filter @deepviewer/desktop smoke"
   }
 }

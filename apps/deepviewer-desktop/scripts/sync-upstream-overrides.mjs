@@ -1,3 +1,7 @@
+import { syncDesktopNetwork } from './sync-desktop-network.mjs'
+import { syncChatModeOverrides, chatModePatchPath } from './sync-chat-mode.mjs'
+import { stageBetterSidebar } from './stage-better-sidebar.mjs'
+import { buildReasoningPlugin } from './build-reasoning-plugin.mjs'
 import { execFileSync, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
@@ -20,7 +24,7 @@ import {
   SUBSCRIPTIONS_DSH_PEER_VERSION,
   SUBSCRIPTIONS_UI_ADAPTER_ID,
 } from './adapt-subscriptions-plugin.mjs'
-import { prepareSubscriptionsClient } from './prepare-subscriptions-client.mjs'
+import { prepareSubscriptionsClient, imageGenerateStylesPath } from './prepare-subscriptions-client.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
@@ -57,6 +61,8 @@ if (!Number.isInteger(desktopBuildNumber) || desktopBuildNumber < 1) {
 if (typeof harnessVersion !== 'string' || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(harnessVersion)) {
   throw new Error(`Invalid DeepSeek Harness version: ${String(harnessVersion)}`)
 }
+syncDesktopNetwork(upstreamRoot)
+
 const sourcePath = resolve(
   appRoot,
   'upstream-overrides',
@@ -74,6 +80,23 @@ const targetPath = resolve(
 // DSH 0.1.5 owns right-sidebar tabs, file path resolution, and Chat composition.
 // Extend its current seats instead of restoring the removed details-view API.
 const fileOverrides = [
+  { name: 'delivery-alias-validation', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/presented.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/src/presented.ts') },
+  { name: 'dedupe-delivery-chips', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/Deliverables.tsx'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/src/client/Deliverables.tsx') },
+  { name: 'workspace-delivery', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/workspace-delivery.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/src/workspace-delivery.ts') },
+  { name: 'present-delivery-boundary', sourcePath: resolve(appRoot, 'upstream-overrides/tool-present/index.ts'), targetPath: resolve(upstreamRoot, 'packages/fs/tool-present/src/index.ts') },
+  { name: 'present-delivery-contract', sourcePath: resolve(appRoot, 'upstream-overrides/tool-present/types.ts'), targetPath: resolve(upstreamRoot, 'packages/fs/tool-present/src/types.ts') },
+  { name: 'file-delivery-auto-delivery.host.spec.ts', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/auto-delivery.host.spec.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/tests/auto-delivery.host.spec.ts') },
+  { name: 'file-delivery-prompt.host.spec.ts', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/prompt.host.spec.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/tests/prompt.host.spec.ts') },
+  { name: 'file-delivery-auto-delivery.ts', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/auto-delivery.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/src/auto-delivery.ts') },
+  { name: 'file-delivery-file-delivery-prompt.ts', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/file-delivery-prompt.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/src/file-delivery-prompt.ts') },
+  { name: 'file-delivery-index.ts', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/index.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/src/index.ts') },
+  { name: 'file-delivery-package.json', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/package.json'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/package.json') },
+  { name: 'file-delivery-tsconfig.host.json', sourcePath: resolve(appRoot, 'upstream-overrides/ui-deliverables/tsconfig.host.json'), targetPath: resolve(upstreamRoot, 'packages/client/ui-deliverables/tsconfig.host.json') },
+  { name: 'native-theme-preference', sourcePath: resolve(appRoot, 'upstream-overrides/ui-layout/theme-presenter.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-layout/src/client/theme-presenter.ts') },
+  { name: 'progressive-process-tests', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/progressive-process.client.spec.tsx'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/tests/progressive-process.client.spec.tsx') },
+  { name: 'progressive-progressive-process.ts', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/progressive-process.ts'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/progressive-process.ts') },
+  { name: 'progressive-ProgressiveChatNodeList.tsx', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/ProgressiveChatNodeList.tsx'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ProgressiveChatNodeList.tsx') },
+  { name: 'progressive-ProgressiveChatNodeList.module.css', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/ProgressiveChatNodeList.module.css'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ProgressiveChatNodeList.module.css') },
   {
     name: "deepviewer-brand-slot-components",
     sourcePath: resolve(appRoot, "upstream-overrides/ui-brand-official/Brand.tsx"),
@@ -122,6 +145,13 @@ const fileOverrides = [
   },
 ]
 const cssOverrides = [
+  { name: 'session-drive-loader', sourcePath: resolve(appRoot, 'upstream-overrides/ui-workspace/SessionDrive.module.css'), targetPath: resolve(upstreamRoot, 'packages/client/ui-workspace/src/client/rows/Rows.module.css') },
+  { name: 'progressive-status', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/ProgressiveStatus.module.css'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.module.css') },
+  {
+    name: 'thinking-status-neutral-shimmer',
+    sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/ThinkingStatus.module.css'),
+    targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.module.css'),
+  },
   {
     name: 'active-composer-bottom-spacing',
     sourcePath: resolve(appRoot, 'upstream-overrides/dsh-015/InputBarBottomSpacing.module.css'),
@@ -149,6 +179,35 @@ const cssOverrides = [
   },
 ]
 const textOverrides = [
+  { name: 'search-drive-title', sourcePath: resolve(appRoot, 'upstream-overrides/ui-workspace/search-drive-title.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-workspace/src/client/rows/Rows.tsx'), needle: '<span className={css.searchResultTitle}>{result.title}</span>', indent: '', markerKind: 'raw' },
+  { name: 'session-drive-title', sourcePath: resolve(appRoot, 'upstream-overrides/ui-workspace/session-drive-title.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-workspace/src/client/rows/Rows.tsx'), needle: '<span className={css.title}>{title}</span>', indent: '', markerKind: 'raw' },
+  { name: 'session-drive-loader', sourcePath: resolve(appRoot, 'upstream-overrides/ui-workspace/SessionDrive.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-workspace/src/client/rows/Rows.tsx'), needle: '      <StateDot state={statuses[0].state} />', indent: '', markerKind: 'raw' },
+  { name: 'process-en', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/process-en.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/locale.ts'), needle: "  'view.chat': 'Chat',", indent: '', markerKind: 'raw' },
+  { name: 'process-zh', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/process-zh.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/locale.ts'), needle: "  'view.chat': '\u5bf9\u8bdd',", indent: '', markerKind: 'raw' },
+  { name: 'progressive-status-wait', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/status-wait.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.tsx'), needle: "{running && <TurnStatus startTime={runningTurnStart} t={t} />}", indent: '', markerKind: 'raw' },
+  { name: 'progressive-list-props', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/list-props.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.tsx'), needle: "          <ChatNodeList\n            order={order}", indent: '', markerKind: 'raw' },
+  { name: 'progressive-pending-state', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/pending-state.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.tsx'), needle: "  const order = useChat(s => s.order)", indent: '', markerKind: 'raw' },
+  { name: 'progressive-pending-hook', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/pending-hook.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.tsx'), needle: "  useTranscriptView, useProjection, t,", indent: '', markerKind: 'raw' },
+  { name: 'progressive-list-route', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/list-route.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.tsx'), needle: "const ChatNodeList = memo(function ChatNodeList({ order, ...seatProps }: ChatNodeListProps) {\n  return order.map", indent: '', markerKind: 'raw' },
+  { name: 'progressive-list-import', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/list-import.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatView.tsx'), needle: "import { ChatNodeSeat } from './ChatNodeSeat.tsx'", indent: '', markerKind: 'raw' },
+  { name: 'progressive-seat-project', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/seat-project.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatNodeSeat.tsx'), needle: "  const routedNode = node as ChatNode | undefined", indent: '', markerKind: 'raw' },
+  { name: 'progressive-seat-arg', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/seat-arg.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatNodeSeat.tsx'), needle: "  nodeKey, useChatNode, useChatNodeProcess, historyIncomplete, compactTranscript,", indent: '', markerKind: 'raw' },
+  { name: 'progressive-seat-prop', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/seat-prop.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatNodeSeat.tsx'), needle: "  readonly nodeKey: string", indent: '', markerKind: 'raw' },
+  { name: 'progressive-seat-import', sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/seat-import.fragment'), targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/chat/ChatNodeSeat.tsx'), needle: "import css from './ChatView.module.css'", indent: '', markerKind: 'raw' },
+  {
+    name: 'thinking-status-en',
+    sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/ThinkingStatus.en.fragment'),
+    targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/locale.ts'),
+    needle: "  'chat.deepDiving': 'Deep diving...',",
+    indent: '  ', markerKind: 'code',
+  },
+  {
+    name: 'thinking-status-zh',
+    sourcePath: resolve(appRoot, 'upstream-overrides/ui-chat/ThinkingStatus.zh.fragment'),
+    targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/src/client/locale.ts'),
+    needle: "  'chat.deepDiving': '深度求索中...',",
+    indent: '  ', markerKind: 'code',
+  },
   {
     name: 'scoped-rpc-webserver',
     sourcePath: resolve(appRoot, 'upstream-overrides/dsh-015/scoped-rpc-webserver.fragment'),
@@ -297,6 +356,13 @@ const textOverrides = [
     markerKind: "code",
   },
   {
+    name: "browser-tab-lifetime",
+    sourcePath: resolve(appRoot, "upstream-overrides/dsh-015/browser-tab-lifetime.fragment"),
+    targetPath: resolve(upstreamRoot, "packages/client/ui-dockkit/src/components/TabPanel.tsx"),
+    needle: "{active === undefined\n          ? <p className={css.empty}>{callbacks.labels.emptyPane}</p>\n          : callbacks.renderTab(active)}",
+    indent: "        ",
+  },
+  {
     name: "rightbar-safe-area",
     sourcePath: resolve(appRoot, "upstream-overrides/dsh-015/rightbar-safe-area.fragment"),
     targetPath: resolve(upstreamRoot, "packages/client/ui-layout/src/client/AppFrame.tsx"),
@@ -345,7 +411,7 @@ const textOverrides = [
     markerKind: "raw",
   },
 ]
-const testContractReplacements = []
+const testContractReplacements = JSON.parse(readFileSync(resolve(appRoot, 'upstream-overrides/ui-chat/chat-view-contracts.json'), 'utf8')).map(entry => ({ ...entry, targetPath: resolve(upstreamRoot, 'packages/client/ui-chat/tests/chat-view.client.spec.tsx') }))
 const buildStampPath = resolve(upstreamRoot, '.deepviewer-overrides-build')
 
 function subscriptionsPluginDigest(root) {
@@ -410,7 +476,7 @@ function stageSubscriptionsPluginPeers() {
 export function stageSubscriptionsPlugin() {
   validateSubscriptionsPlugin(subscriptionsPluginSource)
   const sourceDigest = subscriptionsPluginDigest(subscriptionsPluginSource)
-  const desiredStamp = `${sourceDigest}:${SUBSCRIPTIONS_UI_ADAPTER_ID}:${SUBSCRIPTIONS_DSH_PEER_VERSION}:${createHash("sha256").update(readFileSync(subscriptionsUiAdapterPath)).update(readFileSync(resolve(appRoot, "scripts/prepare-subscriptions-client.mjs"))).digest("hex")}\n`
+  const desiredStamp = `${sourceDigest}:${SUBSCRIPTIONS_UI_ADAPTER_ID}:${SUBSCRIPTIONS_DSH_PEER_VERSION}:${createHash("sha256").update(readFileSync(subscriptionsUiAdapterPath)).update(readFileSync(resolve(appRoot, "scripts/prepare-subscriptions-client.mjs"))).update(readFileSync(imageGenerateStylesPath)).digest("hex")}\n`
   const packageCurrent = (
     existsSync(subscriptionsPluginTarget)
     && lstatSync(subscriptionsPluginTarget).isDirectory()
@@ -576,6 +642,10 @@ function overrideDigest() {
   const digest = createHash('sha256')
   digest.update(readFileSync(fileURLToPath(import.meta.url)))
   digest.update(readFileSync(resolve(appRoot, 'scripts/prepare-subscriptions-client.mjs')))
+  digest.update(readFileSync(resolve(appRoot, 'scripts/sync-desktop-network.mjs')))
+  digest.update(readFileSync(resolve(appRoot, 'upstream-overrides/network/desktop-network.ts')))
+  digest.update(readFileSync(resolve(appRoot, 'upstream-overrides/network/search-network-error.ts')))
+  digest.update(readFileSync(imageGenerateStylesPath))
   digest.update(readFileSync(sourcePath))
   digest.update(readFileSync(subscriptionsUiAdapterPath))
   for (const override of fileOverrides) {
@@ -596,11 +666,15 @@ function overrideDigest() {
     digest.update(override.after)
     digest.update(String(override.expectedMatches ?? 1))
   }
+  digest.update(readFileSync(chatModePatchPath))
   return digest.digest('hex')
 }
 
 async function main() {
+  if (process.argv.includes('--build')) buildReasoningPlugin(upstreamRoot)
   stageSubscriptionsPlugin()
+  stageBetterSidebar(upstreamRoot)
+  const chatModeChanged = syncChatModeOverrides(upstreamRoot)
   const wordmarkChanged = syncUpstreamWordmark()
   const filesChanged = fileOverrides
     .map(override => syncUpstreamFileOverride(override))
@@ -614,7 +688,7 @@ async function main() {
   const testContractsChanged = testContractReplacements
     .map(override => syncUpstreamTestContract(override))
     .some(Boolean)
-  const changed = wordmarkChanged || filesChanged || cssChanged || textChanged || testContractsChanged
+  const changed = chatModeChanged || wordmarkChanged || filesChanged || cssChanged || textChanged || testContractsChanged
   const sourceDigest = overrideDigest()
   const builtDigest = existsSync(buildStampPath) ? readFileSync(buildStampPath, 'utf8').trim() : ''
   const needsBuild = changed || builtDigest !== sourceDigest

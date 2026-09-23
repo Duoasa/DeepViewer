@@ -1,0 +1,3 @@
+- insert:
+    - id: deepviewer-model-reasoning
+      name: "@deepviewer/dsh-plugin-reasoning"

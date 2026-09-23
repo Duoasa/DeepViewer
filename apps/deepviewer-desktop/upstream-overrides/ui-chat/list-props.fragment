@@ -1,0 +1,5 @@
+          <ChatNodeList
+            key={sessionId}
+            nodeStore={nodeStore}
+            waiting={waiting}
+            order={order}

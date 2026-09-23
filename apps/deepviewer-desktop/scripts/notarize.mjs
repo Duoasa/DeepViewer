@@ -5,9 +5,11 @@ import { fileURLToPath } from 'node:url'
 import { runCapture, verifySignedDiskImage } from './macos-signing.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const outputRoot = resolve(appRoot, '..', '..', 'out')
+const baseOutputRoot = resolve(appRoot, '..', '..', 'out')
 const manifest = JSON.parse(await readFile(resolve(appRoot, 'package.json'), 'utf8'))
 const appVersion = manifest.version
+const outputOption = process.argv.find(argument => argument.startsWith('--out='))?.slice('--out='.length)
+const outputRoot = outputOption ? resolve(outputOption) : process.argv.includes('--freeze') ? resolve(baseOutputRoot, appVersion) : baseOutputRoot
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
 if (architectureOption !== undefined && architectureOption !== 'arm64') {
   throw new Error(`unsupported macOS architecture: ${architectureOption}`)

@@ -89,7 +89,7 @@ describe('main window options', () => {
     expect(MACOS_WINDOW_CHROME_CSS).toContain('text-align: center')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('pointer-events: none')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-session-stats-source]')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('StatsLine.module.css')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('StatsPills.module.css')
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('deepviewerMacosSessionStatsSource')
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('statsDisplay.textContent = text')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('--deepviewer-sidebar-safe-width')
@@ -120,11 +120,11 @@ describe('main window options', () => {
     )
   })
 
-  it('keeps native macOS controls aligned with the active light or dark theme', () => {
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain("hasAttribute('data-ds-dark-theme')")
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain("? 'dark' : 'light'")
+  it('keeps native macOS controls aligned with the theme preference, including system', () => {
+    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain("getAttribute('data-deepviewer-theme-source')")
+    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain("? preference : 'system'")
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('setNativeThemeSource?.(source)')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain("attributeFilter: ['data-ds-dark-theme']")
+    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain("attributeFilter: ['data-deepviewer-theme-source']")
   })
 
   it('fades the workspace list without painting another themed color layer', () => {
@@ -152,7 +152,8 @@ describe('main window options', () => {
     expect(MACOS_WINDOW_CHROME_CSS).toContain('left: 16px')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('top: 13px')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('width: 24px')
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('width: 16px')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('--deepviewer-window-control-icon-size: 16px')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('width: var(--deepviewer-window-control-icon-size)')
     expect(createMacosFullscreenStateScript(true)).toContain(
       "toggleAttribute('data-deepviewer-macos-fullscreen', true)",
     )

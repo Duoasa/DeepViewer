@@ -52,7 +52,7 @@
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-columns: 272px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
   width: 100%;
   height: 100%;
   max-width: none;
@@ -68,7 +68,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 64px 16px 20px;
+  padding: 56px 12px 6px;
   box-sizing: border-box;
   overflow: hidden;
   background: var(--dsw-specific-sidebar-fill);
@@ -79,14 +79,15 @@
 .back {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
-  gap: 6px;
+  align-self: stretch;
+  gap: 8px;
   min-width: 0;
-  height: 34px;
-  margin: 0 4px 20px;
-  padding: 6px 10px 6px 6px;
+  height: 40px;
+  flex: none;
+  margin: 0 0 24px;
+  padding: 8px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: var(--dsw-alias-label-secondary);
   font: inherit;
@@ -113,12 +114,12 @@
 }
 
 .navTitle {
-  padding: 0 14px 12px;
-  color: var(--dsw-alias-label-tertiary);
-  font-size: 12px;
-  line-height: 18px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  padding: 8px;
+  margin-bottom: 8px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
   -webkit-app-region: no-drag;
 }
 
@@ -141,20 +142,19 @@
 
 .navFooter {
   margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid var(--dsw-alias-border-l1);
+  padding: 0;
 }
 
 .navCell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  min-height: 40px;
-  padding: 9px 14px 9px 12px;
+  min-height: 34px;
+  padding: 6px 8px;
   box-sizing: border-box;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   color: var(--dsw-alias-label-primary);
   cursor: pointer;
@@ -166,12 +166,11 @@
 }
 
 .navCell:hover {
-  background: var(--dsw-specific-sidebar-nav-item-hover);
+  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 .navCell.active {
-  background: var(--dsw-specific-sidebar-nav-item-active);
-  font-weight: 500;
+  background: var(--dsw-alias-interactive-bg-hover);
 }
 
 .navLabel {
@@ -242,11 +241,19 @@
   width: 100%;
 }
 
+/* Section roots share the header's content rail. Only lift page-level caps;
+   nested controls and dialogs retain their own widths. */
+.options > :global([data-slot='settings.section']) > :first-child {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 /* Subscription plugins keep their standard settings.section registration;
    the DeepViewer shell composes that seat beneath the Models API section. */
 .integratedSection {
   width: 100%;
-  max-width: 720px;
+  max-width: 100%;
   margin-top: 32px;
   padding-top: 32px;
   border-top: 1px solid var(--dsw-alias-border-l2);
@@ -262,7 +269,7 @@
 }
 
 /* The third-party section ships an inline 560px cap. Inside the Models
-   composition it follows the same 720px content rail as the API section. */
+   composition it follows the same content rail as the API section. */
 .integratedSection > :global([data-slot='settings.section']) > :first-child {
   width: 100%;
   max-width: 100% !important;
@@ -278,15 +285,6 @@
 }
 
 @media (max-width: 1040px) {
-  .panel {
-    grid-template-columns: 232px minmax(0, 1fr);
-  }
-
-  .nav {
-    padding-right: 12px;
-    padding-left: 12px;
-  }
-
   .contentScroll {
     padding-right: 32px;
     padding-left: 32px;
@@ -304,3 +302,16 @@
 .triggerRow { display: flex; flex: none; align-items: center; gap: 4px; }
 .triggerRow .trigger { flex: 1; min-width: 0; }
 .triggerRow.railRow { width: 36px; }
+
+/* Match the main sidebar footer anchor and retain its quiet, divider-free edge. */
+.navFooter .navCell {
+  margin: 4px 0;
+  padding-left: 6px;
+  border-radius: 12px;
+}
+
+/* Let the native sidebar material show through exactly as on the main page. */
+:global([data-deepviewer-macos-chrome-installed]) .overlay,
+:global([data-deepviewer-macos-chrome-installed]) .panel {
+  background: transparent;
+}

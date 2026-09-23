@@ -1,0 +1,10 @@
+.turnStatus {
+  background-image: linear-gradient(
+    90deg,
+    var(--dsw-alias-label-caption) 0%,
+    var(--dsw-alias-label-caption) 40%,
+    var(--dsw-alias-label-primary) 50%,
+    var(--dsw-alias-label-caption) 60%,
+    var(--dsw-alias-label-caption) 100%
+  );
+}

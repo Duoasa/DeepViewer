@@ -1,0 +1,2 @@
+  readonly nodeKey: string
+  readonly processView?: ProcessView | undefined

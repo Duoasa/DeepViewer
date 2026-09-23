@@ -1,0 +1,50 @@
+.toolview {
+  font-family: var(--dsw-font-family);
+  font-size: var(--dsh-content-font-size, 14px);
+  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+}
+.toolview > div > span > svg {
+  width: var(--dsh-content-font-size, 14px);
+  height: var(--dsh-content-font-size, 14px);
+}
+.generating {
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0;
+  font-size: var(--dsh-content-font-size, 14px);
+  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+  color: var(--dsw-alias-label-tertiary);
+}
+
+@supports (background-clip: text) {
+  .generating {
+    background-image: linear-gradient(
+      90deg,
+      var(--dsw-alias-label-tertiary) 0%,
+      var(--dsw-alias-label-tertiary) 40%,
+      var(--dsw-alias-label-primary) 50%,
+      var(--dsw-alias-label-tertiary) 60%,
+      var(--dsw-alias-label-tertiary) 100%
+    );
+    background-position: 100% 0;
+    background-size: 250% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: generating-shimmer 1.8s linear infinite;
+  }
+}
+
+@keyframes generating-shimmer {
+  to { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generating {
+    animation: none;
+    background: none;
+    color: var(--dsw-alias-label-tertiary);
+    -webkit-text-fill-color: currentColor;
+  }
+}

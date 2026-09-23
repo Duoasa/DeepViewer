@@ -5,6 +5,7 @@ import { dirname, join, resolve } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { packager } from '@electron/packager'
+import { verifyRuntimeVersion } from './release-version.mjs'
 import { auditPackagedApp, normalizeCopiedRuntimeSymlinks } from './release-audit.mjs'
 import {
   createOsxSignOptions,
@@ -16,7 +17,9 @@ import {
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
-const outputRoot = resolve(projectRoot, 'out')
+const appManifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
+const outputOption = process.argv.find(argument => argument.startsWith('--out='))?.slice('--out='.length)
+const outputRoot = outputOption ? resolve(outputOption) : process.argv.includes('--freeze') ? resolve(projectRoot, 'out', appManifest.version) : resolve(projectRoot, 'out')
 const releaseStagingRoot = resolve(outputRoot, '.release-staging')
 const previewStagingRoot = resolve(outputRoot, '.preview-staging')
 const appIcon = resolve(appRoot, 'assets', 'DeepViewer.icns')
@@ -28,8 +31,11 @@ const fixedApplicationFiles = [
   'assets/DeepViewer.icns',
   'assets/deepviewer-icon-macos26-1024.png',
   'assets/licenses/Figtree-OFL.txt',
+  'assets/licenses/ip-address-LICENSE.txt',
+  'assets/licenses/ipaddr.js-LICENSE.txt',
+  'assets/licenses/smart-buffer-LICENSE.txt',
+  'assets/licenses/socks-LICENSE.txt',
 ]
-const appManifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
 const appVersion = appManifest.version
 if (typeof appVersion !== 'string' || !/^\d+\.\d+\.\d+$/u.test(appVersion)) {
   throw new Error(`invalid DeepViewer package version: ${String(appVersion)}`)
@@ -49,9 +55,12 @@ const expectedRuntimePlugins = [
     adapter: 'deepviewer-remaining-usage-dsh015-v2',
     dshPeerVersion: '0.1.5-rc.2',
   },
+  { name: 'dsh-better-sidebar', version: '0.19.1', license: 'MIT' },
+  { name: '@deepviewer/dsh-plugin-reasoning', version: '0.1.0', license: 'MIT' },
 ]
 const shouldSign = process.argv.includes('--sign')
 const isPreview = process.argv.includes('--preview')
+const localSnapshot = process.argv.includes('--local-snapshot')
 if (shouldSign && isPreview) throw new Error('--preview cannot be combined with --sign')
 const architectureOption = process.argv.find(argument => argument.startsWith('--arch='))?.slice('--arch='.length)
 if (architectureOption !== undefined && architectureOption !== 'arm64') {
@@ -135,11 +144,18 @@ for (const arch of architectures) {
     resolve(stagingAppRoot, 'package.json'),
     `${JSON.stringify(isPreview ? { ...appManifest, productName: packagedName } : appManifest, null, 2)}\n`,
   )
+  await verifyRuntimeVersion(runtimeRoot, appManifest)
   const runtimeManifest = JSON.parse(await readFile(join(runtimeRoot, 'deepviewer-runtime.json'), 'utf8'))
   if (
     runtimeManifest.platform !== 'darwin'
     || runtimeManifest.arch !== arch
-    || runtimeManifest.upstreamCommit !== expectedHarnessCommit
+    || (localSnapshot
+      ? runtimeManifest.sourceSnapshot?.kind !== 'local-development'
+        || runtimeManifest.sourceSnapshot?.baseCommit !== expectedHarnessCommit
+        || runtimeManifest.sourceSnapshot?.headCommit !== runtimeManifest.upstreamCommit
+        || !/^[a-f0-9]{40}$/u.test(runtimeManifest.upstreamCommit)
+        || !runtimeManifest.sourceSnapshot?.packages
+      : runtimeManifest.upstreamCommit !== expectedHarnessCommit || runtimeManifest.sourceSnapshot !== undefined)
     || runtimeManifest.harnessVersion !== expectedHarnessVersion
     || runtimeManifest.deepviewerVersion !== appVersion
     || JSON.stringify(runtimeManifest.plugins) !== JSON.stringify(expectedRuntimePlugins)
@@ -150,6 +166,7 @@ for (const arch of architectures) {
   const electronZipDir = cachedElectronZipDirectory(arch)
   const paths = await packager({
     dir: stagingAppRoot,
+    tmpdir: resolve(outputRoot, '.packager', `${outputName}-${arch}`),
     out: outputRoot,
     overwrite: true,
     platform: 'darwin',
@@ -182,6 +199,7 @@ for (const arch of architectures) {
   const packagedOutputRoot = paths[0]
   if (packagedOutputRoot === undefined) throw new Error(`Electron Packager returned no ${arch} output path`)
   const appPath = resolve(packagedOutputRoot, `${packagedName}.app`)
+  await verifyRuntimeVersion(resolve(appPath, 'Contents', 'Resources', 'harness'), appManifest)
   await auditPackagedApp({
     appPath,
     projectRoot,

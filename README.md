@@ -1,388 +1,96 @@
-<p align="center">
-  <img src="Resources/DeepViewer-Icon.png" width="160" alt="DeepViewer app icon">
-</p>
+# DeepViewer
 
-<h1 align="center">DeepViewer</h1>
+DeepViewer is an independent, open-source macOS workspace built on [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It packages the agent runtime as an Apple Silicon desktop app and adds Work and Chat spaces, file delivery, a sidebar workbench, and desktop controls. It is a community project, not an official DeepSeek product.
 
-<p align="center">
-  A visual, controllable, and customizable desktop workspace for DeepSeek Harness.
-</p>
+**Current release: 0.3.3 (Build 75)** · DeepSeek Harness `0.1.5-rc.2` · macOS Apple Silicon (arm64)
 
-<p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
-  <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="macOS Apple Silicon" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
-  <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
-  <a href="https://github.com/deepseek-ai/deepseek-harness/discussions/2828"><img alt="Discuss on GitHub" src="https://img.shields.io/badge/Discuss-GitHub%20Discussions-181717?logo=github&logoColor=white"></a>
-</p>
+[Download the signed and Apple-notarized DMG](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) · [简体中文](README.zh-CN.md) · [Release notes](docs/sdd/releases/v0.3.3.md)
 
-<p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1"><strong>Download 0.2.5 (ARM)</strong></a>
-  ·
-  <a href="#whats-new-in-023">What's new in 0.2.3</a>
-  ·
-  <a href="#privacy-by-design">Privacy</a>
-  ·
-  <a href="#build-and-test">Build from source</a>
-</p>
+<p align="center"><img src="Resources/screenshots/image-delivery.png" width="1100" alt="DeepViewer conversation delivering a generated image as a file attachment with a working sidebar preview"></p>
 
-<p align="center">
-  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
-</p>
+## What changed since the previous public release (0.2.5)
 
-DeepViewer is an independent, open-source desktop agent workspace built on
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It bundles
-the pinned local runtime into a normal macOS application and provides a desktop
-shell designed for a visual, controllable agent experience.
-
-<p align="center">
-  <img src="Resources/DeepViewer-0.2.5-preview.1.png" width="100%" alt="DeepViewer 0.2.5 with DSH 0.1.5-rc.2">
-</p>
-
-> [!NOTE]
-> DeepViewer is a community project. It is not affiliated with or endorsed by
-> DeepSeek.
-
-> [!IMPORTANT]
-> The current release is **DeepViewer 0.2.5 / Build 1** (retained tag: `v0.2.5-preview.1`), based on v0.2.3 and adapted to DSH 0.1.5-rc.2. It supports **Apple Silicon arm64 only** and uses the official preview with the existing top-right expand, collapse, and fullscreen controls.
-> This release has smoke coverage only; real-account workflows and interaction acceptance remain with the maintainer.
-
-> [!TIP]
-> This release was promoted from Preview to GitHub Latest on September 15, 2026. Its existing tag, signed ARM64 package, and separate Preview data directory are retained. Historical Intel downloads remain available in [v0.2.3](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.3).
-
-## Why DeepViewer
-
-| | |
+| Area | Changes in 0.3.3 |
 | --- | --- |
-| **Desktop first** | Launch the agent as a normal macOS application without manually running Node, npm, pnpm, or a Web UI command. |
-| **Self-contained runtime** | Ships the pinned Harness runtime and compatible execution environment inside the application. |
-| **Native Mac packages** | This release provides an Apple Silicon arm64 package. |
-| **Integrated macOS shell** | Uses native traffic lights inside the application, a full-width drag region, and a Codex-style collapsible sidebar. |
-| **Local by default** | Runs Harness on a random `127.0.0.1` port and does not expose the service to the LAN. |
-| **Controlled lifecycle** | Starts, health-checks, monitors, retries, and stops Harness together with the desktop application. |
-| **Clean public artifacts** | Rebuilds each public package from allowlisted inputs and blocks releases containing developer paths, settings, or credential values. |
-| **Spec driven** | Keeps product intent, architecture, implementation tasks, and verification evidence in a committed SDD system. |
+| Work and Chat | Separate workspace-backed Work sessions from workspace-free Chat history. Create projects from the sidebar, search Chat history, and recover session mode and titles after a restart without opening every conversation. |
+| Files and previews | Deliver generated images and other files as attachment cards. Materialize external or extensionless outputs inside the session workspace with an appropriate extension so the card and sidebar preview refer to the same file. |
+| Sidebar workbench | Integrate the open-source Better Sidebar workbench for files, editor, terminal, Git and browser panels. Desktop adaptations preserve window chrome, session-relative paths, navigation, and authentication checks. |
+| Models | Add a first-party reasoning and multimodal capability editor with bounded model scanning. Provider support is checked per model; a successful scan does not guarantee every provider feature works. |
+| Progress and appearance | Group related context and operations into expandable summaries, align their text and multimodal status with the conversation font-size setting, add clearer hover states, image-generation shimmer, and a 12 × 12 px Drive activity indicator. Settings layout and system appearance follow the desktop shell. |
+| Networking | Use the system proxy/PAC configuration for the bundled runtime, preserve explicit proxy settings, show clearer connection errors, and request scoped permission before accessing private-network addresses. |
+| Upgrade continuity | Installed and development editions use separate, fixed data directories. First launch imports older same-edition sessions and attachments with backups; later app and Harness versions reuse the fixed directory. Cold session lists restore Work/Chat classification from persisted events. |
 
-## Quick start
+The removed Taskboard integration is **not** included. Some provider, sidebar, and migrated-data flows still need real-account and manual UI acceptance; see the [release record](docs/sdd/releases/v0.3.3.md) for the verification boundary.
 
-1. Download the [ARM64 DMG](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.5-preview.1/DeepViewer-0.2.5-macos-arm64.dmg).
+### Work, Chat, and process disclosure
+
+Work groups sessions by project. Chat keeps conversations independent of a workspace. Both modes restore their history on startup, and related context, reasoning, searches, and operations appear in expandable summaries.
+
+![A Work project and its conversation history](Resources/screenshots/work-session.png)
+
+![Workspace-free Chat with expanded process disclosure](Resources/screenshots/chat-and-disclosure.png)
+
+### Files and sidebar workbench
+
+The sidebar can inspect workspace files, preview generated HTML, and browse pages alongside the conversation. File paths, panel navigation, and browser access are connected to the active desktop session.
+
+![A web page opened beside a Work conversation](Resources/screenshots/browser-workbench.png)
+
+![A generated HTML page in the sidebar preview](Resources/screenshots/html-preview.png)
+
+### Generated images and attachments
+
+Generated files are delivered as attachment cards with usable names and extensions. The same workspace copy opens in the sidebar preview, including images first produced outside the workspace.
+
+![Generated image attachment and sidebar preview](Resources/screenshots/image-delivery.png)
+
+![Image generation result shown with its process and sidebar preview](Resources/screenshots/image-generation.png)
+
+### Appearance and version identity
+
+Settings follow the desktop appearance, and the About page shows the app build and bundled Harness version.
+
+![About DeepViewer showing version 0.3.3 Build 75 and Harness 0.1.5-rc.2](Resources/screenshots/about-version.png)
+
+## Install and data
+
+1. Download `DeepViewer-0.3.3-macos-arm64.dmg` and check it against `SHA256SUMS.txt` in the [release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
-3. Configure an account and workspace on first launch. This release keeps its data in `~/Library/Application Support/DeepViewer Preview/0.2.5-preview.1`.
+3. Open the app and configure a provider or subscription. No global Node.js or Harness installation is needed.
 
-Use [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.2.5-preview.1/SHA256SUMS.txt) to verify the download. Requires an Apple Silicon Mac running macOS 12 or later.
+DeepViewer binds its local service to a random loopback port. Installed app data lives in `~/Library/Application Support/DeepViewer`; development app data lives in `~/Library/Application Support/DeepViewer Dev`. Replacing the application does not replace these directories. Legacy data is copied and verified before first-use cutover; migration backups are retained. Keep your own backup before a major upgrade.
 
-## What is new in 0.2.5
+The release package is built from a clean allowlist of application code, pinned runtime packages, assets, and licenses. It does **not** contain the maintainer's sessions, workspaces, settings, logs, account credentials, home-directory paths, or development handoff files. The packaged app is audited before signing and publication.
 
-- Pins official DSH `0.1.5-rc.2`, based on v0.2.3 without the 0.2.4 Activity Island development line.
-- Uses official file and web previews with the existing top-right expand, collapse, and fullscreen controls.
-- Adapts subscription status RPC and optional tool arguments; restores composer bottom spacing.
-- Ships ARM64 only and uses a separate Preview data directory.
-- Verification covers builds, artifact inspection, and smoke checks; manual acceptance remains pending.
+## Open-source foundations and DeepViewer modifications
 
-[Release record](docs/sdd/releases/v0.2.5-preview.1.md).
+| Component | Source and license | What DeepViewer changes |
+| --- | --- | --- |
+| Core agent | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), MIT, pinned to `fb2c4b9e698e30edb738bca4cf0618587db7d203` (`0.1.5-rc.2`) | Desktop integration and a [reproducible source patch](upstream/snapshots/v0.3.3/README.md) for Work/Chat, session recovery, file delivery, progressive disclosure, themes, and network bridging. The agent loop remains upstream-owned. |
+| Subscriptions and image tools | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions), MIT, `0.3.1` | DSH 0.1.5 compatibility adapter, scoped RPC/loopback checks, remaining-usage display, and image-generation status styling. |
+| Sidebar workbench | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar), MIT, `0.19.1` | macOS chrome and settings adaptation, native panel routing, session-relative paths, and desktop browser/authentication integration. |
+| Model capability editor | [DeepViewer first-party plugin](apps/dsh-plugin-reasoning), MIT, `0.1.0` | Provider/model scanning and manual reasoning and multimodal capability configuration. |
 
-## What's new in 0.2.3
+The historical first-party preview plugin is disabled in favor of the Harness preview. [dashi-taskboard](https://github.com/chuspeeism/dashi-taskboard) was evaluated and removed; no Taskboard runtime is bundled. Upstream copyrights and third-party licenses remain with their respective projects.
 
-<p align="center">
-  <img src="Resources/DeepViewer-0.2.3.png" width="100%" alt="DeepViewer 0.2.3 About page with app version 0.2.3 Build 1 and DeepSeek Harness 0.1.1-rc.2">
-</p>
+## Build from source
 
-- Pins the only bundled core to the immutable DeepSeek Harness
-  `dsh-v0.1.1-rc.2` tag (`b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`).
-- Adapts and revalidates `dsh-plugin-subscriptions@0.3.1` and
-  `@deepviewer/dsh-plugin-preview@0.1.0` against the rc.2 Host, Client,
-  provider, model, settings, preview, and fallback contracts.
-- Preserves JSONL as the default session backend while adopting rc.2 image
-  handling, Files API reuse, visual-model constraints, multi-question input,
-  wide Markdown tables, and subagent title navigation.
-- Updates the rc.2 sidebar brand contract: the DeepViewer symbol and the text
-  name `DeepViewer` occupy independent slots, including in local builds, so
-  the UI cannot fall back to the DSH whale and `DSH Local Build` placeholder.
-- Builds independent arm64 and x64 Runtimes and DMGs from allowlisted inputs.
-  Both packages pass privacy auditing, strict Developer ID application/DMG
-  signature verification, Apple notarization, ticket stapling, Gatekeeper,
-  disk-image verification, and read-only mounted-app assessment.
-
-The complete implementation and verification scope is tracked by
-[`DV-0015`](docs/sdd/specs/DV-0015-dsh-rc2-core-upgrade/spec.md) and the
-[`0.2.3 release record`](docs/sdd/releases/v0.2.3.md). DeepViewer 0.2.2 Build 2
-remains available as the previous rc.8 rollback release.
-
-## What's new in 0.2.2
-
-<p align="center">
-  <img src="Resources/DeepViewer-0.2.2.png" width="100%" alt="DeepViewer 0.2.2 About page with app and rc.8 core versions">
-</p>
-
-### Build 2 browser-launch hotfix
-
-- Prevents rc.8's `dsh web` default from opening the system browser when
-  DeepViewer starts. The local Harness page is loaded only by the application.
-- Applies `--no-open` to the core, subscriptions-only, preview-enabled, and
-  core fallback launch paths without changing loopback binding or permissions.
-- Keeps the original `v0.2.2` Build 1 release unchanged as a rollback option.
-
-### DeepSeek Harness rc.8
-
-- Upgrades the only bundled core to the immutable DeepSeek Harness
-  `0.1.0-rc.8` release (`141eb6fef83422698aef7a981029e843e8161534`).
-- Brings upstream multimodal and image-input improvements, file/session
-  references, installable Claude and Codex subagent bundles, persistent
-  PowerShell, concurrent web search, subagent wakeups, and startup/download
-  refinements into the pinned local Runtime.
-- Includes upstream fixes for image payloads, stream cancellation, custom
-  OpenAI-compatible gateways, search, tool rendering, and UI layout.
-
-### Compatibility and data safety
-
-- Revalidates `dsh-plugin-subscriptions@0.3.1` and
-  `@deepviewer/dsh-plugin-preview@0.1.0` against rc.8. The preview plugin now
-  pins rc.8 peers and builds through the rc.8 host/client contract without
-  widening desktop filesystem or network privileges.
-- Keeps the default DeepViewer session backend on JSONL, so ordinary 0.2.1
-  installations do not undergo a storage migration. rc.8's optional SQLite
-  backend uses schema 17 and has no migration from the earlier pre-release
-  schema; custom SQLite users should retain their database and either start a
-  new rc.8 database or reinstall 0.2.1 to read the old one.
-- Preserves the immutable signed bundle, plugin disable/fallback paths, and the
-  existing 0.2.1 Release as a rollback option.
-
-### Release quality
-
-- Rebuilds independent arm64 and x64 Runtimes from the official rc.8
-  release-pack. Each application contains one pinned Harness and the same two
-  registered plugins.
-- Runs the complete upstream official build, 106 desktop tests, TypeScript and
-  desktop production builds, package privacy audits, strict Developer ID
-  signing, Apple notarization, ticket stapling, Gatekeeper and DMG verification.
-
-See the [`0.2.2 Build 2` release record](docs/sdd/releases/v0.2.2-build.2.md) for the complete
-asset and verification evidence. The 0.2.2 image records the rc.8 About view;
-the maintainer-accepted 0.2.1 conversation and preview interface remains shown
-in its version history below.
-
-## What's new in 0.2.1
-
-<p align="center">
-  <img src="Resources/DeepViewer-0.2.1.jpg" width="100%" alt="DeepViewer 0.2.1 conversation workspace and web preview sidebar">
-</p>
-
-### DeepSeek Harness rc.7 and plugin governance
-
-- Upgrades the only bundled core to DeepSeek Harness `0.1.0-rc.7`; the About
-  page reports the app version, build number, and active core version together.
-- Introduces a committed DSH plugin registry. Every future core update must
-  recheck the source, pinned version, peer graph, client injection points,
-  capabilities, security boundaries, fallback behavior, and packaged Runtime
-  for every active plugin.
-- Keeps the signed application immutable: plugins are pinned at build time and
-  never download into or modify `Contents/Resources/harness` at runtime.
-
-### Subscriptions inside Models
-
-- Integrates `dsh-plugin-subscriptions@0.3.1` through official DSH bundle and
-  client extension points rather than a private model protocol.
-- Reorganizes Models into an API section followed by Subscriptions, separated
-  with the same visual divider used by Settings.
-- Supports localized external-browser sign-in and provider status. Remaining
-  quota fills the usage bar directly, changes color at healthy/warning/critical
-  thresholds, and uses the provider-neutral “period window” label.
-- A real subscription login was manually validated. Provider model/tool calls
-  and logout remain explicit compatibility checks because the external services
-  do not expose stable public protocols.
-
-### Code and static web preview
-
-- Adds a first-party `@deepviewer/dsh-plugin-preview@0.1.0` right sidebar with a
-  workspace file tree, read-only syntax-highlighted code, and isolated static
-  web preview.
-- Opens at one third of the current window, supports direct border resizing,
-  and exposes a fixed top-right toggle that respects the macOS safe area.
-- Provides collapsible workspace files, draggable vertical section sizing, and
-  a compact browser toolbar with back, forward, refresh, constrained address
-  navigation, and system-browser handoff.
-- Restricts preview access to registered workspaces. Path traversal, symlink
-  escapes, sensitive files, binaries, oversized files, expired capabilities,
-  and arbitrary development-server URLs are rejected.
-
-### Faster artifact workflow and refined desktop shell
-
-- Agent-generated files now open in DeepViewer Preview on a normal click.
-  Native context menus add “Preview in DeepViewer”, “Show in Finder”, and copy
-  path actions while retaining the original Host fallback.
-- Settings is now a full-window application page with a stable two-column
-  layout and an About DeepViewer destination.
-- Refreshes the native SVG wordmark, welcome composition, 120px startup mark,
-  light/dark contrast, and manual-only left/right sidebar controls.
-
-### Release quality
-
-- Rebuilds independent arm64 and x64 Runtimes from the rc.7 release-pack. Each
-  application contains exactly one Harness and the same two pinned plugins.
-- Both DMGs passed allowlist and credential-value privacy audits, strict nested
-  code-sign verification, Apple notarization, ticket stapling, Gatekeeper,
-  architecture inspection, and independent post-upload SHA-256/DMG verification.
-
-See the [`0.2.1` release record](docs/sdd/releases/v0.2.1.md) for the complete
-asset and verification evidence.
-
-## What's new in 0.1.2
-
-<p align="center">
-  <img src="Resources/DeepViewer-0.1.2-Dark.jpg" width="49%" alt="DeepViewer 0.1.2 in dark mode">
-  <img src="Resources/DeepViewer-0.1.2-Light.jpg" width="49%" alt="DeepViewer 0.1.2 in light mode">
-</p>
-
-- Restructured the macOS window as two visual columns—sidebar and Chat—with
-  structural safe areas inside each column instead of a separate full-width bar.
-- Moved model usage statistics into the centered Chat safe area and fixed the
-  composer to the same 32px bottom baseline in new, thinking, streaming, and
-  completed states.
-- Added a full-Chat-canvas welcome surface with a 48px half-opacity animated
-  DeepViewer mark and the localized “What shall we build?” headline.
-- Refined the inline sidebar wordmark, native focused-window material, solid
-  unfocused state, light/dark fade continuity, fixed sidebar toggle, and native
-  control readability.
-- Added tracked upstream UI overrides with deterministic sync/build checks, plus
-  isolated development, local ARM preview, and explicit release workflow tiers.
-- Build 2 added a restricted system-browser handoff for HTTP(S) links and native
-  “Show in Finder” and copy-path actions for local deliverables.
-- Rebuilt separate arm64 and x64 DMGs from allowlisted inputs. Both packages are
-  Developer ID signed, Apple-notarized, stapled, privacy-audited, and published
-  with reproducible SHA-256 checksums.
-
-See the [`0.1.2` release record](docs/sdd/releases/v0.1.2.md) and
-[`v0.1.2-build.2` release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.1.2-build.2)
-for the complete asset and verification evidence.
-
-## What's new in 0.1.1
-
-<p align="center">
-  <img src="Resources/DeepViewer-Conversation.png" width="100%" alt="DeepViewer conversation workspace">
-</p>
-
-- Integrated the native macOS traffic lights into the app surface and removed
-  the separate system title bar.
-- Added a Codex-style sidebar control beside the traffic lights. Collapsing now
-  hides the entire sidebar, and the control moves left when native fullscreen
-  hides the traffic lights.
-- Reserved a full-width top safe area so window controls, page actions, and the
-  draggable region do not overlap.
-- Unified the application name and Dock identity as `DeepViewer`, using the
-  maintainer-provided macOS 26 icon.
-- Added a centered DeepViewer startup surface with a blinking cursor line and a
-  separate plugin-loading surface with a stable logo and `Loading Plugins...`
-  text shimmer.
-- Added release privacy gates: every public architecture is rebuilt from a clean
-  runtime and allowlist staging directory, then audited before its DMG is created.
-- Generated fresh, architecture-specific arm64 and x64 DMGs for 0.1.1. Both
-  packages are Developer ID signed and passed Apple notarization.
-
-## Current limitations
-
-- The x64 build passes architecture, package, and Rosetta-based validation on
-  Apple Silicon; physical Intel Mac acceptance remains pending.
-- Subscription providers use external, non-stable protocols. Login has been
-  manually validated on 0.2.1; the complete login, status, model/tool call and
-  logout flow remains a provider-specific 0.2.3 check.
-- DeepViewer defaults to JSONL and does not provide a migration for custom
-  optional SQLite databases. Custom SQLite users should retain their old
-  database and validate a new rc.2 database separately or roll back before
-  changing storage configuration.
-- The preview browser supports workspace static sites, not arbitrary dev-server URLs,
-  editing, or a full general-purpose browser.
-- Windows packaging, automatic updates, crash reporting, and a stable support
-  policy are not included in this preview.
-- The complete bundled runtime keeps each DMG large; runtime size optimization is
-  deferred until the product path is stable.
-
-## Privacy by design
-
-- Harness listens only on a randomly assigned loopback address.
-- The desktop window rejects unexpected navigation and new windows.
-- Harness telemetry is disabled by the desktop launch configuration.
-- The Renderer receives only an allowlisted desktop bridge; it does not receive
-  general shell or filesystem access.
-- Logs redact common authorization headers, API-key assignments, and secret-like
-  values.
-- Public packages are created from a clean allowlist staging directory. The build
-  removes package-manager workspace metadata and blocks developer home paths,
-  personal settings files, and current environment credential values.
-- DeepViewer does not add the developer's or maintainer's local sessions,
-  workspace, logs, settings, or API credentials to release assets.
-
-## Requirements
-
-For the prebuilt application:
-
-- An Apple Silicon Mac for this Preview; Intel users can keep v0.2.3.
-- No global Node.js, npm, pnpm, or DeepSeek Harness installation is required.
-- macOS 12 or later (the bundled Electron minimum).
-
-For development:
-
-- Node.js 24 or later.
-- pnpm 11.19.0.
-- The pinned DeepSeek Harness checkout described below.
-
-## Build and test
+Requires macOS arm64, Node.js 24+, and pnpm 11.19.0. The committed patch reconstructs the exact Harness source used for this release from the pinned upstream commit; no user data or prebuilt app is needed.
 
 ```sh
 git clone https://github.com/Duoasa/DeepViewer.git
 cd DeepViewer
-pnpm install
-
+pnpm install --frozen-lockfile
 git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
 git -C upstream/deepseek-harness checkout fb2c4b9e698e30edb738bca4cf0618587db7d203
-pnpm --dir upstream/deepseek-harness install
-node apps/deepviewer-desktop/scripts/sync-upstream-overrides.mjs --build
-pnpm --dir upstream/deepseek-harness run release:pack --family vendor --out dist/deepviewer/vendor
-pnpm --dir upstream/deepseek-harness run release:pack --family dsh --out dist/deepviewer/dsh
-
+git -C upstream/deepseek-harness apply --whitespace=nowarn ../snapshots/v0.3.3/harness.patch
+pnpm --dir upstream/deepseek-harness install --frozen-lockfile
+pnpm --dir upstream/deepseek-harness run build:official
 pnpm desktop:build
 ```
 
-GitHub Actions runs the frozen-lockfile install, typecheck, test suite, and
-production build for every pull request and push to `main`. The workflow has
-read-only repository access and never invokes preview packaging, release
-packaging, signing, notarization, or uploads.
+`pnpm desktop:build` increments the local build number for continued development. The [snapshot instructions](upstream/snapshots/v0.3.3/README.md) explain how to reproduce fixed Build 75, including Runtime packaging, Developer ID signing, and Apple notarization. Signing credentials stay in the local Keychain and are never committed.
 
-Use the lightest explicit iteration tier that matches the task:
+The [SDD documents](docs/sdd/README.md) record architecture, plugin provenance, requirements, and verification. DeepViewer's original code uses the [MIT License](LICENSE); all upstream licenses remain applicable.
 
-```sh
-pnpm desktop:dev          # build, watch, and restart an isolated development app
-pnpm desktop:dev:restart  # request one rebuild/restart from the active dev runner
-pnpm desktop:preview      # create an unsigned local arm64 DeepViewer Dev.app
-pnpm desktop:release      # rebuild, sign, and notarize ARM64; no upload
-```
-
-The development and preview tiers use the isolated `DeepViewer Dev` data
-directory. Unless a maintainer explicitly requests documentation sync, a local
-preview, or a formal release, normal iteration changes code and runs relevant
-checks only. GitHub release uploads remain a separate, explicitly authorized
-operation.
-
-Generated applications, runtimes, and DMGs are written below `out/` and
-`.runtime/`. They are build outputs and are intentionally excluded from Git.
-
-## Spec-Driven Development
-
-DeepViewer's [SDD documentation system](docs/sdd/README.md) is the source of
-truth for product baselines, architecture decisions, specifications, tasks,
-verification, release privacy rules, and public artifact evidence.
-
-## License and upstream
-
-DeepViewer's original code is released under the [MIT License](LICENSE).
-DeepSeek Harness and all third-party components retain their respective
-copyright notices and licenses. The current desktop baseline is pinned to
-DeepSeek Harness commit
-`fb2c4b9e698e30edb738bca4cf0618587db7d203` (`0.1.5-rc.2`).
-
-## Feedback
-
-Bug reports and focused feature proposals are
-welcome in [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues). Never
-include API keys, credentials, private workspace content, or unredacted logs in
-an issue.
+Report issues in [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues). Please omit credentials, private files, and unredacted logs.

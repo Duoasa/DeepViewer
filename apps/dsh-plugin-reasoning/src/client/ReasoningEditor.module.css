@@ -1,0 +1,63 @@
+/* The provider card owns the only outer frame. Sections use spacing and a
+   single divider; only interactive inputs/buttons need their own outline. */
+.scan {
+  margin: 8px 0 0;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--dsw-alias-border-l3, #8883);
+  color: var(--dsw-alias-label-primary, inherit);
+  min-width: 0;
+}
+.scan p, .root p {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--dsw-alias-label-secondary, inherit);
+  margin: 8px 0;
+}
+.scanHeader { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.scanHeader > strong { font-size: 13px; font-weight: 600; }
+.scan .hint { margin: 6px 0 14px; color: var(--dsw-alias-label-tertiary, inherit); }
+.scan button, .root select, .root input:not([type=checkbox]), .root button {
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--dsw-alias-border-l3, #8883);
+  border-radius: 8px;
+  padding: 6px 10px;
+  min-width: 0;
+}
+.scan button, .root button { cursor: pointer; }
+.scan button:hover, .root button:hover { background: var(--dsw-alias-interactive-bg-hover, #8881); }
+.scan :disabled, .root :disabled { opacity: .5; cursor: default; }
+.scan :is(button, select, input, summary):focus-visible,
+.root :is(button, select, input, summary):focus-visible {
+  outline: 2px solid var(--dsw-alias-focus-ring, currentColor);
+  outline-offset: 2px;
+}
+.metrics { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 14px 0 12px; font-size: 12px; color: var(--dsw-alias-label-secondary, inherit); }
+.metrics strong { font-size: 14px; font-weight: 600; color: var(--dsw-alias-label-primary, inherit); }
+.disclosure, .rules { margin: 10px 0; }
+.scan summary { width: fit-content; max-width: 100%; font-size: 12px; cursor: pointer; line-height: 1.6; }
+.rules { margin-top: 14px; color: var(--dsw-alias-label-tertiary, inherit); }
+.rules p { max-width: 80ch; }
+.scanActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; margin: 14px 0; }
+.scan .quietButton { border-color: transparent; color: var(--dsw-alias-label-secondary, inherit); }
+.check { display: flex; gap: 8px; font-size: 12px; margin: 12px 0; align-items: center; }
+.root { margin-top: 18px; padding: 16px 0 0; border: 0; border-top: 1px solid var(--dsw-alias-border-l3, #8883); color: inherit; }
+.root > summary { cursor: pointer; font-size: 13px; font-weight: 500; line-height: 1.6; }
+.root[open] > summary { margin-bottom: 12px; }
+.root fieldset { border: 0; padding: 0; margin: 14px 0 0; min-width: 0; display: grid; gap: 12px; }
+.root label { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+.root select { max-width: 75%; background: var(--dsw-alias-bg-base, transparent); }
+.level { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(80px, 1fr); gap: 12px; }
+.level label { justify-content: flex-start; }
+.actions { display: flex; justify-content: flex-end; gap: 10px; }
+.results { overflow: auto; max-height: 320px; margin: 8px 0; }
+.results table { border-collapse: collapse; text-align: left; width: 100%; font-size: 12px; }
+.results td, .results th { padding: 8px; border-bottom: 1px solid var(--dsw-alias-border-l3, #8883); vertical-align: top; overflow-wrap: anywhere; }
+.scan [role=alert], .root [role=alert] { color: var(--dsw-alias-status-error, var(--dsw-alias-label-primary)); }
+@media (max-width: 640px) {
+  .metrics { gap: 6px 14px; }
+  .root label { flex-wrap: wrap; }
+  .root select { max-width: 100%; }
+}

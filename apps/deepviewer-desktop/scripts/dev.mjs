@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, rmSync, watch } from 'node:fs'
+import { existsSync, readFileSync, rmSync, watch } from 'node:fs'
 import { createConnection, createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { dirname, join, normalize, resolve } from 'node:path'
@@ -18,6 +18,26 @@ const watchedRootEntries = new Set([
   'vite.preload.config.ts',
   'vite.renderer.config.ts',
 ])
+
+function manifestWithoutBuildNumber() {
+  try {
+    const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+    delete manifest.buildNumber
+    return JSON.stringify(manifest)
+  } catch {
+    return undefined
+  }
+}
+
+export function createManifestChangeDetector(readFingerprint = manifestWithoutBuildNumber) {
+  let previous = readFingerprint()
+  return () => {
+    const current = readFingerprint()
+    if (current === undefined || current === previous) return false
+    previous = current
+    return true
+  }
+}
 
 export function shouldRestartForDevelopmentPath(path) {
   if (typeof path !== 'string' || path === '') return false
@@ -162,8 +182,13 @@ async function runDevelopmentRunner() {
     server.listen(socketPath, resolvePromise)
   })
 
+  const manifestChanged = createManifestChangeDetector()
   const sourceWatcher = watch(appRoot, { recursive: true }, (_eventType, filename) => {
     if (!shouldRestartForDevelopmentPath(filename)) return
+    // `pnpm build` increments package.json's buildNumber. That metadata change
+    // is part of the build itself and must not trigger a second build loop;
+    // substantive manifest edits still restart the development app.
+    if (filename === 'package.json' && !manifestChanged()) return
     if (debounceTimer !== undefined) clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
       void requestRestart(`changed ${filename}`)

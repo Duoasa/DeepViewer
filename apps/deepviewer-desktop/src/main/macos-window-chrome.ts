@@ -12,6 +12,8 @@ export const MACOS_TOP_SAFE_AREA_HEIGHT = 48
 export const MACOS_WINDOW_CHROME_CSS = `
 :root {
   --deepviewer-window-control-top: 13px;
+  --deepviewer-window-control-size: 24px;
+  --deepviewer-window-control-icon-size: 16px;
   --deepviewer-window-control-right: max(16px, env(safe-area-inset-right));
 }
 
@@ -55,7 +57,8 @@ body,
   background: var(--dsw-alias-bg-base);
 }
 
-[data-deepviewer-macos-sidebar-column] {
+[data-deepviewer-macos-sidebar-column],
+[data-deepviewer-settings-sidebar] {
   background: var(--dsw-specific-sidebar-fill) !important;
 }
 
@@ -64,9 +67,17 @@ body,
 }
 
 :root[data-deepviewer-macos-window-focused]
-  [data-deepviewer-macos-sidebar-column] {
+  [data-deepviewer-macos-sidebar-column],
+:root[data-deepviewer-macos-window-focused]
+  [data-deepviewer-settings-sidebar] {
   --dsw-specific-sidebar-fill:
     color-mix(in srgb, var(--dsw-alias-bg-base) 58%, transparent);
+}
+
+/* Keep the workspace mounted while settings uses the same native backdrop. */
+body:has([data-deepviewer-settings-sidebar]) [data-deepviewer-macos-frame] {
+  opacity: 0;
+  pointer-events: none;
 }
 
 [data-deepviewer-macos-sidebar-safe-area],
@@ -154,8 +165,8 @@ body,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: var(--deepviewer-window-control-size);
+  height: var(--deepviewer-window-control-size);
   margin: 0;
   padding: 0;
   border: 0;
@@ -182,8 +193,8 @@ body,
 
 #deepviewer-macos-sidebar-toggle > svg {
   display: block !important;
-  width: 16px;
-  height: 16px;
+  width: var(--deepviewer-window-control-icon-size);
+  height: var(--deepviewer-window-control-icon-size);
   color: currentColor;
 }
 
@@ -409,7 +420,10 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
 
     let nativeThemeSource = '';
     const syncNativeTheme = () => {
-      const source = document.body.hasAttribute('data-ds-dark-theme') ? 'dark' : 'light';
+      // Forward the preference, not its resolved palette: forcing light/dark
+      // also overrides prefers-color-scheme and breaks the system preference.
+      const preference = document.body.getAttribute('data-deepviewer-theme-source');
+      const source = preference === 'dark' || preference === 'light' ? preference : 'system';
       if (nativeThemeSource === source) return;
       nativeThemeSource = source;
       window.deepviewerDesktop?.setNativeThemeSource?.(source);
@@ -435,7 +449,7 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
     const themeObserver = new MutationObserver(syncNativeTheme);
     themeObserver.observe(document.body, {
       attributes: true,
-      attributeFilter: ['data-ds-dark-theme'],
+      attributeFilter: ['data-deepviewer-theme-source'],
     });
     sync();
     syncStats();

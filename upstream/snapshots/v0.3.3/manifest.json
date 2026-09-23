@@ -1,0 +1,10 @@
+{
+  "deepviewerVersion": "0.3.3",
+  "buildNumber": 75,
+  "harnessVersion": "0.1.5-rc.2",
+  "baseCommit": "fb2c4b9e698e30edb738bca4cf0618587db7d203",
+  "developmentHead": "a02198c1c2d3b2701296219278357e53f34711dc",
+  "sourceTree": "ce5732bcfa0a508d3fce6114d7afee2344dd34f5",
+  "patchSha256": "2559faae941c287207569bf11445cb49ee7ef6f76309c8352fdd43c0bbed62e3",
+  "restorationVerified": true
+}

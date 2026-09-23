@@ -18,6 +18,17 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DeepSeek Harness `0.1.5-rc.2` | ARM 开发构建及签名包启动/设置/认证冒烟通过；真实账户待验 | [DV-0017 验证](../specs/DV-0017-dsh-015-arm64-development/verification.md) |
 | `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Disabled` | DeepSeek Harness `0.1.5-rc.2` | 维护者要求使用官方预览；保留历史源码，停止 staging/启动/Runtime 构建 | [DV-0017 规格](../specs/DV-0017-dsh-015-arm64-development/spec.md) |
+| `DVP-0003` | `@deepviewer/dsh-plugin-reasoning` | `0.1.0` | `Active` | DeepSeek Harness `0.1.5-rc.2` | 逐提供方可用性、档位与图片输入扫描及手动能力编辑；本地模拟 API、隔离 Host 与配置冒烟通过；实机待验 | [DV-0018](../specs/DV-0018-model-reasoning-plugin/spec.md) |
+| `DVP-0004` | [`dsh-better-sidebar`](https://github.com/omdsh-dev/DSH-better-sidebar) | `0.19.1` | `Active` | DeepSeek Harness `0.1.5-rc.2` | 隔离 Host、资源与鉴权、PTY 冒烟通过；UI 待手工验收 | [DV-0020](../specs/DV-0020-better-sidebar-integration/spec.md) |
+| `DVP-0005` | [`dsh-codex-taskboard`](https://github.com/chuspeeism/dashi-taskboard) | Taskboard `1.1.24` / bridge `1.0.0`, commit `1528a8eb31466829ca5a9fd436f4dfd285694a74` | `Removed` | DeepSeek Harness `0.1.5-rc.2` | 维护者要求完整移除；不再参与内核升级检查 | [DV-0026](../specs/DV-0026-native-taskboard/spec.md) |
+
+### DVP-0004：原生侧栏工作台
+
+- 固定 npm 正式版本与锁文件 integrity，保留 MIT；开发 staging 链接已固定 DSH peers，不额外安装核心。
+- 通过官方 bundle patch 挂载；提供 DEEPVIEWER_DISABLE_BETTER_SIDEBAR=1。失败优先回退订阅和 reasoning，最后纯核心。
+- 提供官方右栏中的文件/编辑器/终端/Git/浏览器/侧边对话/任务，以及底部工作台；桌面只适配窗口控件、布局和主题，不复制插件状态。
+- 保留 workspaceFence 和 HTML 沙箱默认值；构建适配 `deepviewer-dsh015-browser-auth-v1` 让全部侧栏路由/WS 通过官方 connection.requestRejection 校验登录 cookie 和 Origin。模型 terminal/open 工具默认关闭，不改 DSH Agent 权限预设。
+- 正式 Runtime 构建入口包含包、懒加载 chunks、依赖和许可证；本轮不生成发布包。账号验证 PC-009 对此插件不适用；实机交互 Pending Manual。
 
 ### DVP-0001：订阅提供方
 

@@ -1,0 +1,11 @@
+{active === undefined && <p className={css.empty}>{callbacks.labels.emptyPane}</p>}
+{pane.tabs.map(tabId => getTab(state, tabId)).filter(tab => tab.kind === 'browser' || tab.id === active?.id).map(tab => (
+  <div
+    key={tab.id}
+    data-deepviewer-tab-body={tab.id}
+    aria-hidden={tab.id !== active?.id || undefined}
+    style={{ display: tab.id === active?.id ? 'flex' : 'none', flexDirection: 'column', flex: 1, minHeight: 0, minWidth: 0, height: '100%' }}
+  >
+    {callbacks.renderTab(tab)}
+  </div>
+))}

@@ -1,0 +1,7 @@
+      {statuses[0].state === 'ongoing' ? (
+        <span className={css.driveLoader} data-state="ongoing" aria-hidden="true">
+          {[90, 180, 270, 0, 90, 180, 90, 180, 270].map((delay, index) => (
+            <span key={index} className={css.driveCell} style={{ animationDelay: `${delay}ms` }} />
+          ))}
+        </span>
+      ) : <StateDot state={statuses[0].state} />}

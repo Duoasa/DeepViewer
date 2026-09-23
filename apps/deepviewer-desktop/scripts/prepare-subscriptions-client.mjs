@@ -1,6 +1,9 @@
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { adaptSubscriptionsClientSource } from './adapt-subscriptions-plugin.mjs'
+
+export const imageGenerateStylesPath = fileURLToPath(new URL('../upstream-overrides/subscriptions/ImageGenerateToolview.module.css', import.meta.url))
 
 /** Rebundle the pinned MIT plugin without the removed cross-plugin ImageGallery export. */
 export function prepareSubscriptionsClient(target, upstream, source) {
@@ -24,6 +27,7 @@ export function prepareSubscriptionsClient(target, upstream, source) {
     }
     writeFileSync(resolve(client, name), adaptSubscriptionsClientSource(name, content))
   }
+  cpSync(imageGenerateStylesPath, resolve(client, 'ImageGenerateToolview.module.css'))
   // This is a private source copy of the pinned upstream component, not a new public export.
   // Keep the upstream license alongside it; CSS is bundled by DSH's own client preset.
   for (const name of ['MessageImage.tsx', 'MessageImage.module.css', 'ImageLightbox.tsx', 'ImageLightbox.module.css']) {

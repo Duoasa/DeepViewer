@@ -1,6 +1,10 @@
+import { stageBetterSidebar, validateBetterSidebar, betterSidebarName, betterSidebarVersion } from './stage-better-sidebar.mjs'
+import { buildReasoningPlugin, reasoningPluginName } from './build-reasoning-plugin.mjs'
+import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import {
   chmodSync,
+  cpSync,
   existsSync,
   mkdirSync,
   readdirSync,
@@ -86,13 +90,19 @@ function packedDependencies() {
     if (!existsSync(packRoot)) {
       throw new Error(`Harness tarballs are missing at ${packRoot}; build and release-pack the pinned upstream checkout first`)
     }
-    const tarballs = readdirSync(packRoot)
-      .filter(name => name.endsWith('.tgz'))
-      .sort()
+    // Consume only the current release-pack manifest, never stale/cloud-conflict
+    // copies that may coexist in the output directory.
+    const tarballs = readFileSync(join(packRoot, 'publish-order.txt'), 'utf8')
+      .split('\n').map(name => name.trim()).filter(Boolean)
+    if (new Set(tarballs).size !== tarballs.length
+      || tarballs.some(name => !/^[A-Za-z0-9._-]+\.tgz$/u.test(name))) {
+      throw new Error(`invalid release-pack manifest at ${packRoot}`)
+    }
     if (tarballs.length === 0) throw new Error(`no Harness tarballs found at ${packRoot}`)
     for (const filename of tarballs) {
       const tarball = join(packRoot, filename)
       const identity = packedIdentity(tarball)
+      if (dependencies.has(identity.name)) throw new Error(`duplicate packed dependency: ${identity.name}`)
       dependencies.set(identity.name, tarball)
     }
   }
@@ -249,12 +259,51 @@ function sanitizeReleaseBuildPaths(runtimeRoot) {
   visit(runtimeRoot)
 }
 
+function packReasoningPlugin() {
+  const source = buildReasoningPlugin(upstreamRoot)
+  const destination = resolve(projectRoot, '.runtime/inputs/deepviewer-reasoning-0.1.0')
+  rmSync(destination, { recursive: true, force: true }); mkdirSync(destination, { recursive: true })
+  // Only package canonical build outputs; cloud-conflict copies in lib/ are not release inputs.
+  const packageSource = join(destination, 'package-source')
+  mkdirSync(join(packageSource, 'lib'), { recursive: true })
+  for (const file of ['package.json', 'LICENSE', 'cordis.patch.yml', 'lib/index.js', 'lib/client.js', 'lib/client.js.map']) {
+    cpSync(join(source, file), join(packageSource, file))
+  }
+  execFileSync('npm', ['pack', '--ignore-scripts', '--pack-destination', destination], { cwd: packageSource, stdio: ['ignore', 'pipe', 'pipe'] })
+  const files = readdirSync(destination).filter(name => name.endsWith('.tgz'))
+  if (files.length !== 1) throw new Error('Expected one reasoning plugin tarball')
+  const tarball = join(destination, files[0])
+  if (packedIdentity(tarball).name !== reasoningPluginName) throw new Error('Reasoning plugin identity mismatch')
+  return tarball
+}
+
+function packBetterSidebar() {
+  const source = stageBetterSidebar(upstreamRoot)
+  const destination = resolve(projectRoot, '.runtime/inputs', `${betterSidebarName}-${betterSidebarVersion}`)
+  mkdirSync(destination, { recursive: true })
+  const result = JSON.parse(execFileSync('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', destination], { cwd: source, encoding: 'utf8' }))
+  const tarball = join(destination, result[0].filename)
+  const identity = packedIdentity(tarball)
+  if (identity.name !== betterSidebarName || identity.version !== betterSidebarVersion) throw new Error('Better Sidebar tarball mismatch')
+  return tarball
+}
+
+const localSnapshot = process.argv.includes('--local-snapshot')
+const upstreamCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: upstreamRoot, encoding: 'utf8' }).trim()
+const sourceVersion = JSON.parse(readFileSync(join(upstreamRoot, 'package.json'), 'utf8')).version
+if (sourceVersion !== expectedHarnessVersion) throw new Error('Harness source version mismatch')
+if (upstreamCommit !== expectedHarnessCommit) {
+  if (!localSnapshot) throw new Error(`Harness checkout is ${upstreamCommit}; expected pinned commit ${expectedHarnessCommit}`)
+  execFileSync('git', ['merge-base', '--is-ancestor', expectedHarnessCommit, upstreamCommit], { cwd: upstreamRoot })
+}
 const dependencies = packedDependencies()
 dependencies.set(subscriptionsPluginName, packSubscriptionsPlugin())
-const upstreamCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: upstreamRoot, encoding: 'utf8' }).trim()
-if (upstreamCommit !== expectedHarnessCommit) {
-  throw new Error(`Harness checkout is ${upstreamCommit}; expected pinned commit ${expectedHarnessCommit}`)
-}
+dependencies.set(reasoningPluginName, packReasoningPlugin())
+dependencies.set(betterSidebarName, packBetterSidebar())
+const sourceSnapshot = localSnapshot ? {
+  kind: 'local-development', baseCommit: expectedHarnessCommit, headCommit: upstreamCommit,
+  packages: Object.fromEntries([...dependencies].sort(([a], [b]) => a.localeCompare(b)).map(([name, path]) => [name, createHash('sha256').update(readFileSync(path)).digest('hex')])),
+} : undefined
 
 for (const arch of architectures) {
   const runtimeRoot = resolve(projectRoot, '.runtime', arch, 'harness')
@@ -288,6 +337,13 @@ for (const arch of architectures) {
   })
 
   const packagedPlugins = [sanitizeSubscriptionsPlugin(runtimeRoot)]
+  const sidebarManifest = validateBetterSidebar(join(runtimeRoot, "node_modules", betterSidebarName))
+  if (sidebarManifest.deepviewerAdapter !== "deepviewer-dsh015-sidebar-management-v2") throw new Error("Better Sidebar runtime auth adapter missing")
+  packagedPlugins.push({ name: betterSidebarName, version: betterSidebarVersion, license: "MIT" })
+  for (const file of ['lib/index.js', 'lib/client.js', 'cordis.patch.yml', 'LICENSE']) {
+    if (!existsSync(join(runtimeRoot, 'node_modules', reasoningPluginName, file))) throw new Error('Reasoning plugin runtime file missing: ' + file)
+  }
+  packagedPlugins.push({ name: reasoningPluginName, version: '0.1.0', license: 'MIT' })
   const entry = join(runtimeRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
   if (!existsSync(entry)) throw new Error(`installed Harness entry is missing at ${entry}`)
   const spawnHelper = join(runtimeRoot, 'node_modules', 'node-pty', 'prebuilds', `darwin-${arch}`, 'spawn-helper')
@@ -321,8 +377,10 @@ for (const arch of architectures) {
     arch,
     upstream: 'deepseek-ai/deepseek-harness',
     upstreamCommit,
+    ...(sourceSnapshot ? { sourceSnapshot } : {}),
     harnessVersion: expectedHarnessVersion,
     deepviewerVersion,
+    deepviewerBuildNumber: appManifest.buildNumber,
     packageCount: dependencies.size,
     plugins: packagedPlugins,
     verifiedNativeModules,

@@ -21,12 +21,31 @@
 | [DV-0015](DV-0015-dsh-rc2-core-upgrade/spec.md) | DeepSeek Harness 0.1.1-rc.2 核心升级与 0.2.3 | Implementing | Duoasa | 2026-08-22 |
 
 | [DV-0017](DV-0017-dsh-015-arm64-development/spec.md) | DSH 0.1.5-rc.2 ARM 开发适配 | Implementing | Duoasa | 2026-09-14 |
+| [DV-0018](DV-0018-model-reasoning-plugin/spec.md) | 自定义模型思考强度原生插件 | Implementing | Duoasa | 2026-09-16 |
 
 DV-0016 已由既有灵动岛开发分支使用，本次稳定版基线不引入该功能。
 
+| [DV-0019](DV-0019-runtime-web-permission-parity/spec.md) | Runtime 与 DSH Web 权限一致性 | Implementing | Duoasa | 2026-09-19 |
+| [DV-0020](DV-0020-better-sidebar-integration/spec.md) | Better Sidebar 原生集成 | Implementing | Duoasa | 2026-09-19 |
+| [DV-0021](DV-0021-progressive-process-disclosure/spec.md) | 渐进式过程披露 | Implementing | Duoasa | 2026-09-19 |
+
+| [DV-0023](DV-0023-workspace-free-chat/spec.md) | 无工作区 Chat 与 Work 模式 | Implementing | Duoasa | 2026-09-20 |
+| [DV-0024](DV-0024-managed-project-creation/spec.md) | 统一目录与新建项目弹窗 | Implementing | Duoasa | 2026-09-20 |
+
+| [DV-0026](DV-0026-native-taskboard/spec.md) | Taskboard 原生集成（已撤销） | Superseded | Duoasa | 2026-09-21 |
+
+| [DV-0027](DV-0027-default-file-delivery/spec.md) | 默认文件附件交付 | Implementing | Duoasa | 2026-09-21 |
+| [DV-0029](DV-0029-system-network/spec.md) | 自动系统网络适配与内网授权 | Implementing | Duoasa | 2026-09-22 |
+
+| [DV-0031](DV-0031-stable-user-data/spec.md) | 固定用户数据目录与升级连续性 | Implementing | Duoasa | 2026-09-22 |
+
+| [DV-0032](DV-0032-public-033-release/spec.md) | 0.3.3 ARM64 公开签名发布 | Implementing | Duoasa | 2026-09-23 |
+
+DV-0022、DV-0025、DV-0028 和 DV-0030 是此前仅用于本地/内部固化的编号，其过程材料不属于公开源码；公开发布证据统一见 DV-0032。
+
 ## 下一个编号
 
-`DV-0018`
+`DV-0033`
 
 ## 目录规则
 

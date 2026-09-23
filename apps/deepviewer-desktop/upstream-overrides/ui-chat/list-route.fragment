@@ -1,0 +1,3 @@
+const ChatNodeList = memo(function ChatNodeList({ order, nodeStore, waiting, ...seatProps }: ChatNodeListProps & Pick<ProgressiveProps, 'nodeStore' | 'waiting'>) {
+  if (seatProps.compactTranscript) return <ProgressiveChatNodeList order={order} nodeStore={nodeStore} waiting={waiting} {...seatProps} />
+  return order.map

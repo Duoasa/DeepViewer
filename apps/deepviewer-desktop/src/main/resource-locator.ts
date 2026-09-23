@@ -47,29 +47,6 @@ const REQUIRED_PREVIEW_CLIENT_INJECTIONS = [
   '@deepseek-ai/dsh-client-ui-layout',
 ] as const
 
-const PASSTHROUGH_ENV = [
-  'HOME',
-  'USER',
-  'LOGNAME',
-  'PATH',
-  'SHELL',
-  'TMPDIR',
-  'LANG',
-  'LC_ALL',
-  'SSL_CERT_FILE',
-  'SSL_CERT_DIR',
-  'NODE_EXTRA_CA_CERTS',
-  'HTTP_PROXY',
-  'HTTPS_PROXY',
-  'NO_PROXY',
-  'http_proxy',
-  'https_proxy',
-  'no_proxy',
-  'DEEPSEEK_API_KEY',
-  'DEEPSEEK_BASE_URL',
-  'DEEPSEEK_SEARCH_BASE_URL',
-] as const
-
 function compatibleNodeVersion(version: string): boolean {
   const [majorText, minorText] = version.split('.')
   const major = Number(majorText)
@@ -77,14 +54,17 @@ function compatibleNodeVersion(version: string): boolean {
   return major >= 24 || (major === 22 && minor >= 19)
 }
 
-function runtimeEnvironment(app: App): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = {}
-  for (const name of PASSTHROUGH_ENV) {
-    const value = process.env[name]
-    if (value !== undefined) env[name] = value
-  }
+export function runtimeEnvironment(
+  app: Pick<App, 'getPath'>,
+  inherited: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  // Match a direct dsh web launch: tool/provider environment belongs to the
+  // host process. DSH remains responsible for tool sandboxing and approvals.
+  const env: NodeJS.ProcessEnv = { ...inherited }
   env.ELECTRON_RUN_AS_NODE = '1'
   env.DSH_HOME = join(app.getPath('userData'), 'harness-home')
+  env.DEEPVIEWER_PROJECTS_ROOT = join(app.getPath('documents'), 'DeepViewer', 'Projects')
+  env.DEEPVIEWER_SESSION_SEARCH = '1'
   env.DSH_TELEMETRY_DISABLED = '1'
   env.FORCE_COLOR = '0'
   return env
@@ -277,6 +257,47 @@ export function resolvePreviewPlugin(
   }
 }
 
+export function resolveReasoningPlugin(harnessRoot: string, dshHome: string, disabled = process.env.DEEPVIEWER_DISABLE_REASONING === '1'): SubscriptionsPluginResolution {
+  if (disabled) return { enabled: false, diagnostic: 'REASONING_DISABLED' }
+  const name = '@deepviewer/dsh-plugin-reasoning'
+  const root = join(harnessRoot, 'node_modules', name)
+  try {
+    const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+    const patchPath = join(root, 'cordis.patch.yml')
+    if (manifest.name !== name || manifest.version !== '0.1.0' || manifest.license !== 'MIT'
+      || manifest.dsh?.bundle?.patch !== './cordis.patch.yml' || manifest.dsh?.client?.platform !== 'web'
+      || manifest.peerDependencies?.['@deepseek-ai/dsh-api-remotes'] !== '0.1.5-rc.2'
+      || !['lib/index.js', 'lib/client.js', 'cordis.patch.yml', 'LICENSE'].every(file => existsSync(join(root, file)))) {
+      return { enabled: false, diagnostic: 'REASONING_UNAVAILABLE reason=manifest-invalid' }
+    }
+    if (!prepareProfileLink(root, dshHome, name)) return { enabled: false, diagnostic: 'REASONING_UNAVAILABLE reason=profile-link-occupied' }
+    return { enabled: true, patchPath, diagnostic: 'REASONING_ENABLED version=0.1.0' }
+  } catch { return { enabled: false, diagnostic: 'REASONING_UNAVAILABLE reason=package-missing-or-invalid' } }
+}
+
+export function resolveBetterSidebarPlugin(
+  harnessRoot: string,
+  dshHome: string,
+  disabled = process.env.DEEPVIEWER_DISABLE_BETTER_SIDEBAR === '1',
+): SubscriptionsPluginResolution {
+  if (disabled) return { enabled: false, diagnostic: 'BETTER_SIDEBAR_DISABLED' }
+  const name = 'dsh-better-sidebar'
+  const root = join(harnessRoot, 'node_modules', name)
+  try {
+    const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+    const patchPath = join(root, 'cordis.patch.yml')
+    if (manifest.name !== name || manifest.version !== '0.19.1' || manifest.license !== 'MIT'
+      || manifest.deepviewerAdapter !== 'deepviewer-dsh015-sidebar-management-v2'
+      || manifest.dsh?.bundle?.patch !== './cordis.patch.yml' || manifest.dsh?.client?.platform !== 'web'
+      || !manifest.dsh.client.inject?.includes('@deepseek-ai/dsh-client-ui-sidebar-right')
+      || !['lib/index.js', 'lib/client.js', 'lib/client-terminal.js', 'lib/client-editor.js', 'lib/client-mermaid.js', 'cordis.patch.yml', 'LICENSE'].every(file => existsSync(join(root, file)))) {
+      return { enabled: false, diagnostic: 'BETTER_SIDEBAR_UNAVAILABLE reason=manifest-invalid' }
+    }
+    if (!prepareProfileLink(root, dshHome, name)) return { enabled: false, diagnostic: 'BETTER_SIDEBAR_UNAVAILABLE reason=profile-link-occupied' }
+    return { enabled: true, patchPath, diagnostic: 'BETTER_SIDEBAR_ENABLED version=0.19.1' }
+  } catch { return { enabled: false, diagnostic: 'BETTER_SIDEBAR_UNAVAILABLE reason=package-missing-or-invalid' } }
+}
+
 export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
   if (process.platform !== 'darwin' || process.arch !== 'arm64') {
     throw new Error('DeepViewer 仅支持 Apple Silicon（macOS arm64）。')
@@ -312,12 +333,14 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
   }
 
   const subscriptions = resolveSubscriptionsPlugin(harnessRoot, dshHome)
+  const reasoning = resolveReasoningPlugin(harnessRoot, dshHome)
 
   const coreArgs = buildHarnessWebArgs(nodeArgs)
   const argsWithPatches = (patches: readonly string[]): string[] => (
     buildHarnessWebArgs(nodeArgs, patches)
   )
   const primaryPatches = [
+    ...(reasoning.enabled && reasoning.patchPath ? [reasoning.patchPath] : []),
     ...(subscriptions.enabled && subscriptions.patchPath !== undefined ? [subscriptions.patchPath] : []),
   ]
   const launch: RuntimeLaunchSpec = {
@@ -325,7 +348,7 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
     args: primaryPatches.length === 0 ? coreArgs : argsWithPatches(primaryPatches),
     cwd: workspaceRoot,
     env: environment,
-    startupDiagnostics: [subscriptions.diagnostic, 'PREVIEW_OFFICIAL DSH=0.1.5-rc.2'],
+    startupDiagnostics: [subscriptions.diagnostic, reasoning.diagnostic, 'PREVIEW_OFFICIAL DSH=0.1.5-rc.2'],
     startTimeoutMs: app.isPackaged ? 120_000 : 60_000,
     stopTimeoutMs: 5_000,
     probeTimeoutMs: 5_000,
@@ -333,12 +356,24 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
   const coreFallback: RuntimeLaunchSpec = {
     ...launch,
     args: coreArgs,
-    startupDiagnostics: ['SUBSCRIPTIONS_FALLBACK core-only'],
+    startupDiagnostics: ['INTEGRATIONS_FALLBACK core-only'],
   }
-  if (subscriptions.enabled) {
-    launch.integrationName = 'SUBSCRIPTIONS'
+  if (subscriptions.enabled || reasoning.enabled) {
+    launch.integrationName = 'DESKTOP_PLUGINS'
     launch.fallbackDescription = 'core-only'
     launch.fallback = coreFallback
   }
+  const sidebar = resolveBetterSidebarPlugin(harnessRoot, dshHome)
+  if (sidebar.enabled && sidebar.patchPath !== undefined) {
+    return {
+      ...launch,
+      args: argsWithPatches([...primaryPatches, sidebar.patchPath]),
+      startupDiagnostics: [...(launch.startupDiagnostics ?? []), sidebar.diagnostic],
+      integrationName: 'BETTER_SIDEBAR',
+      fallbackDescription: 'existing desktop plugins',
+      fallback: launch,
+    }
+  }
+  launch.startupDiagnostics?.push(sidebar.diagnostic)
   return launch
 }

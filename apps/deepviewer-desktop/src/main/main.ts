@@ -1,26 +1,24 @@
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
-import { app, ipcMain, nativeImage, nativeTheme, shell } from 'electron'
+import { app, ipcMain, nativeImage, nativeTheme, shell, session, dialog } from 'electron'
 import {
   DEEPVIEWER_APP_NAME,
   resolveDeepViewerIconPath,
   shouldSetDevelopmentDockIcon,
 } from './app-identity.js'
 import { shouldQuitWhenAllWindowsClosed } from './app-lifecycle.js'
-import { configureDevelopmentProfile } from './development-profile.js'
+import { configureDevelopmentProfile, resolveInstalledUserDataPath } from './development-profile.js'
+import { prepareUserData } from './user-data-migration.js'
 import { FileLogger } from './logger.js'
 import { DarwinProcessAdapter } from './platform/darwin.js'
 import { resolveHarnessLaunch } from './resource-locator.js'
 import { RuntimeManager, RuntimeLaunchError } from './runtime-manager.js'
+import { configureRuntimeNetwork } from './network/runtime-network.js'
+import type { NetworkBridge } from './network/bridge.js'
 import { WindowController } from './window-controller.js'
+import type { RuntimeStatusView } from '../shared/runtime-status.js'
 
 const developmentProfile = configureDevelopmentProfile(app, app.isPackaged ? process.env : { ...process.env, DEEPVIEWER_PROFILE: 'development' })
-if (app.isPackaged && !developmentProfile) {
-  const manifest = JSON.parse(readFileSync(join(app.getAppPath(), 'package.json'), 'utf8')) as { previewRelease?: string }
-  if (typeof manifest.previewRelease === 'string' && /^\d+\.\d+\.\d+-preview\.\d+$/u.test(manifest.previewRelease)) {
-    app.setPath('userData', join(app.getPath('appData'), 'DeepViewer Preview', manifest.previewRelease))
-  }
-}
+if (!developmentProfile) app.setPath('userData', resolveInstalledUserDataPath(app.getPath('appData')))
 app.setName(DEEPVIEWER_APP_NAME)
 
 const gotLock = app.requestSingleInstanceLock()
@@ -30,6 +28,9 @@ let quitting = false
 let launchSpec: ReturnType<typeof resolveHarnessLaunch> | undefined
 let logger: FileLogger
 let runtime: RuntimeManager
+let network: NetworkBridge | undefined
+let networkStarting: Promise<NetworkBridge> | undefined
+let startupFailure: RuntimeStatusView | undefined
 const windows = new WindowController()
 
 function assertLaunchSurface(event: Electron.IpcMainInvokeEvent): void {
@@ -45,8 +46,35 @@ function assertRuntimeSurface(event: Electron.IpcMainEvent): void {
 }
 
 async function startRuntime(): Promise<void> {
+  startupFailure = undefined
   try {
+    const data = prepareUserData({
+      userData: app.getPath('userData'),
+      appData: app.getPath('appData'),
+      development: developmentProfile,
+      explicitDirectory: developmentProfile && process.env.DEEPVIEWER_DEV_USER_DATA !== undefined,
+    })
+    logger.info('data', `layout=1 imported=${data.migrated} sources=${data.sourceCount} conflicts=${data.conflictCount}${data.backupDirectory ? ` backup=${data.backupDirectory}` : ''}`)
     launchSpec ??= resolveHarnessLaunch(app)
+    network ??= await (networkStarting ??= configureRuntimeNetwork(launchSpec, {
+      appVersion: app.getVersion(),
+      resolveProxy: url => session.defaultSession.resolveProxy(url),
+      log: message => logger.info('network', message),
+      ask: async (target, signal) => {
+        if (quitting || signal.aborted) return 'deny'
+        const zh = app.getLocale().toLowerCase().startsWith('zh')
+        const answer = await dialog.showMessageBox({
+          type: 'question', defaultId: 0, cancelId: 0, noLink: true, signal,
+          title: zh ? '允许内网访问？' : 'Allow local network access?',
+          message: `${target.hostname}:${target.port}`,
+          detail: zh
+            ? `网页抓取工具请求直接连接以下本机或内网地址：\n${target.addresses.join('\n')}\n\n仅在你希望访问此服务时允许。本次运行内的授权只适用于此主机、端口及这些地址；退出应用后失效。`
+            : `The web fetch tool requests a direct connection to these local/private addresses:\n${target.addresses.join('\n')}\n\nAllow only if you intend to access this service. A grant for this run covers only this host, port and these addresses, and expires when the app exits.`,
+          buttons: zh ? ['拒绝', '允许本次', '本次运行内允许此地址'] : ['Deny', 'Allow once', 'Allow this address for this run'],
+        })
+        return answer.response === 2 ? 'run' : answer.response === 1 ? 'once' : 'deny'
+      },
+    }).catch(error => { networkStarting = undefined; throw error }))
     const origin = await runtime.start(launchSpec)
     if (quitting) return
     await windows.showRuntime(origin)
@@ -56,13 +84,15 @@ async function startRuntime(): Promise<void> {
     const message = error instanceof Error ? error.message : String(error)
     logger.error('desktop', `${code}: ${message}`)
     if (!(error instanceof RuntimeLaunchError)) {
-      windows.sendStatus({
+      startupFailure = {
         phase: 'failed',
         attempt: runtime.getStatus().attempt,
         changedAt: new Date().toISOString(),
         errorCode: code,
         userMessage: message,
-      })
+      }
+      windows.sendStatus(startupFailure)
+      await windows.showStatus(startupFailure)
     }
   }
 }
@@ -89,7 +119,7 @@ if (gotLock) {
 
     ipcMain.handle('runtime:get-status', (event) => {
       assertLaunchSurface(event)
-      return runtime.getStatus()
+      return startupFailure ?? runtime.getStatus()
     })
     ipcMain.handle('runtime:retry', async (event) => {
       assertLaunchSurface(event)
@@ -103,7 +133,7 @@ if (gotLock) {
     })
     ipcMain.on('desktop:set-native-theme', (event, source: unknown) => {
       assertRuntimeSurface(event)
-      if (source !== 'light' && source !== 'dark') return
+      if (source !== 'light' && source !== 'dark' && source !== 'system') return
       nativeTheme.themeSource = source
     })
 
@@ -121,6 +151,6 @@ if (gotLock) {
     if (quitting || runtime === undefined) return
     event.preventDefault()
     quitting = true
-    void runtime.stop().finally(() => app.exit(0))
+    void runtime.stop().finally(async () => { await network?.close(); app.exit(0) })
   })
 }

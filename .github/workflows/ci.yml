@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Typecheck, test, and build
+    name: Typecheck, smoke, and build
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
@@ -41,8 +41,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Test
-        run: pnpm test
+      # Development snapshots use bounded smoke coverage; full regression is separate.
+      - name: Smoke
+        run: pnpm desktop:smoke
 
       - name: Build
         run: pnpm desktop:build

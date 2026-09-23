@@ -18,7 +18,11 @@ export function shouldUseDevelopmentProfile(
 }
 
 export function resolveDevelopmentUserDataPath(appDataPath: string): string {
-  return join(appDataPath, DEEPVIEWER_DEVELOPMENT_APP_NAME, 'dsh-0.1.5-rc.2')
+  return join(appDataPath, DEEPVIEWER_DEVELOPMENT_APP_NAME)
+}
+
+export function resolveInstalledUserDataPath(appDataPath: string): string {
+  return join(appDataPath, 'DeepViewer')
 }
 
 export function configureDevelopmentProfile(

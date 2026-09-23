@@ -1,0 +1,39 @@
+.driveLoader {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 3.2px);
+  gap: 1.2px;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--dsw-alias-label-primary);
+}
+
+.driveCell {
+  width: 3.2px;
+  height: 3.2px;
+  border-radius: 0.8px;
+  background: currentColor;
+  opacity: 0.15;
+  animation: session-drive-pixel 650ms ease-in-out infinite;
+}
+
+@keyframes session-drive-pixel {
+  0%, 65%, 100% { opacity: 0.15; }
+  22% { opacity: 1; }
+  42% { opacity: 0.45; }
+}
+
+.driveTitle {
+  background-image: linear-gradient(90deg, var(--dsw-alias-label-tertiary) 35%, var(--dsw-alias-label-primary) 50%, var(--dsw-alias-label-tertiary) 65%);
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: session-drive-shimmer 1.4s linear infinite;
+}
+
+@keyframes session-drive-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}

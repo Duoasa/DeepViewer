@@ -146,6 +146,10 @@ function isAllowedAsarPath(path) {
     'assets/deepviewer-icon-macos26-1024.png',
     'assets/licenses',
     'assets/licenses/Figtree-OFL.txt',
+    'assets/licenses/ip-address-LICENSE.txt',
+    'assets/licenses/ipaddr.js-LICENSE.txt',
+    'assets/licenses/smart-buffer-LICENSE.txt',
+    'assets/licenses/socks-LICENSE.txt',
     'package.json',
   ])
   return allowedExactPaths.has(path)

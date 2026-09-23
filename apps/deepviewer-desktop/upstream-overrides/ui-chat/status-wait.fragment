@@ -1,0 +1,1 @@
+{running && !waiting && <TurnStatus startTime={runningTurnStart} t={t} />}

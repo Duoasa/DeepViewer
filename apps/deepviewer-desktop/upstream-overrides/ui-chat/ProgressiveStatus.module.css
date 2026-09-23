@@ -1,0 +1,24 @@
+/* Current activity replaces the generic thinking indicator. */
+.column:has([data-process-current="true"]) > .turnStatus { display: none; }
+
+/* Tool presentation is one conversation typography surface, including custom
+   media toolviews and generic audio/video/plugin calls in either transcript mode. */
+.column [data-chat-call-id],
+.column [data-disclosure-row] {
+  --dsh-content-font-size-secondary: var(--dsh-content-font-size, 14px);
+  --dsh-content-font-delta-secondary: calc(var(--dsh-content-font-size, 14px) - 13px);
+  font-size: var(--dsh-content-font-size, 14px);
+}
+.column [data-disclosure-row] > span,
+.column [data-sample='bash'] > span {
+  font-family: var(--dsw-font-family);
+  font-size: var(--dsh-content-font-size, 14px);
+  font-weight: 400;
+}
+/* Image loading/retry copy lives inside the shared gallery, including the
+   subscription plugin's private copy. Keep this scoped to tool outputs. */
+.column [data-chat-call-id] [data-align] [data-variant],
+.column [data-chat-call-id] [data-align] [data-variant] > span {
+  font-size: var(--dsh-content-font-size, 14px);
+  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+}

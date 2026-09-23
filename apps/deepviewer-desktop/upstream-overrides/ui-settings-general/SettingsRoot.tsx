@@ -69,6 +69,29 @@ function SettingsPanel({ rows, renderSlot, activeId, onSelect, onClose }: PanelP
   const mainRows = visibleRows.filter(row => row.id !== 'about')
   const footerRows = visibleRows.filter(row => row.id === 'about')
   const titleId = useId()
+  const [sidebarWidth, setSidebarWidth] = useState(280)
+  useLayoutEffect(() => {
+    const frame = document.querySelector<HTMLElement>('[data-deepviewer-macos-frame]')
+    if (!frame) return
+    const previous = frame.inert
+    frame.inert = true
+    return () => { frame.inert = previous }
+  }, [])
+
+  useLayoutEffect(() => {
+    const column = document.querySelector('[data-deepviewer-macos-sidebar-safe-area]')?.parentElement
+    if (!column) return
+    const measure = () => {
+      const width = column.getBoundingClientRect().width
+      // A collapsed shell still needs readable settings navigation.
+      setSidebarWidth(width > 100 ? width : 280)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(column)
+    return () => { observer.disconnect() }
+  }, [])
+
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -85,8 +108,8 @@ function SettingsPanel({ rows, renderSlot, activeId, onSelect, onClose }: PanelP
     <Portal>
       <div className={css.overlay} role="presentation">
         <div className={css.mask} aria-hidden="true" onClick={onClose} />
-        <div className={css.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
-          <nav className={css.nav} aria-labelledby={titleId}>
+        <div className={css.panel} style={{ gridTemplateColumns: `${sidebarWidth}px minmax(0, 1fr)` }} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+          <nav className={css.nav} data-deepviewer-settings-sidebar aria-labelledby={titleId}>
             <button ref={backButton} type="button" className={css.back} onClick={onClose}>
               <IconChevronLeftOutline14 className={css.backIcon} size={16} />
               <span>{renderSlot('settings.close', {})}</span>

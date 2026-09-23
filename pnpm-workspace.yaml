@@ -7,6 +7,7 @@ autoInstallPeers: false
 allowBuilds:
   electron: true
   esbuild: true
+  node-pty: true
 
 minimumReleaseAgeExclude:
   - dsh-plugin-subscriptions@0.3.1

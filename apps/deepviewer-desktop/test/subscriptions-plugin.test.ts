@@ -34,7 +34,7 @@ async function createPlugin(root: string, version = SUBSCRIPTIONS_PLUGIN_VERSION
       client: {
         platform: 'web',
         inject: [
-          '@deepseek-ai/dsh-client-runtime',
+          '@deepseek-ai/dsh-client-ui-session',
           '@deepseek-ai/dsh-client-ui-settings',
           '@deepseek-ai/dsh-client-locale',
         ],

@@ -1,5 +1,5 @@
 export type RuntimePhase = 'stopped' | 'starting' | 'ready' | 'stopping' | 'failed'
-export type NativeThemeSource = 'light' | 'dark'
+export type NativeThemeSource = 'light' | 'dark' | 'system'
 
 export interface RuntimeStatusView {
   phase: RuntimePhase
@@ -10,6 +10,7 @@ export interface RuntimeStatusView {
 }
 
 export interface DeepViewerDesktopApi {
+  onBrowserOpen(listener: (url: string) => void): () => void
   getRuntimeStatus(): Promise<RuntimeStatusView>
   retryRuntime(): Promise<void>
   openLogDirectory(): Promise<void>

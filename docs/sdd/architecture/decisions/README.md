@@ -23,6 +23,8 @@ ADR 记录影响多个功能、难以逆转或会持续影响上游同步的架�
 
 | [ADR-0008](ADR-0008-arm64-official-dsh-preview.md) | 仅支持 ARM 并采用 DSH 官方预览 | Accepted | 2026-09-14 |
 
+| [ADR-0011](ADR-0011-stable-user-data.md) | 安装版与开发版固定数据目录 | Accepted | 2026-09-22 |
+
 ## 模板
 
 ```markdown

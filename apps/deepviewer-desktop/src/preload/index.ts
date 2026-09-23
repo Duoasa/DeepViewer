@@ -10,6 +10,11 @@ const api: DeepViewerDesktopApi = {
   retryRuntime: () => ipcRenderer.invoke('runtime:retry') as Promise<void>,
   openLogDirectory: () => ipcRenderer.invoke('desktop:open-log-directory') as Promise<void>,
   setNativeThemeSource: (source: NativeThemeSource) => ipcRenderer.send('desktop:set-native-theme', source),
+  onBrowserOpen: (listener) => {
+    const wrapped = (_event: Electron.IpcRendererEvent, url: string): void => listener(url)
+    ipcRenderer.on('browser:open-url', wrapped)
+    return () => ipcRenderer.off('browser:open-url', wrapped)
+  },
   onRuntimeStatus: (listener) => {
     const wrapped = (_event: Electron.IpcRendererEvent, status: RuntimeStatusView): void => listener(status)
     ipcRenderer.on('runtime:status', wrapped)

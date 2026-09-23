@@ -1,0 +1,1 @@
+  const routedNode = useMemo(() => projectProcessNode(node as ChatNode | undefined, processView), [node, processView])

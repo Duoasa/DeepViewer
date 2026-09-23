@@ -21,3 +21,7 @@ git -C upstream/deepseek-harness checkout dsh-v0.1.5-rc.2
 ```
 
 刷新后，应把新的提交 SHA 写回本文件，并重新检查 [`DV-0002`](../docs/sdd/specs/DV-0002-upstream-foundation/spec.md) 中依赖的架构假设。
+
+## 私有 0.3.1 固化快照
+
+当前 0.3.3 公共版本的派生源码完整差异保存在 [snapshots/v0.3.3](snapshots/v0.3.3/README.md)，包含可从上述官方基线还原的源码 patch、源树与 SHA-256 校验。它不改变官方基线版本，也不包含安装包或用户数据。

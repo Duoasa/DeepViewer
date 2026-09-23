@@ -1,0 +1,1 @@
+<span className={clsx(css.searchResultTitle, primaryStatus.state === 'ongoing' && css.driveTitle)}>{result.title}</span>

@@ -1,0 +1,2 @@
+  const waiting = useSessionPendingInteraction(s => s.has(sessionId))
+  const order = useChat(s => s.order)

@@ -1,0 +1,78 @@
+.group {
+  margin: 4px 0 10px;
+  min-width: 0;
+  font-size: var(--dsh-content-font-size, 14px);
+  /* Reuse the Settings axis for native reasoning/context/tool renderers too.
+     Scope the tier override to process content, leaving the rest of the UI alone. */
+  --dsh-content-font-size-secondary: var(--dsh-content-font-size, 14px);
+  --dsh-content-font-delta-secondary: calc(var(--dsh-content-font-size, 14px) - 13px);
+}
+.summary {
+  display: flex; align-items: center; gap: 6px; width: 100%; max-width: 100%;
+  cursor: pointer; list-style: none; color: var(--dsw-alias-label-tertiary);
+  font-size: var(--dsh-content-font-size, 14px); line-height: calc(24px + var(--dsh-content-font-delta, 0px));
+  padding: 3px 6px; box-sizing: border-box;
+}
+.group > details > .summary { font-weight: 400; }
+.summaryLabel { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.summaryDetail { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.summary:has(.summaryDetail) .summaryLabel { flex-shrink: 0; max-width: 65%; }
+/* Bind every heading level directly to Settings. Native rows have their own
+   typography declarations, so inheriting a size on the outer group is not enough. */
+.group summary,
+.group summary > span,
+.group [data-disclosure-row],
+.group [data-disclosure-row] > span,
+.group [data-sample='bash'],
+.group [data-sample='bash'] > span {
+  font-family: var(--dsw-font-family);
+  font-size: var(--dsh-content-font-size, 14px);
+  font-weight: 400;
+}
+.summary::-webkit-details-marker { display: none; }
+.summary::marker { content: ''; }
+.summaryIcon, .summaryChevron { display: inline-flex; flex: none; }
+.summaryIcon { width: calc(16px + var(--dsh-content-font-delta, 0px)); justify-content: center; }
+.summaryIcon svg, .summaryChevron svg { width: var(--dsh-content-font-size, 14px); height: var(--dsh-content-font-size, 14px); }
+.summaryChevron { opacity: 0; transition: opacity 120ms ease, transform 120ms ease; }
+.summary:hover .summaryChevron, .summary:focus-visible .summaryChevron { opacity: 1; }
+details[open] > .summary .summaryChevron { opacity: 1; transform: rotate(90deg); }
+/* The hit surface spans the complete available row at every disclosure depth. */
+.group summary, .group [data-disclosure-row] {
+  border-radius: 6px;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.group [data-disclosure-row] { box-sizing: border-box; padding-inline: 6px; }
+.group summary:hover,
+.group summary:focus-visible,
+.group [data-disclosure-row][data-expandable]:hover,
+.group [data-disclosure-row]:has(> button[aria-expanded]):hover,
+.group [data-disclosure-row]:focus-visible,
+.group [data-disclosure-row]:has(> button:focus-visible) {
+  background-color: var(--dsw-alias-interactive-bg-hover-solid);
+}
+.summary:is(:hover, :focus-visible) { color: var(--dsw-alias-label-secondary); }
+.group summary:focus-visible,
+.group [data-disclosure-row]:focus-visible {
+  outline: 2px solid var(--dsw-alias-label-secondary); outline-offset: 1px;
+}
+/* Only process headings are subdued; outputs, links and failure states retain their own colors. */
+.group [data-state='ok'] [data-disclosure-row],
+.group [data-state='running'] [data-disclosure-row] { color: var(--dsw-alias-label-tertiary); }
+.group [data-state='ok'] [data-disclosure-row] > span,
+.group [data-state='running'] [data-disclosure-row] > span { color: inherit; }
+.group details > details, .contextItems { margin-left: calc(16px + var(--dsh-content-font-delta, 0px)); }
+.group [hidden] { display: none !important; }
+.mount { min-width: 0; }
+.group [data-disclosure-row]::after { display: none !important; }
+.group [data-live="true"] [data-disclosure-row] > :nth-child(2),
+.group [data-live="true"] [data-disclosure-row] > :nth-child(4) {
+  background: linear-gradient(100deg, currentColor 0%, currentColor 35%, var(--dsw-alias-label-primary) 50%, currentColor 65%, currentColor 100%);
+  background-size: 250% 100%; background-clip: text; -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; animation: processShimmer 2.2s linear infinite;
+}
+@keyframes processShimmer { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  .summaryChevron { transition: none; }
+  .group [data-live] [data-disclosure-row] > * { animation: none !important; background: none !important; -webkit-text-fill-color: currentColor; }
+}

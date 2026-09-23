@@ -194,7 +194,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
     expect(shouldUseDevelopmentProfile('DeepViewer', 'development')).toBe(true)
     expect(shouldUseDevelopmentProfile('DeepViewer Dev', undefined)).toBe(true)
     expect(resolveDevelopmentUserDataPath('/Library/Application Support'))
-      .toBe('/Library/Application Support/DeepViewer Dev/dsh-0.1.5-rc.2')
+      .toBe('/Library/Application Support/DeepViewer Dev')
 
     const setPath = vi.fn()
     const developmentApp = {
@@ -206,7 +206,7 @@ describe('DeepViewer local development workflow (DV-0008)', () => {
       .toBe(true)
     expect(setPath).toHaveBeenCalledWith(
       'userData',
-      '/Users/test/Library/Application Support/DeepViewer Dev/dsh-0.1.5-rc.2',
+      '/Users/test/Library/Application Support/DeepViewer Dev',
     )
 
     setPath.mockClear()

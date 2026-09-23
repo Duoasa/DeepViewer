@@ -35,6 +35,7 @@ export function createMainWindowOptions(
       contextIsolation: true,
       sandbox: true,
       webSecurity: true,
+      webviewTag: true,
     },
   }
 }

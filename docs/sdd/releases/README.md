@@ -8,6 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
+| `v0.3.3` | Public release / ARM64 | 2026-09-23 | DV-0031, DV-0032 | [DeepViewer 0.3.3](v0.3.3.md) |
 | `v0.2.5-preview.1` | Release / Latest / ARM64 only | 2026-09-15 | DV-0017 | [DeepViewer 0.2.5](v0.2.5-preview.1.md) |
 | `v0.2.3` | Public preview / Previous Latest | 2026-08-23 | DV-0015 | [DeepViewer 0.2.3 (Build 1)](v0.2.3.md) |
 | `v0.2.2-build.2` | Public hotfix / Latest | 2026-08-20 | DV-0014 | [DeepViewer 0.2.2 (Build 2)](v0.2.2-build.2.md) |
@@ -24,7 +25,7 @@
 
 - Git tag、源代码提交和 GitHub Release 地址
 - 每个安装资产的目标平台、架构、大小和 SHA-256
-- 双语 README 开头必须使用当前版本产品图；新版本发布时同步替换并提交对应 `Resources/DeepViewer-<version>` 资产
+- 双语 README 开头使用当前版本的主产品截图；版本更新时同步更新相应功能截图与配图说明
 - 已执行的验证及其边界
 - 签名、公证、兼容性和其他已知限制
 - 对关联规格状态的判断

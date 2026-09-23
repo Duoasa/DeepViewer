@@ -115,6 +115,14 @@ export function adaptSubscriptionsClientSource(name, source) {
     ['const percent = Math.min(100, Math.max(0, window.usedPercent))', "const remainingPercent = 100 - Math.min(100, Math.max(0, window.usedPercent))\n                  const balanceColor = usageBalanceColor(remainingPercent)\n                  const level = remainingPercent < 20 ? 'usageLevelCritical' : remainingPercent < 50 ? 'usageLevelLow' : 'usageLevelHealthy'"],
     ['<span>\n                          {`${String(Math.round(percent))}%`}', '<span style={{ color: balanceColor }}>\n                          {t(\'usageRemaining\', { percent: String(Math.round(remainingPercent)) })}\n                          {` · ${t(level)}`}'],
     ['width: `${String(percent)}%`, background: usageBarColor(percent)', 'width: `${String(remainingPercent)}%`, background: balanceColor'],
+  ] : name === 'ImageGenerateToolview.tsx' ? [
+    ["import { en } from './locales.js'", "import { en } from './locales.js'\nimport css from './ImageGenerateToolview.module.css'"],
+    ["<p style={styles.subtle}>{t('generating')}</p>", "<p className={css.generating} role=\"status\">{t('generating')}</p>"],
+    ["<div style={styles.container}>", "<div style={styles.container} className={css.toolview}>"],
+    ["fontSize: 13, lineHeight: '20px', color: 'var(--dsw-alias-label-primary)'", "fontSize: 'var(--dsh-content-font-size, 14px)', lineHeight: 'calc(24px + var(--dsh-content-font-delta, 0px))', color: 'var(--dsw-alias-label-primary)'"],
+    ["fontSize: 12, lineHeight: '18px', color: 'var(--dsw-alias-label-tertiary)'", "fontSize: 'var(--dsh-content-font-size, 14px)', lineHeight: 'calc(24px + var(--dsh-content-font-delta, 0px))', color: 'var(--dsw-alias-label-tertiary)'"],
+    ["fontSize: 12, lineHeight: '18px', color: 'var(--dsw-alias-label-secondary)'", "fontSize: 'var(--dsh-content-font-size, 14px)', lineHeight: 'calc(24px + var(--dsh-content-font-delta, 0px))', color: 'var(--dsw-alias-label-secondary)'"],
+    ["fontSize: 12, lineHeight: '18px', color: 'var(--dsw-alias-state-error-primary)'", "fontSize: 'var(--dsh-content-font-size, 14px)', lineHeight: 'calc(24px + var(--dsh-content-font-delta, 0px))', color: 'var(--dsw-alias-state-error-primary)'"],
   ] : []
   return replacements.reduce((content, [before, after]) => replaceRequired(content, before, after, `${name} source`), source)
 }

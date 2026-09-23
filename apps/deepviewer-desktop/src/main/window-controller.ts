@@ -1,3 +1,6 @@
+import { pruneRetiredRuntimeCookies } from './runtime-cookies.js'
+import { installSidebarBrowser } from './sidebar-browser.js'
+import { BETTER_SIDEBAR_CHROME_CSS, BETTER_SIDEBAR_CHROME_SCRIPT } from './better-sidebar-chrome.js'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { BrowserWindow, clipboard, Menu, shell } from 'electron'
@@ -86,8 +89,8 @@ export class WindowController {
         )
       }
       window.webContents.on('dom-ready', () => {
-        void window.webContents.insertCSS(MACOS_WINDOW_CHROME_CSS)
-        void window.webContents.executeJavaScript(MACOS_WINDOW_CHROME_SCRIPT)
+        void window.webContents.insertCSS(MACOS_WINDOW_CHROME_CSS + BETTER_SIDEBAR_CHROME_CSS)
+        void window.webContents.executeJavaScript(MACOS_WINDOW_CHROME_SCRIPT + BETTER_SIDEBAR_CHROME_SCRIPT)
         setFocusedChrome(window.isFocused())
         setFullscreenChrome(window.isFullScreen())
       })
@@ -104,6 +107,7 @@ export class WindowController {
         setFullscreenChrome(MACOS_FULLSCREEN_EVENT_STATE['leave-full-screen'])
       })
     }
+    installSidebarBrowser(window, url => this.isRuntimeSurface(url))
     window.webContents.setWindowOpenHandler(({ url }) => {
       const externalPreview = getExternalPreviewUrl(url, this.runtimeOrigin)
       if (externalPreview !== undefined) this.openExternalNavigation(externalPreview)
@@ -138,6 +142,7 @@ export class WindowController {
       await delay(remainingLaunchSurfaceVisibilityMs(this.launchSurfaceVisibleAt, Date.now()))
     }
     if (this.window === undefined || this.window.isDestroyed()) return
+    await pruneRetiredRuntimeCookies(this.window.webContents.session.cookies, origin)
     await this.window.loadURL(origin)
     await this.installHarnessLoadingBrand(this.window)
   }
