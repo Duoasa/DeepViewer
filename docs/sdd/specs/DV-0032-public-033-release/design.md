@@ -1,6 +1,6 @@
 # DV-0032 Design
 
-Status: Implementing
+Status: Released
 
 1. 以公共 `main` 为基线建立隔离发布树，仅导入当前 0.3.3 产品源码与规格。保留历史 SDD，排除本地交接文件及运行数据。完整 Harness 差异形成 `upstream/snapshots/v0.3.3/harness.patch`，从官方基线独立验证 sourceTree。（R-001，R-002）
 2. 使用 Node 24、锁文件和全新构建目录，分别构建 Harness、Runtime、桌面应用、签名 app 与 DMG。正式包先通过 ASAR 和 Runtime allowlist/隐私审计，再公证装订。（R-001，R-002，R-004）

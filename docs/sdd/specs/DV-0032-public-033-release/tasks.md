@@ -1,9 +1,9 @@
 # DV-0032 Tasks
 
-Status: Implementing
+Status: Released
 
 - [x] T-001 (R-001，AC-001): 整理隔离公开源码树并从官方 DSH 基线还原、校验 0.3.3 patch。
 - [x] T-002 (R-003，AC-004): 更新双语 README、插件来源与修改说明；筛查并安置七张新版截图，移除旧产品图。
 - [x] T-003 (R-001，R-002，AC-002): 固定版本全新构建、针对性测试、包体审计与隔离冒烟；完整旧测试套件的遗留断言失败已在发布记录中列明。
 - [x] T-004 (R-004，AC-003): Developer ID 签名、公证、票据及 Gatekeeper 验证。
-- [ ] T-005 (R-004，NFR-001，AC-004): 公共 main、标签、Release 与远端摘要核验。
+- [x] T-005 (R-004，NFR-001，AC-004): 公共 main、标签、Release 与远端摘要核验。

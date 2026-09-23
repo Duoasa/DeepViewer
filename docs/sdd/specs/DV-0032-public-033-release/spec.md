@@ -1,6 +1,6 @@
 # DV-0032 — 0.3.3 ARM64 公开签名发布
 
-Status: Implementing
+Status: Released
 Approval: 维护者于 2026-09-23 明确要求将最新 0.3.3 源码推送公开 DeepViewer 仓库，更新双语 README 与插件来源说明，并发布经 Apple 签名、公证的纯净 arm64 DMG。
 
 - R-001: 从当前 0.3.3 Build 75 的确切源码和固定依赖生成可复原的 Harness 快照及全新的 ARM64 Runtime、应用和 DMG；版本号、About、Runtime 与 Release 一致。
