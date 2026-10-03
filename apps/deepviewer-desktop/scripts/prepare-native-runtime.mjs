@@ -42,8 +42,8 @@ export async function prepareNativeRuntime(outputStage = join(appRoot, '.desktop
  const pnpmSource = join(root,'node_modules/pnpm')
  cpSync(pnpmSource,join(stage,'resources/runtime/pnpm'),{recursive:true,filter:path=>pnpmPayload(relative(pnpmSource,path).split('\\').join('/'))})
  cpSync(join(upstream,'apps/desktop/scripts/node-bin'),join(stage,'resources/runtime/bin'),{recursive:true})
- cpSync(join(appRoot,'.desktop/native-icon/DeepViewerDockThemes'),join(stage,'resources/DeepViewerDockThemes'),{recursive:true})
- cpSync(join(root,'apps/deepviewer-adapter/assets/icon-light.png'),join(stage,'resources/icon.png'))
+ cpSync(join(appRoot,'.desktop/native-icon/Assets.car'),join(stage,'resources/Assets.car'))
+ cpSync(join(appRoot,'.desktop/native-icon/icon.png'),join(stage,'resources/icon.png'))
  const buildMetadata=sanitizeNativeBuildMetadata(stage,{projectRoot:root})
  // Seal the exact bytes electron-builder will retain in dependency manifests.
  const packageMetadata=await normalizeNativePackageMetadata(shell)

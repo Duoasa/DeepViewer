@@ -8,6 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
+| `0.5.1` | Preparing / macOS ARM64 installer candidate | 未发布 | DV-0034（Implementing；Pending Manual） | [DeepViewer 0.5.1 候选](v0.5.1.md) |
 | `v0.5.0` | Public signed installer / Latest / ARM64 | 2026-10-03 | DV-0033（Implementing；Pending Manual 保留） | [DeepViewer 0.5.0](v0.5.0.md) |
 | `v0.3.3` | Public release / ARM64 | 2026-09-23 | DV-0031, DV-0032 | [DeepViewer 0.3.3](v0.3.3.md) |
 | `v0.2.5-preview.1` | Release / Latest / ARM64 only | 2026-09-15 | DV-0017 | [DeepViewer 0.2.5](v0.2.5-preview.1.md) |

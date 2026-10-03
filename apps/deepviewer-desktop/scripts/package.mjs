@@ -182,7 +182,8 @@ for (const arch of architectures) {
     appVersion,
     buildVersion: appBuildVersion,
     asar: true,
-    extraResource: [runtimeRoot, nativeIcon.dockThemes],
+    extraResource: [runtimeRoot, nativeIcon.catalog],
+    extendInfo: { CFBundleIconName: nativeIcon.name },
     afterCopyExtraResources: [async ({ buildPath }) => {
       const temporaryAppPath = resolve(buildPath, `${packagedName}.app`)
       const copiedRuntimeRoot = resolve(temporaryAppPath, 'Contents', 'Resources', 'harness')

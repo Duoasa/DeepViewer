@@ -18,6 +18,7 @@ try {
   // Approved DeepViewer hero copy; every chrome, composer and navigation assertion remains.
   source = replace(source, 'Into the Unknown', 'What shall we build?', 1)
   source = replace(source, '探索未至之境', '让我们做点什么', 3)
+  source += '\n' + readFileSync(resolve(root, 'apps/deepviewer-adapter/tests/idle-presentation.spec.tsx.txt'), 'utf8')
   writeFileSync(skeleton, source); generated.push(skeleton)
   const chatSource = resolve(upstream, 'packages/client/ui-chat/tests/chat-view.client.spec.tsx')
   const chat = resolve(dirname(chatSource), 'deepviewer-native-regression-chat.client.spec.tsx')

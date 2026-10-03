@@ -45,9 +45,11 @@ DV-0022、DV-0025、DV-0028 和 DV-0030 是此前仅用于本地/内部固化的
 
 | [DV-0033](DV-0033-scoder-native-rebase/spec.md) | Scoder 原生源码迁回 DeepViewer、白屏修复与 0.5.0 ARM64 发布 | Implementing | Duoasa | 2026-10-03 |
 
+| [DV-0034](DV-0034-brand-visual-051/spec.md) | 新会话品牌动画与 macOS 图标修复、0.5.1 ARM64 发布 | Implementing | Duoasa | 2026-10-04 |
+
 ## 下一个编号
 
-`DV-0034`
+`DV-0035`
 
 ## 目录规则
 

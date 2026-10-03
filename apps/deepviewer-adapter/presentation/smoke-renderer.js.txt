@@ -20,9 +20,14 @@
   const hero = heroMark.closest('[data-deepviewer-hero]');
   if (!hero || !/让我们做点什么|What shall we build\?/.test(hero.textContent) || hero.querySelector('canvas')) throw new Error('DeepViewer welcome branding is missing');
   const markStyle = getComputedStyle(heroMark);
-  if (!markStyle.maskImage.includes('/assets/deepviewer/deepviewer-loading-logo.svg') || heroMark.getBoundingClientRect().height < 100) throw new Error('Original DeepViewer mark is not rendered');
-  const markResponse = await fetch('/assets/deepviewer/deepviewer-loading-logo.svg');
-  if (!markResponse.ok || !(await markResponse.text()).includes('viewBox="0 0 150.374 160"')) throw new Error('Original DeepViewer mark asset is missing');
+  if (heroMark.localName !== 'svg' || heroMark.getAttribute('viewBox') !== '0 0 150.374 160' || heroMark.querySelectorAll('path').length !== 2 || Math.abs(heroMark.getBoundingClientRect().height - 48) > 0.1 || markStyle.opacity !== '0.5') throw new Error('Released DeepViewer idle mark geometry is not rendered');
+  const cursor = heroMark.querySelector('[data-deepviewer-brand-cursor]');
+  const cursorStyle = getComputedStyle(cursor);
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? cursorStyle.animationName !== 'none' : (!cursorStyle.animationName.includes('deepviewer-hero-cursor-blink') || cursorStyle.animationDuration !== '1s' || !cursorStyle.animationTimingFunction.startsWith('steps(1'))) throw new Error('Released DeepViewer idle cursor animation is missing');
+  const titleStyle = getComputedStyle(hero.querySelector('[data-deepviewer-hero-title]'));
+  if (titleStyle.fontSize !== '24px' || titleStyle.lineHeight !== '32px' || titleStyle.opacity !== '0.5' || getComputedStyle(hero.querySelector('[data-deepviewer-headline]')).gap !== '40px') throw new Error('Released DeepViewer idle text spacing is missing');
+  const scrollBody = hero.parentElement, composerSeat = scrollBody.querySelector(':scope > [data-deepviewer-composer-seat]');
+  if (!composerSeat || composerSeat.contains(hero) || scrollBody.getBoundingClientRect().bottom - composerSeat.getBoundingClientRect().bottom > 1) throw new Error('Idle hero is not separate from the bottom resident composer');
   // Synthetic status checks live content-size variables without running a model.
   const probe = document.createElement('div'); probe.setAttribute('data-chat-running', '');
   const normal = document.createElement('span'); normal.style.color = 'var(--dsw-alias-label-secondary)';

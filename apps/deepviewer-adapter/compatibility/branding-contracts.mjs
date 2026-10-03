@@ -168,9 +168,9 @@ export const brandingContracts = [
     "id": "desktop-icon",
     "file": "apps/desktop/src/main.ts",
     "before": "const applicationIconPath = development ? join(app.getAppPath(), 'resources', 'icon-windows.png')",
-    "previousAfter": "const applicationIconPath = development ? join(app.getAppPath(), '.desktop', 'native-icon', 'icon-light.png')",
-    "after": "const applicationIconPath = development ? join(app.getAppPath(), '.desktop', 'native-icon', 'DeepViewerDockThemes', 'light.png')",
-    "reason": "Use the product icon for the native About panel."
+    "previousAfter": "const applicationIconPath = development ? join(app.getAppPath(), '.desktop', 'native-icon', 'DeepViewerDockThemes', 'light.png')",
+    "after": "const applicationIconPath = development ? join(app.getAppPath(), '.desktop', 'native-icon', 'icon.png')",
+    "reason": "Use Apple's compiled legacy rendition for the native About panel without overriding the Dock catalog."
   },
   {
     "id": "isolated-command-management",
