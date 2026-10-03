@@ -1,0 +1,47 @@
+  // DeepViewer map focus is a native history + turn navigation request. The
+  // existing rail and scroll owner retain paging, reading, and cancellation.
+  const [sequenceFocus, setSequenceFocus] = useState<{ request: NonNullable<typeof viewRequest>; seq: number } | null>(null)
+  const attemptedFocus = useRef<typeof viewRequest>(null)
+  useEffect(() => {
+    if (viewRequest?.view !== 'chat' || openState !== 'open' || !scroll.initialized || attemptedFocus.current === viewRequest) return
+    const match = /^seq:(0|[1-9]\d*)$/.exec(viewRequest.focus)
+    if (match === null) { if (viewRequest.focus === '') completeViewRequest(); return }
+    const seq = Number(match[1])
+    if (!Number.isSafeInteger(seq)) { completeViewRequest(); return }
+    attemptedFocus.current = viewRequest
+    let live = true
+    void loadThrough(SessionSeq(seq)).then(() => {
+      if (live) setSequenceFocus({ request: viewRequest, seq })
+    }, () => { if (live) completeViewRequest() })
+    return () => { live = false }
+  }, [viewRequest, openState, scroll.initialized, loadThrough, completeViewRequest])
+  useLayoutEffect(() => {
+    if (sequenceFocus === null || sequenceFocus.request !== viewRequest || !scroll.initialized) return
+    const { seq } = sequenceFocus
+    const located = nodeStore.values().filter(node => node.anchorSeq <= seq
+      && (node.location.kind === 'turn' || node.location.kind === 'step'))
+      .sort((left, right) => right.anchorSeq - left.anchorSeq)[0]
+    const location = located?.location
+    let turn = location?.kind === 'turn' || location?.kind === 'step' ? location.turn.turn : undefined
+    if (turn === undefined && Array.isArray(turnOutline)) {
+      const outline = (turnOutline as readonly { seq?: unknown; turn?: unknown }[])
+        .filter(item => typeof item.seq === 'number' && item.seq <= seq && typeof item.turn === 'number')
+        .sort((left, right) => Number(right.seq) - Number(left.seq))[0]
+      if (typeof outline?.turn === 'number') turn = outline.turn
+    }
+    const item = railItems.find(candidate => candidate.turn === turn)
+    if (item === undefined) return
+    scroll.navigateToTurn(item)
+    completeViewRequest()
+    setSequenceFocus(null)
+  }, [sequenceFocus, viewRequest, scroll.initialized, scroll.navigateToTurn, nodeStore, order, turnOutline, railItems, completeViewRequest])
+  useEffect(() => {
+    if (sequenceFocus === null || sequenceFocus.request !== viewRequest) return
+    const timer = setTimeout(() => {
+      completeViewRequest(); setSequenceFocus(null)
+    }, 5_000)
+    return () => { clearTimeout(timer) }
+  }, [sequenceFocus, viewRequest, completeViewRequest])
+
+  return (
+    <div className={css.frame}>

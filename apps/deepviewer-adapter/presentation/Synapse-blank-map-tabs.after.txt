@@ -1,0 +1,2 @@
+  const visibleTabs = hideChrome ? tabs.filter(tab => tab.id === 'chat' || tab.id === 'deepviewer-map') : tabs
+  const showTabs = visibleTabs.length > 1

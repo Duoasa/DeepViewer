@@ -54,3 +54,5 @@ supersedes: []
 ```
 
 接受后的 ADR 不重写历史。新信息通过新 ADR 替代旧决策，并在双方文件中建立链接。
+
+- [ADR-0012：原生 DesktopHost 与应用适配层](ADR-0012-native-desktop-adapter.md) — Accepted，DV-0033。

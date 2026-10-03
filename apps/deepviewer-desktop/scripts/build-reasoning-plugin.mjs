@@ -25,11 +25,22 @@ export function buildReasoningPlugin(upstream = resolve(project, 'upstream/deeps
   rmSync(resolve(target, 'lib'), { recursive: true, force: true })
   cpSync(source, target, { recursive: true })
   const peers = { '@deepseek-ai/cordis': 'vendor/cordis', '@deepseek-ai/dsh-api-remotes': 'packages/api/remotes', '@deepseek-ai/dsh-settings': 'packages/settings/settings', '@deepseek-ai/dsh-credentials': 'packages/credentials/credentials', '@deepseek-ai/dsh-home-paths': 'packages/util/home-paths' }
-  for (const name of ['ui-settings', 'ui-settings-models', 'ui-slots', 'locale', 'connection']) peers['@deepseek-ai/dsh-client-' + name] = 'packages/client/' + name
+  for (const name of ['ui-settings', 'ui-settings-models', 'ui-slots', 'ui-renderer', 'locale', 'connection']) peers['@deepseek-ai/dsh-client-' + name] = 'packages/client/' + name
+  peers.react = 'packages/client/ui-renderer/node_modules/react'
+  peers['@types/react'] = 'packages/client/ui-renderer/node_modules/@types/react'
   for (const [name, directory] of Object.entries(peers)) {
     const link = resolve(target, 'node_modules', name)
     mkdirSync(dirname(link), { recursive: true }); rmSync(link, { recursive: true, force: true }); symlinkSync(resolve(upstream, directory), link, 'dir')
   }
+  // Typecheck the external Client against the built RC2 contract, not just tsdown's transpilation.
+  writeFileSync(resolve(target, 'deepviewer-client-globals.d.ts'), 'declare module "*.module.css" { const classes: Record<string, string>; export default classes }\n')
+  writeFileSync(resolve(target, 'deepviewer-client.tsconfig.json'), JSON.stringify({
+    compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'Bundler', jsx: 'react-jsx', strict: true, skipLibCheck: true,
+      noEmit: true, allowImportingTsExtensions: true, allowJs: true, checkJs: false, types: ['react', 'node'], lib: ['ES2022', 'DOM'] },
+    include: ['src/client/**/*', 'deepviewer-client-globals.d.ts'], exclude: [],
+  }, null, 2))
+  const checked = spawnSync(process.execPath, [resolve(upstream, 'node_modules/typescript/bin/tsc'), '-p', resolve(target, 'deepviewer-client.tsconfig.json')], { cwd: target, stdio: 'inherit' })
+  if (checked.status !== 0) throw new Error('Reasoning plugin RC2 Client typecheck failed')
   writeFileSync(resolve(target, 'tsdown.config.mjs'), `import { clientBundle } from ${JSON.stringify(resolve(upstream, 'packages/client/tsdown.client.ts'))}\nexport default clientBundle('${reasoningPluginName}', ['src/index.ts'])\n`)
   // Invoke the checked-in workspace binary directly. `pnpm exec` may trigger a
   // registry-backed dependency reconciliation when this nested package is

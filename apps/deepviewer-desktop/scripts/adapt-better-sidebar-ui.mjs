@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { removeBottomWorkbench, stripWorkbenchStyles } from './remove-bottom-workbench.mjs'
+import { existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 // Only the pinned published bundle is adapted. Fail on upstream drift.
@@ -6,12 +7,40 @@ function replaceOnce(source, before, after) {
   if (source.split(before).length !== 2) throw new Error(`Sidebar desktop adapter anchor mismatch: ${before.slice(0, 90)}`)
   return source.replace(before, after)
 }
+// RC2 navigation belongs to uiWorkspace; catalog ownership is exposed through projections.
+export function deepviewerMainSession(snapshot) {
+  return Object.values(snapshot.byId).find(row => (row.retainedBy.mainView ?? 0) > 0)?.id
+}
+export function deepviewerSubagentCatalogs(snapshot) {
+  return Object.fromEntries(Object.entries(snapshot.projectionsBySession).map(([id, projection]) => [id, {
+    state: projection.state === 'idle' ? projection.values.subagentCatalog === undefined ? 'loading' : 'ready' : projection.state,
+    error: projection.error,
+    entries: (projection.values.subagentCatalog ?? []).map(entry => ({
+      ...entry, activity: snapshot.byId[entry.id]?.running === true ? 'running' : 'inactive',
+    })),
+  }]))
+}
 export function adaptBetterSidebarUI(root) {
-  const marker = '// deepviewer-sidebar-management-v1'
-  for (const file of ['client.js', 'client-editor.js']) {
+  const marker = '// deepviewer-sidebar-management-dsh017-v1'
+  for (const file of ['client.js', 'client-registry.js', 'client-editor.js']) {
     const path = resolve(root, 'lib', file)
+    if (file === 'client-registry.js' && !existsSync(path)) continue
     let source = readFileSync(path, 'utf8')
     if (source.includes(marker)) continue
+    source = source.replace(/\b(Icon[A-Za-z]+)(?:14|16)\b/gu, '$1Regular')
+    if (file !== 'client-editor.js') {
+      source = replaceOnce(source, 'return registerTurnTailInterception(ctx, sidebarStore);', 'return () => {}; // RC2 deliverables owns turn-tail cards and resource opening; do not duplicate removed produced-file chips.')
+      if (source.split('ctx.sessions.list.getSnapshot().current').length !== 3) throw new Error('Sidebar session selection anchors drifted')
+      source = source.replaceAll('ctx.sessions.list.getSnapshot().current', 'deepviewerMainSession(ctx.sessions.list.getSnapshot())')
+      source = replaceOnce(source, 'const current = sessionList.current;', 'const current = deepviewerMainSession(sessionList);')
+      source = replaceOnce(source, '() => list.subagentsByParent ?? {}, [list.subagentsByParent]', '() => deepviewerSubagentCatalogs(list), [list.projectionsBySession, list.byId]')
+      source = replaceOnce(source, 'sessions.setSubagentCatalogOpen?.(parentSessionId, open);', 'if (open) void sessions.refreshProjections(parentSessionId);')
+      source = source.replaceAll('sessions.setSubagentCatalogOpen?.(parentSessionId, false);', '{} // Projection reads own no Session reference to release.')
+      source = replaceOnce(source, 'sessions.openSubagent?.(address);', 'ctx.get("uiWorkspace").openSession(address);')
+      source = replaceOnce(source, 'sessions.open?.(rootId);', 'ctx.get("uiWorkspace").openSession(rootId);')
+      source = replaceOnce(source, 'sessions.refreshSubagents?.(parentSessionId);', 'void sessions.refreshProjections(parentSessionId);')
+      source = `${deepviewerMainSession.toString()}\n${deepviewerSubagentCatalogs.toString()}\n// deepviewer-rc2-session-helpers-end\n${source}`
+    }
     source = source.replaceAll('侧边卡片', '侧栏管理').replace('管理侧栏管理的显示内容与默认行为', '管理侧栏内容与默认行为').replaceAll('settingsNav: "Side card"', 'settingsNav: "Sidebar Management"')
     source = replaceOnce(source, 'function SandboxStatusBar(props) {', 'function SandboxStatusBar(props) {\nreturn null; // Desktop preview policy is fixed; no temporary unlock UI.')
     if (file === 'client-editor.js') {
@@ -45,6 +74,10 @@ export function adaptBetterSidebarUI(root) {
       source = replaceOnce(source, 'Enter a URL to start browsing (sandbox mode)', 'Enter a URL to start browsing')
       source = replaceOnce(source, 'function BrowserView(props) {',
         readFileSync(new URL('./sidebar-browser-client.js', import.meta.url), 'utf8') + '\nfunction LegacyBrowserView(props) {')
+      // RC2 defaults to one instance per kind and unmounts hidden bodies unless opted in.
+      source = replaceOnce(source, 'kind: descriptor.id,', `kind: descriptor.id,
+                        multiple: descriptor.id === "browser",
+                        keepMounted: ["browser", "editor", "terminal"].includes(descriptor.id),`)
       source = replaceOnce(source, 'const options = {\n\t\t\t\t\t\tparams: entry.params,', `if (entry.tabKind === "browser") {
           const address = 'dsh-resource://browser/' + crypto.randomUUID() + '?url=' + encodeURIComponent(entry.params?.url ?? '');
           if (onScreen) api.openResource(address, { kind: "browser", revealIfOpened: false });
@@ -73,7 +106,7 @@ export function adaptBetterSidebarUI(root) {
       const rowEnd = source.indexOf('\n\t\t\t\t\t\t]', title)
       if (title < 0 || rowStart < 0 || rowEnd < 0) throw new Error('Sidebar position row anchor missing')
       source = source.slice(0, rowStart) + 'null' + source.slice(rowEnd)
-      for (const key of ['browserNoSandbox', 'browserAllowedLoopback', 'htmlViewerNoSandbox', 'htmlViewerDefaultUnsafe']) {
+      for (const key of ['bottomPanelAutoTerminal', 'browserNoSandbox', 'browserAllowedLoopback', 'htmlViewerNoSandbox', 'htmlViewerDefaultUnsafe']) {
         const pattern = new RegExp('\\{\\s*key: "' + key + '",[\\s\\S]*?\\}')
         if (!pattern.test(source)) throw new Error(`Sidebar preference anchor missing: ${key}`)
         source = source.replace(pattern, 'null')
@@ -105,6 +138,17 @@ export function adaptBetterSidebarUI(root) {
 `
       source = source.replace(cssMatch[0], `const css$5 = ${JSON.stringify(css)};`)
     }
+    if (file !== 'client-editor.js') source = removeBottomWorkbench(source)
+    source = stripWorkbenchStyles(source).replace(/^\/\/# sourceMappingURL=.*$/gmu, '')
     writeFileSync(path, marker + '\n' + source)
+    rmSync(path + '.map', { force: true })
   }
+  for (const name of ['client-terminal.js', 'client-mermaid.js']) {
+    const path = resolve(root, 'lib', name)
+    if (!existsSync(path)) continue
+    const source = readFileSync(path, 'utf8')
+    const trimmed = stripWorkbenchStyles(source).replace(/^\/\/# sourceMappingURL=.*$/gmu, '')
+    if (trimmed !== source) { writeFileSync(path, trimmed); rmSync(path + '.map', { force: true }) }
+  }
+
 }

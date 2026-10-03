@@ -1,0 +1,4 @@
+  if (session.blank && conversationPhase(session, conversation) === 'blank') return null
+  const viewId = view ?? active?.id
+  return (
+    <div className={css.viewArea}>

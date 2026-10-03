@@ -1,0 +1,2 @@
+          conversation: conversation.snapshot,
+          input: shell.state,

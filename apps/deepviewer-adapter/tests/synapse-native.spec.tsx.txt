@@ -1,0 +1,93 @@
+// @vitest-environment jsdom
+import { afterEach, expect, it, vi } from 'vitest'
+import { cleanup, render } from '@testing-library/react'
+import { SlotTestRuntime, stubConfigForm, usePinnedBrowserLanguages } from '@deepseek-ai/dsh-client-test-runtime'
+import { LocaleRuntime } from '@deepseek-ai/dsh-client-locale/client'
+import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
+import { apply, inject } from '../src/client/apply.ts'
+import { EMPTY_CONVERSATION_SNAPSHOT } from '../src/client/contract/snapshot.ts'
+import { DefaultConversationViews } from '../src/client/skeleton/DefaultConversationViews.tsx'
+import { ConversationMainPanel } from '../src/client/skeleton/ConversationMainPanel.tsx'
+import { ConversationSessionHeader } from '../src/client/skeleton/ConversationSession.tsx'
+usePinnedBrowserLanguages('zh-CN')
+afterEach(() => { cleanup(); vi.useRealTimers() })
+
+async function nativeNavigationBench() {
+  const runtime = await SlotTestRuntime.create()
+  const openSession = vi.fn()
+  runtime.ctx.provide('uiWorkspace', { openWorkspace: vi.fn(), openSession } as never)
+  runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
+  const locale = new LocaleRuntime(runtime.ctx)
+  runtime.ctx.provide('locale', locale); runtime.slots.installLocale(locale)
+  await runtime.root.declare({ main: { kind: 'keyed', scope: 'root' }, 'settings.general.item': { kind: 'list', scope: 'root' } }, () => null)
+  const feature = await runtime.mount({ inject: [...inject], apply })
+  runtime.renderRoot()
+  for (const id of ['chat', 'deepviewer-map']) runtime.slots.register({ name: 'conversation.view', id, label: id }, (() => null) as never)
+  await runtime.sessions.add({ id: 'map-parent' as never }); await runtime.sessions.add({ id: 'map-child' as never })
+  const parent = runtime.sessions.retain('map-parent' as never), child = runtime.sessions.retain('map-child' as never)
+  await Promise.all([parent.ready, child.ready])
+  const entry: any = runtime.slots.entries('conversation.session')[0]!
+  const parentStore = entry.store.create(), childStore = entry.store.create()
+  const owner = entry.inject('map-parent', parentStore.actions)
+  const bindChild = () => entry.inject('map-child', childStore.actions)
+  return { runtime, feature, parent, child, parentStore, childStore, owner, bindChild, openSession,
+    dispose: async () => { parent.release(); child.release(); await runtime.dispose() } }
+}
+
+it('DeepViewer map native navigation writes the destination actions while preserving the source view', async () => {
+  const b = await nativeNavigationBench()
+  try {
+    b.parentStore.actions.setView('chat')
+    const pending = b.owner.openSessionView('map-child', 'deepviewer-map', '')
+    expect(b.openSession).toHaveBeenCalledWith('map-child')
+    b.bindChild(); await pending
+    expect(b.childStore.getSnapshot().view).toBe('deepviewer-map')
+    expect(b.parentStore.getSnapshot().view).toBe('chat')
+    expect(b.childStore.getSnapshot().viewRequest).toEqual({ view: 'deepviewer-map', focus: '' })
+    await b.owner.openSessionView('map-child', 'chat', 'seq:42')
+    expect(b.childStore.getSnapshot().viewRequest).toEqual({ view: 'chat', focus: 'seq:42' })
+  } finally { await b.dispose() }
+})
+
+it('DeepViewer map native navigation supersedes pending destinations and rejects unknown view ids', async () => {
+  const b = await nativeNavigationBench()
+  try {
+    const first = b.owner.openSessionView('map-child', 'chat', 'seq:1')
+    const firstFailure = expect(first).rejects.toThrow(/superseded/)
+    const second = b.owner.openSessionView('map-child', 'deepviewer-map', '')
+    b.bindChild(); await firstFailure; await second
+    expect(b.childStore.getSnapshot().view).toBe('deepviewer-map')
+    await expect(b.owner.openSessionView('map-child', 'unregistered', '')).rejects.toThrow(/Unknown conversation view/)
+  } finally { await b.dispose() }
+})
+
+it('DeepViewer map native blank session shows its view and docks the composer while Chat retains the hero', () => {
+  const session: any = { blank: true, running: false, openState: 'open', subagent: null, promptAttempted: false, awaitingFirstTurn: false }
+  let selected = 'deepviewer-map'
+  const select = (selector: any) => selector(selected)
+  const factory = vi.fn((_name: string, input: any) => <div data-testid="native-body" data-hero={String(input.hero)} data-phase={input.phase} />)
+  const props: any = { sessionId: 'blank', useSession: (selector: any) => selector(session), useSessions: (selector: any) => selector({ byId: { blank: { blank: true } } }),
+    useConversation: (selector: any) => selector(EMPTY_CONVERSATION_SNAPSHOT), useConversationView: select, renderSlot: () => null, renderFactorySlot: factory }
+  const shell = render(<ConversationMainPanel {...props} />)
+  expect(shell.getByTestId('native-body').dataset.hero).toBe('false')
+  expect(shell.getByTestId('native-body').dataset.phase).toBe('active')
+  selected = 'chat'; shell.rerender(<ConversationMainPanel {...props} />)
+  expect(shell.getByTestId('native-body').dataset.hero).toBe('true')
+  const viewProps: any = { useSession: props.useSession, useConversation: props.useConversation, useConversationViews: (selector: any) => selector([{ id: 'chat' }, { id: 'deepviewer-map' }]),
+    useInspectCall: (selector: any) => selector(undefined), useStore: (selector: any) => selector({ view: 'deepviewer-map', draft: '', viewRequest: null }),
+    useInput: (selector: any) => selector({ draft: '' }), inputActions: { setDraft: vi.fn() }, actions: { setDraft: vi.fn(), completeViewRequest: vi.fn() },
+    bindDraftMirror: () => () => {}, openView: vi.fn(), openSessionView: vi.fn(), renderSlot: (_key: string, _owner: any, options: any) => <div data-testid={options.only} /> }
+  const area = render(<DefaultConversationViews {...viewProps} />)
+  expect(area.queryByTestId('deepviewer-map')).not.toBeNull()
+  area.rerender(<DefaultConversationViews {...viewProps} useStore={(selector: any) => selector({ view: 'chat', draft: '', viewRequest: null })} />)
+  expect(area.queryByTestId('deepviewer-map')).toBeNull()
+})
+
+it('DeepViewer map native blank header offers Chat and Map tabs without statistics or trajectory', () => {
+  const header = render(<ConversationSessionHeader {...({ sessionId: 'blank', hideChrome: true,
+    useSessions: (selector: any) => selector({ byId: {} }), useConversationViews: (selector: any) => selector([{ id: 'chat', label: 'Chat' }, { id: 'trajectory', label: 'Trajectory' }, { id: 'deepviewer-map', label: 'Map' }]),
+    useStore: (selector: any) => selector({ view: 'deepviewer-map' }), selectView: vi.fn(), open: vi.fn(), t: (key: string) => key, renderSlot: () => null } as any)} />)
+  expect(header.getAllByRole('tab').map(tab => tab.textContent)).toEqual(['Chat', 'Map'])
+  expect(header.getByRole('tab', { name: 'Map' }).getAttribute('aria-selected')).toBe('true')
+  expect(header.container.querySelector('[data-deepviewer-session-statistics]')).toBeNull()
+})

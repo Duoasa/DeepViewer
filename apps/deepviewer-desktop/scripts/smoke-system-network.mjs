@@ -44,7 +44,7 @@ async function runElectronSmoke() {
     const options = { resolveProxy: url => session.defaultSession.resolveProxy(url), proxyEnv: {}, ask: async () => 'deny', log: message => console.log(message) }
     const bridge = await startNetworkBridge(options); bridges.push(bridge)
     const provider = new HttpFetchProvider(limits, undefined, bridge.webUrl)
-    for (const url of ['https://github.com/deepseek-ai/deepseek-harness', 'https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/fb2c4b9e698e30edb738bca4cf0618587db7d203/README.md']) {
+    for (const url of ['https://github.com/deepseek-ai/deepseek-harness', 'https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/477b4f420553e8a52c2fbccc464d7561b239c443/README.md']) {
       const result = await provider.fetch({ url })
       assert.equal(result.statusCode, 200); assert.ok(result.body.content.length > 0)
       console.log(`PASS public ${new URL(url).hostname} status=200`)

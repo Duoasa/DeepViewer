@@ -32,6 +32,31 @@ function spec(mode = 'ready') {
 }
 
 describe('RuntimeManager', () => {
+  it.each(['auth-legacy', 'auth-rc2'])('authenticates the %s launch redirect before reporting readiness', async mode => {
+    const logger = new MemoryLogger()
+    const manager = new RuntimeManager(new DarwinProcessAdapter(), logger)
+    try {
+      const launch = await manager.start(spec(mode))
+      expect(manager.getStatus()).toMatchObject({ phase: 'ready', attempt: 1 })
+      expect(new URL(launch).searchParams.get('token')).toBe('fixture-launch-token')
+      expect(logger.messages.join('\n')).not.toContain('fixture-launch-token')
+      // The authenticated health probe must not remove the server's auth gate.
+      expect((await fetch(new URL('/', launch))).status).toBe(401)
+    } finally {
+      await manager.stop()
+    }
+  })
+
+  it.each(['auth-external', 'auth-no-cookie'])('rejects an unsafe or incomplete %s exchange', async mode => {
+    const manager = new RuntimeManager(new DarwinProcessAdapter(), new MemoryLogger())
+    try {
+      await expect(manager.start(spec(mode))).rejects.toMatchObject({ code: 'RUNTIME_PROBE_FAILED' })
+      expect(manager.getStatus().phase).toBe('failed')
+    } finally {
+      await manager.stop()
+    }
+  })
+
   it('moves from starting to ready and releases the port on stop', async () => {
     const logger = new MemoryLogger()
     const manager = new RuntimeManager(new DarwinProcessAdapter(), logger)

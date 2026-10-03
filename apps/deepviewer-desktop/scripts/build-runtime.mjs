@@ -1,5 +1,5 @@
 import { stageBetterSidebar, validateBetterSidebar, betterSidebarName, betterSidebarVersion } from './stage-better-sidebar.mjs'
-import { buildReasoningPlugin, reasoningPluginName } from './build-reasoning-plugin.mjs'
+import { buildModelCapabilitiesPlugin, modelCapabilitiesPluginName, modelCapabilitiesPluginVersion } from './build-model-capabilities-plugin.mjs'
 import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import {
@@ -32,9 +32,8 @@ const packRoots = [
   resolve(upstreamRoot, 'dist', 'deepviewer', 'vendor'),
   resolve(upstreamRoot, 'dist', 'deepviewer', 'dsh'),
 ]
-const electronVersion = '43.4.0'
-const expectedHarnessCommit = 'fb2c4b9e698e30edb738bca4cf0618587db7d203'
-const expectedHarnessVersion = '0.1.5-rc.2'
+const expectedHarnessCommit = '477b4f420553e8a52c2fbccc464d7561b239c443'
+const expectedHarnessVersion = '0.1.7-rc.2'
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'
 const appManifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
@@ -80,6 +79,12 @@ function packedIdentity(tarball) {
   const manifest = JSON.parse(tarEntry(archive, 'package/package.json').toString('utf8'))
   if (typeof manifest.name !== 'string' || typeof manifest.version !== 'string') {
     throw new Error(`invalid npm package identity in ${tarball}`)
+  }
+  // A source-tree boot cannot detect a YAML overlay omitted from npm's files list.
+  const declaredPatches = manifest.dsh?.bundle?.patch
+  for (const patch of typeof declaredPatches === 'string' ? [declaredPatches] : Array.isArray(declaredPatches) ? declaredPatches : []) {
+    if (typeof patch !== 'string' || patch.startsWith('/') || patch.split('/').includes('..')) throw new Error(`Invalid bundle patch in ${manifest.name}`)
+    tarEntry(archive, `package/${patch.replace(/^\.\//u, '')}`)
   }
   return { name: manifest.name, version: manifest.version }
 }
@@ -259,21 +264,21 @@ function sanitizeReleaseBuildPaths(runtimeRoot) {
   visit(runtimeRoot)
 }
 
-function packReasoningPlugin() {
-  const source = buildReasoningPlugin(upstreamRoot)
-  const destination = resolve(projectRoot, '.runtime/inputs/deepviewer-reasoning-0.1.0')
+function packModelCapabilitiesPlugin() {
+  const source = buildModelCapabilitiesPlugin(upstreamRoot)
+  const destination = resolve(projectRoot, `.runtime/inputs/deepviewer-model-capabilities-${modelCapabilitiesPluginVersion}`)
   rmSync(destination, { recursive: true, force: true }); mkdirSync(destination, { recursive: true })
   // Only package canonical build outputs; cloud-conflict copies in lib/ are not release inputs.
   const packageSource = join(destination, 'package-source')
   mkdirSync(join(packageSource, 'lib'), { recursive: true })
-  for (const file of ['package.json', 'LICENSE', 'cordis.patch.yml', 'lib/index.js', 'lib/client.js', 'lib/client.js.map']) {
+  for (const file of ['package.json', 'LICENSE', 'UPSTREAM.md', 'cordis.patch.yml', 'lib/index.js', 'lib/client.js', 'lib/client.js.map']) {
     cpSync(join(source, file), join(packageSource, file))
   }
   execFileSync('npm', ['pack', '--ignore-scripts', '--pack-destination', destination], { cwd: packageSource, stdio: ['ignore', 'pipe', 'pipe'] })
   const files = readdirSync(destination).filter(name => name.endsWith('.tgz'))
-  if (files.length !== 1) throw new Error('Expected one reasoning plugin tarball')
+  if (files.length !== 1) throw new Error('Expected one model capabilities plugin tarball')
   const tarball = join(destination, files[0])
-  if (packedIdentity(tarball).name !== reasoningPluginName) throw new Error('Reasoning plugin identity mismatch')
+  if (packedIdentity(tarball).name !== modelCapabilitiesPluginName) throw new Error('Model capabilities plugin identity mismatch')
   return tarball
 }
 
@@ -298,7 +303,7 @@ if (upstreamCommit !== expectedHarnessCommit) {
 }
 const dependencies = packedDependencies()
 dependencies.set(subscriptionsPluginName, packSubscriptionsPlugin())
-dependencies.set(reasoningPluginName, packReasoningPlugin())
+dependencies.set(modelCapabilitiesPluginName, packModelCapabilitiesPlugin())
 dependencies.set(betterSidebarName, packBetterSidebar())
 const sourceSnapshot = localSnapshot ? {
   kind: 'local-development', baseCommit: expectedHarnessCommit, headCommit: upstreamCommit,
@@ -338,12 +343,12 @@ for (const arch of architectures) {
 
   const packagedPlugins = [sanitizeSubscriptionsPlugin(runtimeRoot)]
   const sidebarManifest = validateBetterSidebar(join(runtimeRoot, "node_modules", betterSidebarName))
-  if (sidebarManifest.deepviewerAdapter !== "deepviewer-dsh015-sidebar-management-v2") throw new Error("Better Sidebar runtime auth adapter missing")
+  if (sidebarManifest.deepviewerAdapter !== "deepviewer-dsh017-sidebar-management-v1") throw new Error("Better Sidebar runtime auth adapter missing")
   packagedPlugins.push({ name: betterSidebarName, version: betterSidebarVersion, license: "MIT" })
   for (const file of ['lib/index.js', 'lib/client.js', 'cordis.patch.yml', 'LICENSE']) {
-    if (!existsSync(join(runtimeRoot, 'node_modules', reasoningPluginName, file))) throw new Error('Reasoning plugin runtime file missing: ' + file)
+    if (!existsSync(join(runtimeRoot, 'node_modules', modelCapabilitiesPluginName, file))) throw new Error('Model capabilities plugin runtime file missing: ' + file)
   }
-  packagedPlugins.push({ name: reasoningPluginName, version: '0.1.0', license: 'MIT' })
+  packagedPlugins.push({ name: modelCapabilitiesPluginName, version: modelCapabilitiesPluginVersion, license: 'MIT' })
   const entry = join(runtimeRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
   if (!existsSync(entry)) throw new Error(`installed Harness entry is missing at ${entry}`)
   const spawnHelper = join(runtimeRoot, 'node_modules', 'node-pty', 'prebuilds', `darwin-${arch}`, 'spawn-helper')
@@ -355,6 +360,8 @@ for (const arch of architectures) {
   const requiredNativeFiles = [
     join(runtimeRoot, 'node_modules', 'node-pty', 'prebuilds', `darwin-${arch}`, 'pty.node'),
     join(runtimeRoot, 'node_modules', '@koromix', `koffi-darwin-${arch}`, `darwin_${arch}`, 'koffi.node'),
+    // RC2 persistence now depends on the published POSIX flock binding.
+    join(runtimeRoot, 'node_modules', '@deepseek-ai', `node-addon-system-darwin-${arch}`, 'bin', 'system.node'),
   ]
   for (const path of requiredNativeFiles) {
     if (!existsSync(path)) throw new Error(`required darwin-${arch} native module is missing: ${path}`)

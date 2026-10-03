@@ -1,0 +1,135 @@
+(async () => {
+  const wait = async test => { for (let i = 0; i < 500; i++) { const value = test(); if (value) return value; await new Promise(r => setTimeout(r, 30)); } throw new Error('Settings smoke timed out: '+test.toString()); };
+  // The shell mounts before the first session and composer finish initializing.
+  await wait(() => document.querySelector('[contenteditable="true"]'));
+  await new Promise(resolve => {
+    let quiet; const done = () => { clearTimeout(quiet); clearTimeout(deadline); observer.disconnect(); resolve(); };
+    const observer = new MutationObserver(() => { clearTimeout(quiet); quiet = setTimeout(done, 750); });
+    const deadline = setTimeout(done, 5000);
+    observer.observe(document.body, {childList:true, subtree:true});
+    quiet = setTimeout(done, 750);
+  });
+  const fontResponse = await fetch('/assets/deepviewer/fonts/SmileySans-Oblique.woff2');
+  if (!fontResponse.ok) throw new Error('Bundled Smiley Sans is unavailable');
+  const fontBytes = new Uint8Array(await fontResponse.arrayBuffer());
+  if (String.fromCharCode(...fontBytes.slice(0, 4)) !== 'wOF2') throw new Error('Bundled font is not WOFF2');
+  const faces = await document.fonts.load('24px "Smiley Sans"', '让我们做点什么');
+  if (faces.length !== 1 || faces[0].status !== 'loaded') throw new Error('Bundled Smiley Sans did not load');
+  if (!(await (await fetch('/assets/deepviewer/fonts/OFL-SmileySans.txt')).text()).includes('SIL OPEN FONT LICENSE')) throw new Error('Bundled font license missing');
+  const heroMark = await wait(() => document.querySelector('[data-deepviewer-brand-mark]'));
+  const hero = heroMark.closest('[data-deepviewer-hero]');
+  if (!hero || !/让我们做点什么|What shall we build\?/.test(hero.textContent) || hero.querySelector('canvas')) throw new Error('DeepViewer welcome branding is missing');
+  const markStyle = getComputedStyle(heroMark);
+  if (!markStyle.maskImage.includes('/assets/deepviewer/deepviewer-loading-logo.svg') || heroMark.getBoundingClientRect().height < 100) throw new Error('Original DeepViewer mark is not rendered');
+  const markResponse = await fetch('/assets/deepviewer/deepviewer-loading-logo.svg');
+  if (!markResponse.ok || !(await markResponse.text()).includes('viewBox="0 0 150.374 160"')) throw new Error('Original DeepViewer mark asset is missing');
+  // Synthetic status checks live content-size variables without running a model.
+  const probe = document.createElement('div'); probe.setAttribute('data-chat-running', '');
+  const normal = document.createElement('span'); normal.style.color = 'var(--dsw-alias-label-secondary)';
+  document.body.append(probe, normal);
+  try {
+    for (const size of [14, 18, 22]) {
+      probe.style.setProperty('--dsh-content-font-size', size + 'px');
+      if (getComputedStyle(probe).fontSize !== size + 'px') throw new Error('Running status ignores content font size');
+    }
+    if (getComputedStyle(probe).color !== getComputedStyle(normal).color) throw new Error('Running status does not use the secondary foreground');
+  } finally { probe.remove(); normal.remove(); }
+  // Exercise the framework-free boot surface after mount, using its actual CSS module.
+  const bootRule = [...document.styleSheets].flatMap(sheet => { try { return [...sheet.cssRules]; } catch { return []; } })
+    .find(rule => rule.style?.getPropertyValue('--dsh-boot-label-primary'));
+  if (!bootRule) throw new Error('Boot material stylesheet missing');
+  const bootProbe = document.createElement('div');
+  bootProbe.className = bootRule.selectorText.match(/\.([\w-]+)/)?.[1] || '';
+  document.body.append(bootProbe);
+  try {
+    const style = getComputedStyle(bootProbe);
+    if (!style.getPropertyValue('--deepviewer-sidebar-material').trim() || (!matchMedia('(prefers-reduced-transparency: reduce)').matches && style.backgroundImage === 'none')) throw new Error('Boot does not share sidebar material');
+    const alpha = style.backgroundColor.match(/\/\s*([\d.]+)\)/)?.[1] ?? style.backgroundColor.match(/rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\)/)?.[1];
+    if (alpha === undefined || Number(alpha) >= 1) throw new Error('Boot background blocks native vibrancy: '+style.backgroundColor);
+  } finally { bootProbe.remove(); }
+  const sidebar = document.querySelector('[data-deepviewer-sidebar]');
+  if (!sidebar) throw new Error('Sidebar missing');
+  const mode = sidebar.querySelector('[role="group"]');
+  const newSession = [...sidebar.querySelectorAll('button')].find(b => /新建会话|New Session|New session/.test(b.getAttribute('aria-label') || ''));
+  if (!mode || !newSession || !(mode.compareDocumentPosition(newSession) & Node.DOCUMENT_POSITION_FOLLOWING)) throw new Error('Mode switch must precede new session');
+  const trigger = [...sidebar.querySelectorAll('button')].find(b => /^(设置|Settings)$/.test(b.getAttribute('aria-label') || b.textContent));
+  if (!trigger) throw new Error('Settings trigger missing');
+  trigger.focus(); trigger.click();
+  const panel = await wait(() => document.querySelector('[data-deepviewer-settings-page]'));
+  const rect = panel.getBoundingClientRect();
+  if (Math.abs(rect.width-innerWidth)>1 || Math.abs(rect.height-innerHeight)>1) throw new Error('Settings must cover viewport');
+  const nav = panel.querySelector('nav');
+  const buttons = [...nav.querySelectorAll('button')];
+  if (panel.querySelector('[data-slot-id="current-version"]') || /当前版本：|Current version:/.test(panel.textContent)) throw new Error('Duplicate General version row remains');
+  const about = buttons.find(b => /关于 DeepViewer|About DeepViewer/.test(b.textContent));
+  if (!about || buttons.at(-1) !== about) throw new Error('About footer missing');
+  const models = buttons.find(b => /模型|Models/.test(b.textContent));
+  if (!models) throw new Error('Models entry missing');
+  models.click();
+  await wait(() => panel.querySelector('[data-slot="settings.section"][data-slot-id="subscriptions"]') || [...panel.querySelectorAll('h2')].find(h => /订阅|Subscriptions/.test(h.textContent)));
+  about.click();
+  await wait(() => panel.querySelector('[data-deepviewer-about]'));
+  document.dispatchEvent(new KeyboardEvent('keydown', {key:'Escape',bubbles:true}));
+  await wait(() => !document.querySelector('[data-deepviewer-settings-page]'));
+  await wait(() => document.activeElement === trigger);
+  // Use an isolated blank native session: map must share the existing composer.
+  newSession.click();
+  const mapTab = await wait(() => [...document.querySelectorAll('[role="tab"]')].find(tab => /^(会话地图|Session map)$/.test(tab.textContent.trim())));
+  mapTab.click();
+  const nativeMap = await wait(() => document.querySelector('iframe[data-deepviewer-map]'));
+  await wait(() => nativeMap.contentDocument?.querySelector('.map-toolbar'));
+  if (document.querySelector('[data-deepviewer-hero]')) throw new Error('Blank map still renders the welcome hero');
+  const composers = document.querySelectorAll('[data-composer-seat]');
+  if (composers.length !== 1 || nativeMap.contentDocument.querySelector('textarea, [contenteditable="true"], .sidebar')) throw new Error('Map duplicates the native sidebar or composer');
+  const mapRect = nativeMap.getBoundingClientRect(), composerRect = composers[0].getBoundingClientRect();
+  if (mapRect.height < 80 || mapRect.bottom > composerRect.top + 1 || composerRect.bottom > innerHeight + 1) throw new Error('Map and native composer overlap: '+JSON.stringify({map:mapRect.toJSON(),composer:composerRect.toJSON(),height:innerHeight}));
+  const nativeTabs = mapTab.closest('[role="tablist"]');
+  if (!nativeTabs || nativeTabs.scrollHeight > nativeTabs.clientHeight) throw new Error('Native map tabs have vertical overflow');
+  // Exercise the real adapter layout bridge and native CSS using an isolated inspector.
+  const mapContent = nativeMap.closest('[data-conversation-content]');
+  await wait(() => nativeMap.contentDocument.querySelector('.main-stage > .empty-canvas, .main-stage > .canvas-view'));
+  await new Promise(resolve => setTimeout(resolve, 150));
+  const stage = nativeMap.contentDocument.querySelector('.main-stage');
+  const empty = stage.querySelector(':scope > .empty-canvas, :scope > .canvas-view');
+  const split = nativeMap.contentDocument.createElement('section'); split.className = 'canvas-view';
+  split.innerHTML = '<div class="canvas-viewport"></div><aside class="card-inspector"><header class="card-inspector-head">Fixture</header><div class="card-inspector-scroll"></div><footer class="card-inspector-actions">Actions</footer></aside>';
+  empty.replaceWith(split);
+  const reportLayout = width => window.dispatchEvent(new MessageEvent('message', {source:nativeMap.contentWindow,origin:location.origin,data:{source:'dsh-synapse',type:'synapse:layout',inspectorWidth:width}}));
+  const inspector = split.querySelector('.card-inspector');
+  if (nativeMap.clientWidth <= 640) throw new Error('Inspector fixture needs a wide native window');
+  reportLayout(inspector.getBoundingClientRect().width);
+  await wait(() => mapContent.hasAttribute('data-deepviewer-map-inspector'));
+  await wait(() => parseFloat(nativeMap.contentDocument.documentElement.style.getPropertyValue('--map-composer-height')) > 0);
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  const fullMapRect = nativeMap.getBoundingClientRect(), seatRect = composers[0].getBoundingClientRect(), contentRect = mapContent.getBoundingClientRect();
+  const inspectorRect = inspector.getBoundingClientRect(), viewportRect = split.querySelector('.canvas-viewport').getBoundingClientRect();
+  if (Math.abs(fullMapRect.bottom-contentRect.bottom)>1 || Math.abs(inspectorRect.bottom-nativeMap.clientHeight)>1 || nativeMap.contentWindow.getComputedStyle(inspector).borderLeftWidth==='0px') throw new Error('Inspector divider does not reach native content floor: '+JSON.stringify({map:fullMapRect.toJSON(),content:contentRect.toJSON(),inspector:inspectorRect.toJSON(),frameHeight:nativeMap.clientHeight,border:nativeMap.contentWindow.getComputedStyle(inspector).borderLeftWidth,scroll:nativeMap.closest('[data-conversation-scroll]').getBoundingClientRect().toJSON()}));
+  if (seatRect.right > fullMapRect.left + inspectorRect.left + 1 || fullMapRect.top + viewportRect.bottom > seatRect.top + 1) throw new Error('Inspector/native composer/graph overlap');
+  reportLayout(0);
+  await wait(() => !mapContent.hasAttribute('data-deepviewer-map-inspector'));
+  split.replaceWith(empty);
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  if (nativeMap.getBoundingClientRect().bottom > composers[0].getBoundingClientRect().top + 1 || mapContent.style.getPropertyValue('--deepviewer-map-inspector-width')) throw new Error('Closing inspector did not restore native composer flow');
+  const chatTab = [...document.querySelectorAll('[role="tab"]')].find(tab => /^(对话|Chat)$/.test(tab.textContent.trim()));
+  if (!chatTab) throw new Error('Native chat tab missing');
+  chatTab.click();
+  await wait(() => !document.querySelector('iframe[data-deepviewer-map]'));
+  const mapProbe = document.createElement('iframe');
+  mapProbe.src = '/assets/deepviewer/synapse/index.html';
+  mapProbe.style.cssText = 'position:fixed;width:900px;height:600px;left:-10000px;top:0';
+  let mapRequests = 0;
+  const mapMessage = event => {
+    if (event.source !== mapProbe.contentWindow || event.origin !== location.origin || event.data?.source !== 'dsh-synapse') return;
+    const send = (type, payload) => mapProbe.contentWindow.postMessage({source:'dsh-synapse',type,...payload},location.origin);
+    if (event.data.type === 'synapse:api') { mapRequests++; send('synapse:api-result',{requestId:event.data.requestId,value:{workspaces:[]}}); }
+    if (event.data.type === 'synapse:request-current') { send('synapse:theme',{dark:true}); send('synapse:workspaces',{workspaces:[]}); send('synapse:current-session',{session:null}); }
+  };
+  window.addEventListener('message',mapMessage); document.body.append(mapProbe);
+  try {
+    await wait(() => mapRequests > 0 && mapProbe.contentDocument?.querySelector('.map-toolbar') && mapProbe.contentDocument?.querySelector('.empty-canvas'));
+    await wait(() => mapProbe.contentDocument.documentElement.dataset.theme === 'dark');
+    const content = mapProbe.contentDocument.querySelector('#app').textContent;
+    if (/Refused|请求失败|未在规定时间/.test(content)) throw new Error('Synapse iframe failed to boot');
+  } finally { window.removeEventListener('message',mapMessage); mapProbe.remove(); }
+  return { synapseCanvas:true, blankMap:true, oneNativeComposer:true, mapComposerGeometry:true, mapTabsNoVerticalOverflow:true, fullHeightInspector:true, inspectorComposerSeparation:true, inspectorLayoutCleanup:true, bootSidebarMaterial:true, bundledSmileyFont:true, runningTypography:true, fullWindowSettings:true, aboutFooter:true, combinedModels:true, escapeRestoresFocus:true, sidebarModeOrder:true };
+})()

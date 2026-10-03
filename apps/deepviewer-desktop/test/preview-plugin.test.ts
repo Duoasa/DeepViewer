@@ -56,15 +56,15 @@ async function createPlugin(root: string, version = PREVIEW_PLUGIN_VERSION): Pro
     main: 'lib/index.js',
     exports: { './client': { default: './lib/client.js' } },
     peerDependencies: {
-      '@deepseek-ai/cordis': '4.0.1',
-      '@deepseek-ai/dsh-client-connection': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-locale': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-runtime': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-ui-conversation': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-ui-deliverables': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-ui-layout': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-ui-primitives': '0.1.1-rc.2',
-      '@deepseek-ai/dsh-client-ui-slots': '0.1.1-rc.2',
+      '@deepseek-ai/cordis': '4.0.4',
+      '@deepseek-ai/dsh-client-connection': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-locale': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-ui-session': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-ui-conversation': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-ui-deliverables': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-ui-layout': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-ui-primitives': '0.1.7-rc.2',
+      '@deepseek-ai/dsh-client-ui-slots': '0.1.7-rc.2',
     },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
@@ -73,7 +73,7 @@ async function createPlugin(root: string, version = PREVIEW_PLUGIN_VERSION): Pro
         inject: [
           '@deepseek-ai/dsh-client-connection',
           '@deepseek-ai/dsh-client-locale',
-          '@deepseek-ai/dsh-client-runtime',
+          '@deepseek-ai/dsh-client-ui-session',
           '@deepseek-ai/dsh-client-ui-conversation',
           '@deepseek-ai/dsh-client-ui-deliverables',
           '@deepseek-ai/dsh-client-ui-layout',
@@ -90,7 +90,7 @@ afterEach(async () => {
 })
 
 describe('DeepViewer preview plugin integration', () => {
-  it('uses a tracked test tsconfig and deterministically rewrites the staged DSH config', async () => {
+  it('keeps legacy test helpers available without staging the retired plugin', async () => {
     const sourceConfig = JSON.parse(await readFile(
       join(process.cwd(), 'dsh-plugins', 'preview', 'tsconfig.json'),
       'utf8',
@@ -108,10 +108,8 @@ describe('DeepViewer preview plugin integration', () => {
     expect(buildConfig.references?.every(reference => (
       reference.path.startsWith('../../../../upstream/deepseek-harness/')
     ))).toBe(true)
-    expect(syncScript).toContain(
-      `.replaceAll('"../../tsconfig.json"', '"../../../tsconfig.base.client.json"')`,
-    )
-    expect(syncScript).toContain(`['exec', 'tsc', '-b', 'tsconfig.dsh.json']`)
+    expect(syncScript).not.toContain('stagePreviewPlugin')
+    expect(syncScript).not.toContain('tsconfig.dsh.json')
   })
 
   it('opens at one third of the current app viewport', () => {
@@ -210,7 +208,7 @@ describe('DeepViewer preview plugin integration', () => {
     const stalePlugin = await createPlugin(staleRoot)
     const staleManifestPath = join(stalePlugin, 'package.json')
     const staleManifest = JSON.parse(await readFile(staleManifestPath, 'utf8'))
-    staleManifest.peerDependencies['@deepseek-ai/dsh-client-runtime'] = '0.1.0-rc.8'
+    staleManifest.peerDependencies['@deepseek-ai/dsh-client-ui-session'] = '0.1.0-rc.8'
     await writeFile(staleManifestPath, JSON.stringify(staleManifest))
     expect(resolvePreviewPlugin(staleRoot, home, false)).toEqual({
       enabled: false,

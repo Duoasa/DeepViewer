@@ -1,0 +1,3 @@
+        viewRequest,
+        openSessionView,
+        openView,

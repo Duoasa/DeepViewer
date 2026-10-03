@@ -25,12 +25,17 @@ export function prepareSubscriptionsClient(target, upstream, source) {
       content = content.replace("import { ImageGallery } from '@deepseek-ai/dsh-client-ui-attachment'", "import { ImageGallery } from './gallery/MessageImage.tsx'")
         .replace("import type { ImageAttachmentRef, ImageLoader, MessageImageLabels } from '@deepseek-ai/dsh-client-ui-attachment'", "import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'\nimport type { ImageLoader, MessageImageLabels } from './gallery/MessageImage.tsx'")
     }
+    content = content.replaceAll('IconSparkle16', 'IconSparkleRegular')
+      .replaceAll('<ImageGallery images={images}', '<ImageGallery images={images.map(attachment => ({ attachment }))}')
+      .replaceAll('block.call?.argsRaw : block.argsRaw', "block.call?.argsRaw : block.phase === 'start' ? block.argsRaw : undefined")
+      .replace("import type { ClientContext } from '@deepseek-ai/dsh-client-ui-session/client'", "import type { Context as ClientContext } from '@deepseek-ai/cordis'")
+      .replace("import type { ToolCallBlock } from '@deepseek-ai/dsh-client-ui-session/client'", "import type { ToolCallBlock } from '@deepseek-ai/dsh-client-ui-conversation/client'")
     writeFileSync(resolve(client, name), adaptSubscriptionsClientSource(name, content))
   }
   cpSync(imageGenerateStylesPath, resolve(client, 'ImageGenerateToolview.module.css'))
   // This is a private source copy of the pinned upstream component, not a new public export.
   // Keep the upstream license alongside it; CSS is bundled by DSH's own client preset.
-  for (const name of ['MessageImage.tsx', 'MessageImage.module.css', 'ImageLightbox.tsx', 'ImageLightbox.module.css']) {
+  for (const name of ['MessageImage.tsx', 'MessageImage.module.css']) {
     cpSync(resolve(upstream, 'packages/client/ui-attachment/src', name), resolve(gallery, basename(name)))
   }
   cpSync(resolve(upstream, 'LICENSE'), resolve(gallery, 'LICENSE'))

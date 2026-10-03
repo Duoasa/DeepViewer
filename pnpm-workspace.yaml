@@ -1,5 +1,8 @@
 packages:
   - apps/*
+  # Standalone candidate with its own npm-shrinkwrap; not part of desktop runtime yet.
+  - '!apps/dsh-plugin-model-capabilities'
+  - '!apps/deepviewer-adapter'
 
 nodeLinker: hoisted
 autoInstallPeers: false

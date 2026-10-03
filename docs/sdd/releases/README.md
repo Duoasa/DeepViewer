@@ -8,6 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
+| `v0.5.0`（候选） | Signed installer candidate / ARM64；Preparing | 未发布（准备于 2026-10-03） | DV-0033 | [DeepViewer 0.5.0](v0.5.0.md) |
 | `v0.3.3` | Public release / ARM64 | 2026-09-23 | DV-0031, DV-0032 | [DeepViewer 0.3.3](v0.3.3.md) |
 | `v0.2.5-preview.1` | Release / Latest / ARM64 only | 2026-09-15 | DV-0017 | [DeepViewer 0.2.5](v0.2.5-preview.1.md) |
 | `v0.2.3` | Public preview / Previous Latest | 2026-08-23 | DV-0015 | [DeepViewer 0.2.3 (Build 1)](v0.2.3.md) |

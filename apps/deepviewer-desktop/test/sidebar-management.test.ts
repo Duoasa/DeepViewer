@@ -16,12 +16,16 @@ it('adapts pinned settings and preview policy reproducibly, and rejects bundle d
   adaptBetterSidebarUI(root)
   const client = readFileSync(join(root, 'lib/client.js'), 'utf8')
   const editor = readFileSync(join(root, 'lib/client-editor.js'), 'utf8')
+  for (const name of ['client.js', 'client-registry.js', 'client-editor.js', 'client-terminal.js', 'client-mermaid.js']) {
+    const output = readFileSync(join(root, 'lib', name), 'utf8')
+    expect(output.match(/\bbottomSplits\b|\bbottomOpen\b|\bbottomHeight\b|bottomPanelAutoTerminal|BottomDockToggle|registerBottomToggle|data-dsh-bottom|data-dsh-panel-host|--dsh-sidebar-height/g)).toBeNull()
+  }
   expect(() => new Script(client)).not.toThrow()
   expect(() => new Script(editor)).not.toThrow()
   expect(client).toContain('settingsNav: "侧栏管理"')
   expect(client).not.toContain('className: SideCardSection_module_css_default.versionBadge,')
   expect(client).not.toContain('value: titleBarSchemeValue(prefs)')
-  expect(client).toContain('const scheme = "web";')
+  expect(client).not.toContain('const scheme = snapshot.prefs.titleBarScheme;')
   expect(client).not.toContain('id: "sidechat",')
   const recordsStart = client.indexOf('function createNativeTabRecords() {')
   const recordsEnd = client.indexOf('function useRecordVersion(', recordsStart)

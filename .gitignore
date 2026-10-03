@@ -18,3 +18,14 @@ out/
 # Local checkout of the official upstream source. The analyzed revision and
 # refresh procedure are recorded in upstream/README.md.
 upstream/deepseek-harness/
+
+# Generated official desktop carrier and adapter bundles
+apps/deepviewer-desktop/lib/
+apps/deepviewer-desktop/renderer/
+apps/deepviewer-adapter/lib/
+
+# Generated official desktop launcher shims
+/apps/deepviewer-desktop/scripts/node-bin/
+
+# Local independent worktrees and inspection checkouts
+.worktrees/

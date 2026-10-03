@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { stageSubscriptionsPlugin } from './sync-upstream-overrides.mjs'
+import { stageSubscriptionsPlugin } from './stage-subscriptions.mjs'
 import { stageBetterSidebar } from './stage-better-sidebar.mjs'
 import { prepareSubscriptionsClient } from './prepare-subscriptions-client.mjs'
 import { adaptSubscriptionsPlugin } from './adapt-subscriptions-plugin.mjs'

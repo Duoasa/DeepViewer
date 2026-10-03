@@ -1,0 +1,2 @@
+  const { sessionId, useSession, useSessions, useConversation, useConversationView, renderSlot, renderFactorySlot } = props
+  const mapActive = useConversationView?.(view => view === 'deepviewer-map') === true

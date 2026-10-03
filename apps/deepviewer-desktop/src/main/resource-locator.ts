@@ -1,9 +1,11 @@
-import {
+import { writeFileSync,
   existsSync,
   lstatSync,
   mkdirSync,
   readFileSync,
+  readlinkSync,
   realpathSync,
+  renameSync,
   rmSync,
   symlinkSync,
 } from 'node:fs'
@@ -15,8 +17,10 @@ export const SUBSCRIPTIONS_PLUGIN_NAME = 'dsh-plugin-subscriptions'
 export const SUBSCRIPTIONS_PLUGIN_VERSION = '0.3.1'
 export const PREVIEW_PLUGIN_NAME = '@deepviewer/dsh-plugin-preview'
 export const PREVIEW_PLUGIN_VERSION = '0.1.0'
-const DSH_PLUGIN_PEER_VERSION = '0.1.5-rc.2'
-const CORDIS_PLUGIN_PEER_VERSION = '4.0.2'
+export const MODEL_CAPABILITIES_PLUGIN_NAME = '@deepviewer/dsh-plugin-model-capabilities'
+export const MODEL_CAPABILITIES_PLUGIN_VERSION = '1.0.2'
+const DSH_PLUGIN_PEER_VERSION = '0.2.0-rc.2'
+const CORDIS_PLUGIN_PEER_VERSION = '4.0.4'
 const REQUIRED_SUBSCRIPTIONS_PEERS = [
   '@deepseek-ai/dsh-attachment',
   '@deepseek-ai/dsh-home-paths',
@@ -65,6 +69,9 @@ export function runtimeEnvironment(
   env.DSH_HOME = join(app.getPath('userData'), 'harness-home')
   env.DEEPVIEWER_PROJECTS_ROOT = join(app.getPath('documents'), 'DeepViewer', 'Projects')
   env.DEEPVIEWER_SESSION_SEARCH = '1'
+  // Older Harness snapshots consume these aliases; both point to DeepViewer data.
+  env.DEEPVIEWER_PROJECTS_ROOT = env.DEEPVIEWER_PROJECTS_ROOT
+  env.DEEPVIEWER_SESSION_SEARCH = env.DEEPVIEWER_SESSION_SEARCH
   env.DSH_TELEMETRY_DISABLED = '1'
   env.FORCE_COLOR = '0'
   return env
@@ -134,7 +141,7 @@ function prepareProfileLink(pluginRoot: string, dshHome: string, pluginName: str
 export function resolveSubscriptionsPlugin(
   harnessRoot: string,
   dshHome: string,
-  disabled = process.env.DEEPVIEWER_DISABLE_SUBSCRIPTIONS === '1',
+  disabled = (process.env.DEEPVIEWER_DISABLE_SUBSCRIPTIONS ?? process.env.DEEPVIEWER_DISABLE_SUBSCRIPTIONS) === '1',
 ): SubscriptionsPluginResolution {
   if (disabled) {
     return { enabled: false, diagnostic: 'SUBSCRIPTIONS_DISABLED' }
@@ -200,7 +207,7 @@ export function resolveSubscriptionsPlugin(
 export function resolvePreviewPlugin(
   harnessRoot: string,
   dshHome: string,
-  disabled = process.env.DEEPVIEWER_DISABLE_PREVIEW === '1',
+  disabled = (process.env.DEEPVIEWER_DISABLE_PREVIEW ?? process.env.DEEPVIEWER_DISABLE_PREVIEW) === '1',
 ): PreviewPluginResolution {
   if (disabled) return { enabled: false, diagnostic: 'PREVIEW_DISABLED' }
 
@@ -257,44 +264,82 @@ export function resolvePreviewPlugin(
   }
 }
 
-export function resolveReasoningPlugin(harnessRoot: string, dshHome: string, disabled = process.env.DEEPVIEWER_DISABLE_REASONING === '1'): SubscriptionsPluginResolution {
-  if (disabled) return { enabled: false, diagnostic: 'REASONING_DISABLED' }
-  const name = '@deepviewer/dsh-plugin-reasoning'
+export function resolveModelCapabilitiesPlugin(harnessRoot: string, dshHome: string, disabled = (process.env.DEEPVIEWER_DISABLE_MODEL_CAPABILITIES ?? process.env.DEEPVIEWER_DISABLE_REASONING ?? process.env.DEEPVIEWER_DISABLE_REASONING) === '1'): SubscriptionsPluginResolution {
+  if (disabled) return { enabled: false, diagnostic: 'MODEL_CAPABILITIES_DISABLED' }
+  const name = MODEL_CAPABILITIES_PLUGIN_NAME
   const root = join(harnessRoot, 'node_modules', name)
   try {
     const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
     const patchPath = join(root, 'cordis.patch.yml')
-    if (manifest.name !== name || manifest.version !== '0.1.0' || manifest.license !== 'MIT'
+    if (manifest.name !== name || manifest.version !== MODEL_CAPABILITIES_PLUGIN_VERSION || manifest.license !== 'MIT'
       || manifest.dsh?.bundle?.patch !== './cordis.patch.yml' || manifest.dsh?.client?.platform !== 'web'
-      || manifest.peerDependencies?.['@deepseek-ai/dsh-api-remotes'] !== '0.1.5-rc.2'
+      || manifest.peerDependencies?.['@deepseek-ai/cordis'] !== CORDIS_PLUGIN_PEER_VERSION
+      || !hasExactPeers(manifest.peerDependencies, ['@deepseek-ai/dsh-api-remotes', '@deepseek-ai/dsh-credentials', '@deepseek-ai/dsh-home-paths', '@deepseek-ai/dsh-client-ui-settings', '@deepseek-ai/dsh-client-ui-settings-models', '@deepseek-ai/dsh-client-ui-slots', '@deepseek-ai/dsh-client-locale'], DSH_PLUGIN_PEER_VERSION)
+      || !Array.isArray(manifest.dsh?.client?.inject)
+      || !['@deepseek-ai/dsh-client-ui-slots', '@deepseek-ai/dsh-client-ui-settings', '@deepseek-ai/dsh-client-ui-settings-models', '@deepseek-ai/dsh-client-locale', '@deepseek-ai/dsh-api-remotes'].every(peer => manifest.dsh.client.inject.includes(peer))
+      || manifest.main !== './lib/index.js' || manifest.exports?.['./client'] !== './lib/client.js'
       || !['lib/index.js', 'lib/client.js', 'cordis.patch.yml', 'LICENSE'].every(file => existsSync(join(root, file)))) {
-      return { enabled: false, diagnostic: 'REASONING_UNAVAILABLE reason=manifest-invalid' }
+      return { enabled: false, diagnostic: 'MODEL_CAPABILITIES_UNAVAILABLE reason=manifest-invalid' }
     }
-    if (!prepareProfileLink(root, dshHome, name)) return { enabled: false, diagnostic: 'REASONING_UNAVAILABLE reason=profile-link-occupied' }
-    return { enabled: true, patchPath, diagnostic: 'REASONING_ENABLED version=0.1.0' }
-  } catch { return { enabled: false, diagnostic: 'REASONING_UNAVAILABLE reason=package-missing-or-invalid' } }
+    if (!prepareProfileLink(root, dshHome, name)) return { enabled: false, diagnostic: 'MODEL_CAPABILITIES_UNAVAILABLE reason=profile-link-occupied' }
+    for (const legacy of ['@deepviewer/dsh-plugin-reasoning']) {
+      const link = join(dshHome, 'profiles', 'node_modules', legacy)
+      // Only retire links owned by this runtime. Do not remove user-installed packages or reports.
+      try {
+        if (lstatSync(link).isSymbolicLink() && resolve(link, '..', readlinkSync(link)) === resolve(harnessRoot, 'node_modules', legacy)) rmSync(link)
+      } catch { /* absent or user-managed legacy installation: leave it alone */ }
+    }
+    return { enabled: true, patchPath, diagnostic: `MODEL_CAPABILITIES_ENABLED version=${MODEL_CAPABILITIES_PLUGIN_VERSION}` }
+  } catch { return { enabled: false, diagnostic: 'MODEL_CAPABILITIES_UNAVAILABLE reason=package-missing-or-invalid' } }
+}
+
+/** RC2 form writes require a bundle below the writable profile patch layer. */
+export function prepareBetterSidebarProfile(dshHome: string): string {
+  const dir = join(dshHome, 'profiles', 'web')
+  const path = join(dir, 'package.json')
+  const manifest = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {
+    private: true, dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'] } },
+  }
+  const bundles = manifest.dsh?.profile?.bundles
+  if (!Array.isArray(bundles) || !bundles.every((name: unknown) => typeof name === 'string')) {
+    throw new Error('Invalid web profile bundle list')
+  }
+  mkdirSync(dir, { recursive: true })
+  if (!bundles.includes('dsh-better-sidebar')) {
+    bundles.push('dsh-better-sidebar')
+    const temporary = `${path}.deepviewer-${process.pid}.tmp`
+    writeFileSync(temporary, JSON.stringify(manifest, null, 2) + '\n', { mode: 0o600 })
+    renameSync(temporary, path)
+  }
+  const patchPath = join(dshHome, 'deepviewer-sidebar-enable.patch.yml')
+  writeFileSync(patchPath, '- id: better-sidebar\n  disabled: false\n', { mode: 0o600 })
+  return patchPath
+}
+
+function hasBetterSidebarProfile(dshHome: string): boolean {
+  const path = join(dshHome, 'profiles', 'web', 'package.json')
+  return existsSync(path) && JSON.parse(readFileSync(path, 'utf8')).dsh?.profile?.bundles?.includes('dsh-better-sidebar') === true
 }
 
 export function resolveBetterSidebarPlugin(
   harnessRoot: string,
   dshHome: string,
-  disabled = process.env.DEEPVIEWER_DISABLE_BETTER_SIDEBAR === '1',
+  disabled = (process.env.DEEPVIEWER_DISABLE_BETTER_SIDEBAR ?? process.env.DEEPVIEWER_DISABLE_BETTER_SIDEBAR) === '1',
 ): SubscriptionsPluginResolution {
   if (disabled) return { enabled: false, diagnostic: 'BETTER_SIDEBAR_DISABLED' }
   const name = 'dsh-better-sidebar'
   const root = join(harnessRoot, 'node_modules', name)
   try {
     const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-    const patchPath = join(root, 'cordis.patch.yml')
     if (manifest.name !== name || manifest.version !== '0.19.1' || manifest.license !== 'MIT'
-      || manifest.deepviewerAdapter !== 'deepviewer-dsh015-sidebar-management-v2'
+      || manifest.deepviewerAdapter !== 'deepviewer-dsh017-sidebar-management-v1'
       || manifest.dsh?.bundle?.patch !== './cordis.patch.yml' || manifest.dsh?.client?.platform !== 'web'
       || !manifest.dsh.client.inject?.includes('@deepseek-ai/dsh-client-ui-sidebar-right')
       || !['lib/index.js', 'lib/client.js', 'lib/client-terminal.js', 'lib/client-editor.js', 'lib/client-mermaid.js', 'cordis.patch.yml', 'LICENSE'].every(file => existsSync(join(root, file)))) {
       return { enabled: false, diagnostic: 'BETTER_SIDEBAR_UNAVAILABLE reason=manifest-invalid' }
     }
     if (!prepareProfileLink(root, dshHome, name)) return { enabled: false, diagnostic: 'BETTER_SIDEBAR_UNAVAILABLE reason=profile-link-occupied' }
-    return { enabled: true, patchPath, diagnostic: 'BETTER_SIDEBAR_ENABLED version=0.19.1' }
+    return { enabled: true, patchPath: prepareBetterSidebarProfile(dshHome), diagnostic: 'BETTER_SIDEBAR_ENABLED version=0.19.1' }
   } catch { return { enabled: false, diagnostic: 'BETTER_SIDEBAR_UNAVAILABLE reason=package-missing-or-invalid' } }
 }
 
@@ -308,7 +353,7 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
 
   const harnessRoot = app.isPackaged
     ? join(process.resourcesPath, 'harness')
-    : resolve(process.env.DEEPVIEWER_HARNESS_ROOT ?? join(app.getAppPath(), '..', '..', 'upstream', 'deepseek-harness'))
+    : resolve(process.env.DEEPVIEWER_HARNESS_ROOT ?? process.env.DEEPVIEWER_HARNESS_ROOT ?? join(app.getAppPath(), '..', '..', 'upstream', 'deepseek-harness'))
   const builtEntry = app.isPackaged
     ? join(harnessRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
     : join(harnessRoot, 'apps', 'cli', 'lib', 'bin.js')
@@ -333,14 +378,19 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
   }
 
   const subscriptions = resolveSubscriptionsPlugin(harnessRoot, dshHome)
-  const reasoning = resolveReasoningPlugin(harnessRoot, dshHome)
+  const capabilities = resolveModelCapabilitiesPlugin(harnessRoot, dshHome)
+  const sidebar = resolveBetterSidebarPlugin(harnessRoot, dshHome)
 
-  const coreArgs = buildHarnessWebArgs(nodeArgs)
+  const desktopPatch = join(dshHome, 'deepviewer-desktop.patch.yml')
+  mkdirSync(dshHome, { recursive: true })
+  writeFileSync(desktopPatch, '- id: ui-sidebar-browser\n  disabled: false\n' +
+    (hasBetterSidebarProfile(dshHome) ? '- id: better-sidebar\n  disabled: true\n' : ''))
+  const coreArgs = buildHarnessWebArgs(nodeArgs, [desktopPatch])
   const argsWithPatches = (patches: readonly string[]): string[] => (
-    buildHarnessWebArgs(nodeArgs, patches)
+    buildHarnessWebArgs(nodeArgs, [desktopPatch, ...patches])
   )
   const primaryPatches = [
-    ...(reasoning.enabled && reasoning.patchPath ? [reasoning.patchPath] : []),
+    ...(capabilities.enabled && capabilities.patchPath ? [capabilities.patchPath] : []),
     ...(subscriptions.enabled && subscriptions.patchPath !== undefined ? [subscriptions.patchPath] : []),
   ]
   const launch: RuntimeLaunchSpec = {
@@ -348,7 +398,7 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
     args: primaryPatches.length === 0 ? coreArgs : argsWithPatches(primaryPatches),
     cwd: workspaceRoot,
     env: environment,
-    startupDiagnostics: [subscriptions.diagnostic, reasoning.diagnostic, 'PREVIEW_OFFICIAL DSH=0.1.5-rc.2'],
+    startupDiagnostics: [subscriptions.diagnostic, capabilities.diagnostic, 'PREVIEW_OFFICIAL DSH=0.1.7-rc.2'],
     startTimeoutMs: app.isPackaged ? 120_000 : 60_000,
     stopTimeoutMs: 5_000,
     probeTimeoutMs: 5_000,
@@ -358,12 +408,11 @@ export function resolveHarnessLaunch(app: App): RuntimeLaunchSpec {
     args: coreArgs,
     startupDiagnostics: ['INTEGRATIONS_FALLBACK core-only'],
   }
-  if (subscriptions.enabled || reasoning.enabled) {
+  if (subscriptions.enabled || capabilities.enabled) {
     launch.integrationName = 'DESKTOP_PLUGINS'
     launch.fallbackDescription = 'core-only'
     launch.fallback = coreFallback
   }
-  const sidebar = resolveBetterSidebarPlugin(harnessRoot, dshHome)
   if (sidebar.enabled && sidebar.patchPath !== undefined) {
     return {
       ...launch,

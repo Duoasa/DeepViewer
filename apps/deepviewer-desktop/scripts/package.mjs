@@ -5,8 +5,9 @@ import { dirname, join, resolve } from 'node:path'
 import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { packager } from '@electron/packager'
-import { verifyRuntimeVersion } from './release-version.mjs'
+import { verifyRuntimeVersion, readRuntimeManifest } from './release-version.mjs'
 import { auditPackagedApp, normalizeCopiedRuntimeSymlinks } from './release-audit.mjs'
+import { compileNativeAppIcon } from './native-app-icon.mjs'
 import {
   createOsxSignOptions,
   resolveDeveloperIdApplication,
@@ -18,18 +19,20 @@ import {
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
 const appManifest = JSON.parse(await readFile(join(appRoot, 'package.json'), 'utf8'))
+const electronVersion = appManifest.devDependencies.electron
 const outputOption = process.argv.find(argument => argument.startsWith('--out='))?.slice('--out='.length)
 const outputRoot = outputOption ? resolve(outputOption) : process.argv.includes('--freeze') ? resolve(projectRoot, 'out', appManifest.version) : resolve(projectRoot, 'out')
 const releaseStagingRoot = resolve(outputRoot, '.release-staging')
 const previewStagingRoot = resolve(outputRoot, '.preview-staging')
-const appIcon = resolve(appRoot, 'assets', 'DeepViewer.icns')
-const rendererAssetPattern = /^[A-Za-z0-9._-]+\.(?:css|js|ttf)$/u
+const nativeIcon = await compileNativeAppIcon(appRoot)
+const appIcon = nativeIcon.icns
+const rendererAssetPattern = /^[A-Za-z0-9._-]+\.(?:css|js|ttf|png)$/u
 const fixedApplicationFiles = [
   '.desktop/build/main.js',
   '.desktop/build/preload.cjs',
   '.desktop/renderer/index.html',
-  'assets/DeepViewer.icns',
   'assets/deepviewer-icon-macos26-1024.png',
+  'assets/deepviewer-icon-dark-1024.png',
   'assets/licenses/Figtree-OFL.txt',
   'assets/licenses/ip-address-LICENSE.txt',
   'assets/licenses/ipaddr.js-LICENSE.txt',
@@ -45,18 +48,18 @@ if (!Number.isSafeInteger(appBuildNumber) || appBuildNumber < 1) {
   throw new Error(`invalid DeepViewer build number: ${String(appBuildNumber)}`)
 }
 const appBuildVersion = String(appBuildNumber)
-const expectedHarnessCommit = 'fb2c4b9e698e30edb738bca4cf0618587db7d203'
-const expectedHarnessVersion = '0.1.5-rc.2'
+const expectedHarnessCommit = '477b4f420553e8a52c2fbccc464d7561b239c443'
+const expectedHarnessVersion = '0.1.7-rc.2'
 const expectedRuntimePlugins = [
   {
     name: 'dsh-plugin-subscriptions',
     version: '0.3.1',
     license: 'MIT',
-    adapter: 'deepviewer-remaining-usage-dsh015-v2',
-    dshPeerVersion: '0.1.5-rc.2',
+    adapter: 'deepviewer-remaining-usage-dsh017-v1',
+    dshPeerVersion: '0.1.7-rc.2',
   },
   { name: 'dsh-better-sidebar', version: '0.19.1', license: 'MIT' },
-  { name: '@deepviewer/dsh-plugin-reasoning', version: '0.1.0', license: 'MIT' },
+  { name: '@deepviewer/dsh-plugin-model-capabilities', version: '1.0.1', license: 'MIT' },
 ]
 const shouldSign = process.argv.includes('--sign')
 const isPreview = process.argv.includes('--preview')
@@ -72,18 +75,17 @@ if (isPreview && architectureOption !== undefined && architectureOption !== 'arm
 const architectures = isPreview
   ? ['arm64']
   : architectureOption === undefined ? ['arm64'] : [architectureOption]
-const signingKeychain = process.env.DEEPVIEWER_CODESIGN_KEYCHAIN
+const signingKeychain = process.env.DEEPVIEWER_CODESIGN_KEYCHAIN ?? process.env.DEEPVIEWER_CODESIGN_KEYCHAIN
 const signingIdentity = shouldSign
   ? await resolveDeveloperIdApplication({
-      requestedIdentity: process.env.DEEPVIEWER_CODESIGN_IDENTITY,
+      requestedIdentity: process.env.DEEPVIEWER_CODESIGN_IDENTITY ?? process.env.DEEPVIEWER_CODESIGN_IDENTITY,
       keychain: signingKeychain,
     })
   : undefined
 await mkdir(outputRoot, { recursive: true })
-if (!existsSync(appIcon)) throw new Error(`missing macOS app icon: ${appIcon}`)
 
 function cachedElectronZipDirectory(arch) {
-  const filename = `electron-v43.4.0-darwin-${arch}.zip`
+  const filename = `electron-v${electronVersion}-darwin-${arch}.zip`
   const cacheRoot = join(homedir(), 'Library', 'Caches', 'electron')
   if (!existsSync(cacheRoot)) return undefined
   for (const entry of readdirSync(cacheRoot, { withFileTypes: true })) {
@@ -145,7 +147,7 @@ for (const arch of architectures) {
     `${JSON.stringify(isPreview ? { ...appManifest, productName: packagedName } : appManifest, null, 2)}\n`,
   )
   await verifyRuntimeVersion(runtimeRoot, appManifest)
-  const runtimeManifest = JSON.parse(await readFile(join(runtimeRoot, 'deepviewer-runtime.json'), 'utf8'))
+  const runtimeManifest = await readRuntimeManifest(runtimeRoot)
   if (
     runtimeManifest.platform !== 'darwin'
     || runtimeManifest.arch !== arch
@@ -171,7 +173,7 @@ for (const arch of architectures) {
     overwrite: true,
     platform: 'darwin',
     arch,
-    electronVersion: '43.4.0',
+    electronVersion,
     ...(electronZipDir === undefined ? {} : { electronZipDir }),
     name: packagedName,
     executableName: packagedName,
@@ -180,7 +182,7 @@ for (const arch of architectures) {
     appVersion,
     buildVersion: appBuildVersion,
     asar: true,
-    extraResource: [runtimeRoot],
+    extraResource: [runtimeRoot, nativeIcon.dockThemes],
     afterCopyExtraResources: [async ({ buildPath }) => {
       const temporaryAppPath = resolve(buildPath, `${packagedName}.app`)
       const copiedRuntimeRoot = resolve(temporaryAppPath, 'Contents', 'Resources', 'harness')

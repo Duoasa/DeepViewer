@@ -18,6 +18,11 @@ async function fixture(runtime = expected, about = expected) {
 }
 afterEach(async () => { await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true }))) })
 describe('release version gate', () => {
+  it('prefers the DeepViewer manifest over stale legacy metadata', async () => {
+    const root = await fixture({ ...expected, buildNumber: 1 })
+    await writeFile(join(root, 'deepviewer-runtime.json'), JSON.stringify({ deepviewerVersion: expected.version, deepviewerBuildNumber: expected.buildNumber }))
+    await expect(verifyRuntimeVersion(root, expected)).resolves.toBeUndefined()
+  })
   it('accepts matching Runtime and compiled About metadata', async () => {
     await expect(verifyRuntimeVersion(await fixture(), expected)).resolves.toBeUndefined()
   })

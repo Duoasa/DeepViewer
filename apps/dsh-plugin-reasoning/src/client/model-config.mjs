@@ -18,7 +18,7 @@ export function modelEdit(view, route, id, mode, rows, imageMode = 'preserve') {
   if (!['preserve', 'inherit', 'text', 'image'].includes(imageMode)) throw new Error('Invalid image input mode')
   const path = ['providers', route, 'models']
   if (view.secrets?.some(s => s.path.slice(0, 3).every((key, i) => key === path[i]) && s.path.length >= 3)) throw new Error('This model list contains secret fields; editing is unavailable')
-  const models = view.user?.providers?.[route]?.models
+  const models = (view.value?.providers ?? view.user?.providers)?.[route]?.models
   if (!Array.isArray(models)) throw new Error('Only explicitly configured model lists can be edited')
   if (models.filter(m => m.id === id).length !== 1) throw new Error('Model changed or duplicate model ID; reload')
   const efforts = validateEfforts(mode, rows)

@@ -1,0 +1,4 @@
+  interface SessionStandardProps {
+    /** Native selected view; changes with persisted view actions and restoration. */
+    useConversationView?: SnapshotSelectorHook<string | null>
+    /** Selector hook over target-neutral Conversation assembly. */

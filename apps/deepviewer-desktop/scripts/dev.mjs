@@ -3,21 +3,18 @@ import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, rmSync, watch } from 'node:fs'
 import { createConnection, createServer } from 'node:net'
 import { tmpdir } from 'node:os'
-import { dirname, join, normalize, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { createDevelopmentChangeDetector, shouldRestartForDevelopmentPath } from './development-inputs.mjs'
+import { prepareDevelopmentShell } from './development-shell.mjs'
+
+export { shouldRestartForDevelopmentPath } from './development-inputs.mjs'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const projectRoot = resolve(appRoot, '..', '..')
 const require = createRequire(import.meta.url)
 const electronExecutable = require('electron')
-const watchedRootEntries = new Set([
-  'package.json',
-  'tsconfig.json',
-  'vite.main.config.ts',
-  'vite.preload.config.ts',
-  'vite.renderer.config.ts',
-])
 
 function manifestWithoutBuildNumber() {
   try {
@@ -37,12 +34,6 @@ export function createManifestChangeDetector(readFingerprint = manifestWithoutBu
     previous = current
     return true
   }
-}
-
-export function shouldRestartForDevelopmentPath(path) {
-  if (typeof path !== 'string' || path === '') return false
-  const normalized = normalize(path).replaceAll('\\', '/')
-  return normalized === 'src' || normalized.startsWith('src/') || watchedRootEntries.has(normalized)
 }
 
 export function developmentControlSocketPath(root = projectRoot) {
@@ -132,15 +123,17 @@ async function runDevelopmentRunner() {
         pendingReason = undefined
         await stopElectron(electronChild)
         electronChild = undefined
-        process.stdout.write(`DeepViewer Dev build: ${currentReason}\n`)
+        process.stdout.write(`${new Date().toISOString()} DeepViewer Dev build: ${currentReason}\n`)
+        let developmentExecutable
         try {
-          await run('pnpm', ['build'], { cwd: appRoot })
+          await run('pnpm', ['build:dev'], { cwd: appRoot })
+          developmentExecutable = await prepareDevelopmentShell(electronExecutable, appRoot)
         } catch (error) {
           process.stderr.write(`DeepViewer Dev build failed: ${error instanceof Error ? error.message : String(error)}\n`)
           continue
         }
         if (pendingReason !== undefined || shuttingDown) continue
-        const launchedChild = spawn(electronExecutable, ['.'], {
+        const launchedChild = spawn(developmentExecutable, ['.'], {
           cwd: appRoot,
           env: {
             ...process.env,
@@ -182,18 +175,42 @@ async function runDevelopmentRunner() {
     server.listen(socketPath, resolvePromise)
   })
 
-  const manifestChanged = createManifestChangeDetector()
+  const inputsChanged = createDevelopmentChangeDetector(appRoot)
+  const externalInputs = [
+    { path: 'apps/deepviewer-adapter', directories: ['client', 'desktop', 'migrations', 'workflows', 'compatibility', 'scripts', 'assets'], files: ['package.json', 'cordis.patch.yml', 'native-modules.patch.yml'] },
+    { path: 'apps/dsh-plugin-model-capabilities', directories: ['src'], files: ['package.json', 'cordis.patch.yml', 'tsconfig.json', 'LICENSE', 'UPSTREAM.md'] },
+  ].map(input => ({ ...input, changed: createDevelopmentChangeDetector(resolve(projectRoot, input.path), input) }))
+  const pendingInputChanges = new Set()
+  let inputReadRetries = 0
+  const checkInputs = () => {
+    debounceTimer = undefined
+    if (shuttingDown) return
+    let changed
+    try {
+      for (const path of inputsChanged()) pendingInputChanges.add(path)
+      for (const input of externalInputs) for (const path of input.changed()) pendingInputChanges.add(`${input.path}/${path}`)
+      changed = [...pendingInputChanges]
+      pendingInputChanges.clear()
+    } catch (error) {
+      // Editors may briefly remove a source or leave partial JSON during a save.
+      if (inputReadRetries++ < 3) debounceTimer = setTimeout(checkInputs, 300)
+      else process.stderr.write(`DeepViewer Dev could not read inputs: ${error.message}; waiting for the next file event.\n`)
+      return
+    }
+    inputReadRetries = 0
+    if (changed.length > 0) void requestRestart(`content changed: ${changed.join(', ')}`)
+  }
   const sourceWatcher = watch(appRoot, { recursive: true }, (_eventType, filename) => {
     if (!shouldRestartForDevelopmentPath(filename)) return
-    // `pnpm build` increments package.json's buildNumber. That metadata change
-    // is part of the build itself and must not trigger a second build loop;
-    // substantive manifest edits still restart the development app.
-    if (filename === 'package.json' && !manifestChanged()) return
+    inputReadRetries = 0
     if (debounceTimer !== undefined) clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => {
-      void requestRestart(`changed ${filename}`)
-    }, 200)
+    debounceTimer = setTimeout(checkInputs, 300)
   })
+  const externalWatchers = externalInputs.map(input => watch(resolve(projectRoot, input.path), { recursive: true }, () => {
+    inputReadRetries = 0
+    if (debounceTimer !== undefined) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(checkInputs, 300)
+  }))
 
   const shutdown = async signal => {
     if (shuttingDown) return
@@ -201,6 +218,7 @@ async function runDevelopmentRunner() {
     process.stdout.write(`DeepViewer Dev stopping (${signal}).\n`)
     if (debounceTimer !== undefined) clearTimeout(debounceTimer)
     sourceWatcher.close()
+    for (const watcher of externalWatchers) watcher.close()
     await stopElectron(electronChild)
     await new Promise(resolvePromise => server.close(resolvePromise))
     rmSync(socketPath, { force: true })

@@ -1,21 +1,7 @@
-import { join } from 'node:path'
-
 export const DEEPVIEWER_APP_NAME = 'DeepViewer'
-export const DEEPVIEWER_APP_ICON_PNG = 'deepviewer-icon-macos26-1024.png'
 
 export interface PageTitleUpdateEvent {
   preventDefault(): void
-}
-
-export function resolveDeepViewerIconPath(appPath: string): string {
-  return join(appPath, 'assets', DEEPVIEWER_APP_ICON_PNG)
-}
-
-export function shouldSetDevelopmentDockIcon(
-  platform: NodeJS.Platform,
-  isPackaged: boolean,
-): boolean {
-  return platform === 'darwin' && !isPackaged
 }
 
 export function preserveDeepViewerWindowTitle(

@@ -1,0 +1,26 @@
+/* The adoption error dialog's footer and message styles; the dialog itself is
+ * the shared Modal (same figma dialog family as the browser's own dialogs). */
+.modalAction {
+  min-width: 72px;
+}
+
+.modalError,
+.menuStatus {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.modalError {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.menuStatus {
+  color: var(--dsw-alias-label-secondary);
+}
+
+.createDialog { width: min(480px, calc(100vw - 32px)); }
+.projectNameField { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--dsw-alias-border-l3); border-radius: 12px; color: var(--dsw-alias-label-secondary); }
+.projectNameField:focus-within { border-color: var(--dsw-alias-label-secondary); }
+.projectNameField input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--dsw-alias-label-primary); font: inherit; font-size: 14px; line-height: 24px; }
+.projectHint { margin: 12px 0 0; color: var(--dsw-alias-label-tertiary); font-size: 12px; line-height: 20px; }

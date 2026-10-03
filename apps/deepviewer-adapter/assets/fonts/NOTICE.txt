@@ -1,0 +1,4 @@
+Smiley Sans (得意黑) 2.0.1 — atelierAnchor
+https://github.com/atelier-anchor/smiley-sans
+Unmodified release asset: SmileySans-Oblique.ttf.woff2 (stored as SmileySans-Oblique.woff2).
+License: SIL Open Font License 1.1; see OFL-SmileySans.txt in this directory.

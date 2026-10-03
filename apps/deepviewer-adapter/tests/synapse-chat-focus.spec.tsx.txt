@@ -1,0 +1,27 @@
+// Appended to the native Chat regression harness by the bounded smoke runner.
+it('DeepViewer map native seq focus pages history and navigates the matching native turn', async () => {
+  const h = makeHarness({ nodes: [userInTurn(1, 'First question', 1), assistant(2, 'First answer', 1), userInTurn(4, 'Second question', 2), assistant(5, 'Second answer', 2)] })
+  const complete = vi.fn()
+  const view = render(<h.ChatView {...h.props} completeViewRequest={complete} />)
+  const first = await view.findByRole('button', { name: '跳转到第 1 轮' })
+  const scroller = view.container.querySelector('[data-chat-flow]')!.parentElement as HTMLDivElement
+  const metrics = installScrollMetrics(scroller, 1_000, 300)
+  metrics.setLayout(1_000, 700)
+  vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue({ top: 0, bottom: 300 } as DOMRect)
+  const firstRow = view.container.querySelector('[data-chat-flow-key="fixture:user:1"]') as HTMLElement
+  vi.spyOn(firstRow, 'getBoundingClientRect').mockReturnValue({ top: -500, bottom: -440 } as DOMRect)
+  view.rerender(<h.ChatView {...h.props} completeViewRequest={complete} viewRequest={{ view: 'chat', focus: 'seq:2' }} />)
+  await waitFor(() => { expect(h.loadThrough).toHaveBeenCalledWith(2); expect(complete).toHaveBeenCalled() })
+  expect(first.getAttribute('aria-current')).toBe('true')
+})
+
+it('DeepViewer map native seq focus ignores foreign view requests and rejects unsafe sequence ids', async () => {
+  const h = makeHarness({ nodes: [userInTurn(1, 'Question', 1), assistant(2, 'Answer', 1), userInTurn(4, 'Next question', 2), assistant(5, 'Next answer', 2)] })
+  const complete = vi.fn()
+  const view = render(<h.ChatView {...h.props} completeViewRequest={complete} viewRequest={{ view: 'deepviewer-map', focus: 'seq:2' }} />)
+  await view.findByRole('button', { name: '跳转到第 1 轮' })
+  expect(h.loadThrough).not.toHaveBeenCalled()
+  view.rerender(<h.ChatView {...h.props} completeViewRequest={complete} viewRequest={{ view: 'chat', focus: 'seq:99999999999999999999' }} />)
+  await waitFor(() => { expect(complete).toHaveBeenCalled() })
+  expect(h.loadThrough).not.toHaveBeenCalled()
+})

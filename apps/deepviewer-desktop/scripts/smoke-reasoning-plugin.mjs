@@ -30,9 +30,9 @@ const mirror = { acceptView: value => { accepted = value } }
 plugin.apply({
   effect: action => action(),
   locale: { register: () => () => {}, bind: () => key => key },
-  settingsScope: { describe: () => mirror },
+  configForms: { describe: () => mirror },
   remote: { settings: { mutate: async (...args) => { request = args; return fail ? { ok: false, error: { message: 'revision conflict' } } : { ok: true, value: edited } } } },
-  connection: { rpc: { call: async () => ({ ok: true, value: { status: 'new' } }) } },
+  get: name => { assert.equal(name, 'connection'); return { rpc: { call: async () => ({ ok: true, value: { status: 'new' } }) } } },
   slots: { inject: (slot, action) => { assert.equal(slot, 'settings.models.provider-card'); action() }, register: value => { registration = value } },
 })
 const props = registration.inject()

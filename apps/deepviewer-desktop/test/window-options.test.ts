@@ -83,15 +83,15 @@ describe('main window options', () => {
     )
   })
 
-  it('mirrors session stats into the structural chat safe area without an overlay bar', () => {
+  it('hosts native interactive stats without cloning their DOM or scanning streaming text', () => {
     expect(MACOS_WINDOW_CHROME_CSS).toContain('#deepviewer-macos-session-stats')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-main-safe-area]')
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('text-align: center')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('justify-content: center')
     expect(MACOS_WINDOW_CHROME_CSS).toContain('pointer-events: none')
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-deepviewer-macos-session-stats-source]')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('StatsPills.module.css')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('deepviewerMacosSessionStatsSource')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('statsDisplay.textContent = text')
+    expect(MACOS_WINDOW_CHROME_CSS).toContain('#deepviewer-macos-session-stats [data-composer-stats]')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('StatsPills.module.css')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('deepviewerMacosSessionStatsSource')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('statsDisplay.textContent = text')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('--deepviewer-sidebar-safe-width')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('columnObserver')
     expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('ensureToolbar')
@@ -99,9 +99,9 @@ describe('main window options', () => {
 
   it('presents the Harness collapsed state as a fully hidden sidebar', () => {
     expect(MACOS_WINDOW_CHROME_CSS).toContain('[data-sidebar-collapsed]')
-    expect(MACOS_WINDOW_CHROME_CSS).toContain('grid-template-columns: 0px')
+    expect(MACOS_WINDOW_CHROME_CSS).not.toContain('grid-template-columns:')
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('data-sidebar-collapsed')
-    expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('--deepviewer-details-column')
+    expect(MACOS_WINDOW_CHROME_SCRIPT).not.toContain('--deepviewer-details-column')
     expect(MACOS_WINDOW_CHROME_SCRIPT).toContain('MutationObserver')
   })
 

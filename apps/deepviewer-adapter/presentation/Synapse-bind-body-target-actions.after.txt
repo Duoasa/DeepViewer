@@ -1,0 +1,7 @@
+      bindSessionViewActions(sessionId, actions)
+      const openView = (view: string, focus: string): void => {
+        if (!viewTabs().some(tab => tab.id === view)) return
+        activateView(sessionId, view)
+        actions.openView(view, focus)
+        selectedView(sessionId).set(view)
+      }

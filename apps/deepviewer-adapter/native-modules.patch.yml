@@ -1,0 +1,9 @@
+# These rows belong to the shipped Web application, not to installed bundles.
+# Settings pages still use the same native slots and providers.
+- insert:
+    - id: llm-subscriptions
+      name: dsh-plugin-subscriptions
+      disabled: !!js "process.env.DEEPVIEWER_DISABLE_BUILTINS === '1' || ['DEEPVIEWER_DISABLE_SUBSCRIPTIONS_PLUGIN', 'DEEPVIEWER_DISABLE_SUBSCRIPTIONS', 'DEEPVIEWER_DISABLE_SUBSCRIPTIONS'].some(key => process.env[key] === '1')"
+    - id: model-capabilities
+      name: '@deepviewer/dsh-plugin-model-capabilities'
+      disabled: !!js "process.env.DEEPVIEWER_DISABLE_BUILTINS === '1' || ['DEEPVIEWER_DISABLE_MODEL_CAPABILITIES_PLUGIN', 'DEEPVIEWER_DISABLE_MODEL_CAPABILITIES', 'DEEPVIEWER_DISABLE_REASONING', 'DEEPVIEWER_DISABLE_REASONING'].some(key => process.env[key] === '1')"

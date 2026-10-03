@@ -1,0 +1,8 @@
+    inject: (sessionId: SessionId, actions: BoundActions<typeof conversationStore>): ConversationSessionHeaderInjected => ({
+      hooks: { conversationViews },
+      open: (id) => { workspaceNavigation.openSession(id) },
+      selectView: (view) => {
+        activateView(sessionId, view)
+        actions.setView(view)
+      },
+    }),

@@ -19,6 +19,7 @@ describe('network launch wiring', () => {
       expect(spec.env.HTTPS_PROXY).toBe(b.httpsProxyUrl)
       expect(spec.fallback?.env.HTTPS_PROXY).toBe(b.httpsProxyUrl)
       expect(spec.env.DEEPVIEWER_WEB_BRIDGE).toBe(b.webUrl)
+      expect(spec.env.DEEPVIEWER_WEB_BRIDGE).toBe(b.webUrl)
       expect(logs.join('\n')).toContain('source=explicit')
       expect(logs.join('\n')).not.toContain('password')
       expect(logs.join('\n')).not.toContain(new URL(b.webUrl).password)

@@ -1,0 +1,77 @@
+  // DeepViewer target navigation uses the renderer-owned BoundActions of the exact
+  // Session generation. It never manufactures a second persistent store.
+  const selectedViews = new Map<SessionId, ReturnType<typeof createSnapshotStore<string | null>>>()
+  const sessionViewActions = new Map<SessionId, { binding: SessionBinding; actions: BoundActions<typeof conversationStore> }>()
+  let pendingView: { sessionId: SessionId; view: string; focus: string; resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> } | undefined
+  const selectedView = (sessionId: SessionId) => {
+    let source = selectedViews.get(sessionId)
+    if (source === undefined) {
+      source = createSnapshotStore<string | null>(readConversationViewPreference(sessionId))
+      selectedViews.set(sessionId, source)
+      const binding = sessions.binding(sessionId)
+      binding?.ctx.effect(() => () => {
+        if (selectedViews.get(sessionId) === source) selectedViews.delete(sessionId)
+        if (sessionViewActions.get(sessionId)?.binding === binding) sessionViewActions.delete(sessionId)
+        if (pendingView?.sessionId === sessionId) {
+          const pending = pendingView; pendingView = undefined; clearTimeout(pending.timer)
+          pending.reject(new Error('Conversation target was released'))
+        }
+      }, 'DeepViewer selected conversation view')
+    }
+    return source
+  }
+  const restoreView = (sessionId: SessionId): void => {
+    const preferred = pendingView?.sessionId === sessionId ? pendingView.view : readConversationViewPreference(sessionId)
+    activateView(sessionId, preferred)
+    selectedView(sessionId).set(preferred)
+  }
+  const applyPendingView = (): void => {
+    const pending = pendingView
+    if (pending === undefined) return
+    const target = sessionViewActions.get(pending.sessionId)
+    if (target === undefined || sessions.binding(pending.sessionId) !== target.binding) return
+    pendingView = undefined; clearTimeout(pending.timer)
+    activateView(pending.sessionId, pending.view)
+    target.actions.openView(pending.view, pending.focus)
+    selectedView(pending.sessionId).set(pending.view)
+    pending.resolve()
+  }
+  const bindSessionViewActions = (sessionId: SessionId, actions: BoundActions<typeof conversationStore>): void => {
+    const binding = sessions.binding(sessionId)
+    // Root-level slot roster introspection has no Session binding yet.
+    // Only a renderer-owned Session can publish addressed navigation actions.
+    if (binding === undefined) return
+    sessionViewActions.set(sessionId, { binding, actions })
+    queueMicrotask(applyPendingView)
+  }
+  const openSessionView = (targetId: SessionId, view: string, focus: string): Promise<void> => {
+    if (!viewTabs().some(tab => tab.id === view)) return Promise.reject(new Error('Unknown conversation view'))
+    if (pendingView !== undefined) {
+      const previous = pendingView; pendingView = undefined; clearTimeout(previous.timer)
+      previous.reject(new Error('Conversation navigation was superseded'))
+    }
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        if (pendingView?.timer !== timer) return
+        pendingView = undefined
+        reject(new Error('Conversation target did not become available'))
+      }, 8_000)
+      pendingView = { sessionId: targetId, view, focus, resolve, reject, timer }
+      try {
+        // Native navigation synchronously retains the target as mainView and
+        // selects it before the target store acknowledges its focus request.
+        workspaceNavigation.openSession(targetId)
+        if (sessions.binding(targetId) === undefined) throw new Error('Conversation target has no native binding')
+        selectedView(targetId).set(view)
+        applyPendingView()
+      } catch (error: unknown) {
+        if (pendingView?.timer === timer) { pendingView = undefined; clearTimeout(timer) }
+        reject(error instanceof Error ? error : new Error(String(error)))
+      }
+    })
+  }
+  ctx.effect(() => () => {
+    if (pendingView === undefined) return
+    const pending = pendingView; pendingView = undefined; clearTimeout(pending.timer)
+    pending.reject(new Error('Conversation navigation was disposed'))
+  }, 'DeepViewer native conversation navigation')

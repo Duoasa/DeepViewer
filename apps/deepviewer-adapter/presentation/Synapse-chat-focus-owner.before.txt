@@ -1,0 +1,2 @@
+  usePresentation, useProjection, t,
+}: ChatViewSlotProps) {

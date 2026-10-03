@@ -1,0 +1,335 @@
+/* DeepViewer full-window settings surface. Existing Harness sections and
+   controls remain unchanged; this file only owns the application-level shell. */
+
+.trigger {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% + 8px);
+  height: 34px;
+  margin: 4px -4px 4px;
+  padding: 6px 2px 6px 10px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  color: var(--dsw-alias-label-primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.trigger:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.trigger.rail {
+  width: 36px;
+  height: 36px;
+  margin: 8px 0 10px;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  border-radius: 50%;
+  corner-shape: round;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--dsw-alias-bg-base);
+}
+
+/* Retained for the upstream click-close contract; the global page has no mask. */
+.mask {
+  display: none;
+}
+
+.panel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: hidden;
+  border-radius: 0;
+  background: var(--dsw-alias-bg-base);
+  box-shadow: none;
+  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+}
+
+.nav {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 12px 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--dsw-specific-sidebar-fill);
+  border-right: 1px solid var(--dsw-alias-border-l1);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 8px;
+  min-width: 0;
+  height: 40px;
+  flex: none;
+  margin: 0 0 24px;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.back:hover {
+  color: var(--dsw-alias-label-primary);
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.back:focus-visible,
+.navCell:focus-visible {
+  outline: 2px solid var(--dsw-alias-focus-ring, rgba(65, 118, 230, 0.8));
+  outline-offset: 2px;
+}
+
+.backIcon,
+.navIcon {
+  flex: none;
+}
+
+.navTitle {
+  padding: 8px;
+  margin-bottom: 8px;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  -webkit-app-region: no-drag;
+}
+
+.navList {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  -webkit-app-region: no-drag;
+}
+
+.navMain,
+.navFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.navFooter {
+  margin-top: auto;
+  padding: 0;
+}
+
+.navCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.navCell:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.navCell.active {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.navLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.content {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--dsw-alias-bg-base);
+}
+
+.dragBar {
+  flex: none;
+  height: 48px;
+}
+
+.contentScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 48px 56px;
+  box-sizing: border-box;
+  -webkit-app-region: no-drag;
+}
+
+.contentInner {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 40px;
+  margin-bottom: 36px;
+}
+
+.pageTitle {
+  min-width: 0;
+  margin: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+}
+
+.actions {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.options {
+  width: 100%;
+}
+
+/* Section roots share the header's content rail. Only lift page-level caps;
+   nested controls and dialogs retain their own widths. */
+.options > :global([data-slot='settings.section']) > :first-child {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Subscription plugins keep their standard settings.section registration;
+   the DeepViewer shell composes that seat beneath the Models API section. */
+.integratedSection {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--dsw-alias-border-l2);
+  box-sizing: border-box;
+}
+
+.integratedTitle {
+  margin: 0 0 12px;
+  color: var(--dsw-alias-label-primary);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+/* The third-party section ships an inline 560px cap. Inside the Models
+   composition it follows the same content rail as the API section. */
+.integratedSection > :global([data-slot='settings.section']) > :first-child {
+  width: 100%;
+  max-width: 100% !important;
+}
+
+.hiddenLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 1040px) {
+  .contentScroll {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .panel {
+    scroll-behavior: auto;
+  }
+}
+
+/* Current DSH connection recovery beside the stable settings trigger. */
+.triggerRow { display: flex; flex: none; align-items: center; gap: 4px; }
+.triggerRow .trigger { flex: 1; min-width: 0; }
+.triggerRow.railRow { width: 36px; }
+
+/* Match the main sidebar footer anchor and retain its quiet, divider-free edge. */
+.navFooter .navCell {
+  margin: 4px 0;
+  padding-left: 6px;
+  border-radius: 12px;
+}
+
+/* Let the native sidebar material show through exactly as on the main page. */
+:global([data-deepviewer-native-chrome]) .overlay,
+:global([data-deepviewer-native-chrome]) .panel {
+  background: transparent;
+}
+
+/* RC2 connection and update indicators share the footer row. */
+.triggerRow {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% + 4px);
+  margin: 4px -2px;
+}
+
+.triggerRow.railRow {
+  width: 36px;
+  margin: 8px 0 10px;
+}
+
+
+.triggerRow .trigger { flex: 1; min-width: 0; width: auto; margin: 0; }

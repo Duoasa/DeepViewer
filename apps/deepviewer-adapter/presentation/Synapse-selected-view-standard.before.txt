@@ -1,0 +1,2 @@
+  interface SessionStandardProps {
+    /** Selector hook over target-neutral Conversation assembly. */

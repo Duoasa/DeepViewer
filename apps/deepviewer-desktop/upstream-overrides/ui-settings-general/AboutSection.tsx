@@ -13,14 +13,21 @@ export function AboutSection({ t }: AboutSectionProps) {
   return (
     <div className={css.root} data-deepviewer-about="">
       <img
-        className={css.icon}
+        className={`${css.icon} ${css.iconLight}`}
         src="/deepviewer-icon.png"
         alt=""
         aria-hidden="true"
         draggable={false}
       />
+      <img
+        className={`${css.icon} ${css.iconDark}`}
+        src="/deepviewer-icon-dark.png"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className={css.identity}>
-        <h2 className={css.name}>DeepViewer</h2>
+        <h2 className={css.name}>{t('about.name')}</h2>
         <p className={css.description}>{t('about.description')}</p>
         <p className={css.version}>
           {t('about.version')} {DEEPVIEWER_VERSION} ({t('about.build')} {DEEPVIEWER_BUILD_NUMBER})

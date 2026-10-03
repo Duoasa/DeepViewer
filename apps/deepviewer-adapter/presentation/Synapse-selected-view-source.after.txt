@@ -1,0 +1,3 @@
+          conversation: conversation.snapshot,
+          conversationView: selectedView(binding.sessionId),
+          input: shell.state,

@@ -5,7 +5,7 @@ import type { SettingsDescribeFace } from '@deepseek-ai/dsh-client-ui-settings/c
 import type { SettingsNamespaceView, SettingsPathOpView } from '@deepseek-ai/dsh-api-remotes/client'
 type Model = { id: string; name?: string; input?: string[]; reasoningEfforts?: false | Record<string, string | null> }
 type Provider = { displayName?: string; models?: Model[] }
-type ModelView = Omit<SettingsNamespaceView, 'user'> & { user?: { providers?: Record<string, Provider> } }
+type ModelView = Omit<SettingsNamespaceView, 'user' | 'value'> & { user?: { providers?: Record<string, Provider> }; value: { providers?: Record<string, Provider> } }
 export interface ReasoningEditorProps {
   fixedProvider?: string
   mirror: SettingsDescribeFace
@@ -17,7 +17,7 @@ export function ReasoningEditor({ mirror, write, t, fixedProvider }: ReasoningEd
   const state = useSyncExternalStore(callback => mirror.subscribe(callback), () => mirror.getSnapshot())
   useEffect(() => { void mirror.ensure() }, [mirror])
   const current = state.view?.namespaces.find(v => v.ns === 'llm-pi-ai') as ModelView | undefined
-  const providers = Object.entries(current?.user?.providers ?? {}).filter(([, p]) => Array.isArray(p.models) && p.models.length)
+  const providers = Object.entries((current?.value?.providers ?? current?.user?.providers) ?? {}).filter(([, p]) => Array.isArray(p.models) && p.models.length)
   const [route, setRoute] = useState(fixedProvider ?? '')
   const [id, setId] = useState('')
   const [baseline, setBaseline] = useState<ModelView | undefined>(undefined)
@@ -27,11 +27,11 @@ export function ReasoningEditor({ mirror, write, t, fixedProvider }: ReasoningEd
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [failed, setFailed] = useState(false)
-  const models = current?.user?.providers?.[route]?.models ?? []
+  const models = (current?.value?.providers ?? current?.user?.providers)?.[route]?.models ?? []
   const stale = baseline && baseline.revision !== current?.revision
   const load = (modelId: string, view = current) => {
     setId(modelId); setBaseline(view); setMessage(''); setFailed(false)
-    const model = view?.user?.providers?.[route]?.models?.find(m => m.id === modelId)
+    const model = (view?.value?.providers ?? view?.user?.providers)?.[route]?.models?.find(m => m.id === modelId)
     const value = model?.reasoningEfforts
     setImageMode(model?.input?.includes('image') ? 'image' : model?.input?.length ? 'text' : 'inherit')
     setMode(value === false ? 'disabled' : value === undefined ? 'inherit' : 'custom')

@@ -1,8 +1,9 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { subscriptionMessages } from './subscriptions-v4-messages.mjs'
 
-export const SUBSCRIPTIONS_UI_ADAPTER_ID = 'deepviewer-remaining-usage-dsh015-v2'
-export const SUBSCRIPTIONS_DSH_PEER_VERSION = '0.1.5-rc.2'
+export const SUBSCRIPTIONS_UI_ADAPTER_ID = 'deepviewer-remaining-usage-dsh020-v1'
+export const SUBSCRIPTIONS_DSH_PEER_VERSION = '0.2.0-rc.2'
 
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'
@@ -99,7 +100,7 @@ function adaptedSubscriptionsManifest(manifestPath) {
     }
     manifest.peerDependencies[peer] = SUBSCRIPTIONS_DSH_PEER_VERSION
   }
-  manifest.peerDependencies['@deepseek-ai/cordis'] = '4.0.2'
+  manifest.peerDependencies['@deepseek-ai/cordis'] = '4.0.4'
   manifest.files = [...new Set([...manifest.files, 'lib/LICENSE.dsh-gallery'])]
   manifest.dsh.client.inject = manifest.dsh.client.inject.map(name => name === '@deepseek-ai/dsh-client-runtime' ? '@deepseek-ai/dsh-client-ui-session' : name)
   return `${JSON.stringify(manifest, null, 2)}\n`
@@ -132,6 +133,14 @@ export function adaptSubscriptionsPlugin(pluginRoot) {
   const hostPath = join(pluginRoot, 'lib', 'index.js')
   const originalHost = readFileSync(hostPath, 'utf8')
   let adaptedHost = replaceRequired(originalHost, 'CONTEXT_WINDOW_EXCEEDED_CODE, CallId,', 'CONTEXT_WINDOW_EXCEEDED_CODE, ToolCallId as CallId,', 'DSH tool-call identity rename')
+  const imageStart = adaptedHost.indexOf('async function resolveImages(messages, attachments, signal) {')
+  const imageEnd = adaptedHost.indexOf('\n//#endregion', imageStart)
+  if (imageStart < 0 || imageEnd < imageStart) throw new Error('subscriptions image resolver is missing')
+  const resolver = `${subscriptionMessages.toString()}\nasync function resolveImages(messages, attachments, signal) {\n  return subscriptionMessages(messages, attachments, signal, offloadedImageText);\n}\n`
+  if (!adaptedHost.includes('function subscriptionMessages(')) {
+    adaptedHost = adaptedHost.slice(0, imageStart) + resolver + adaptedHost.slice(imageEnd)
+  }
+  adaptedHost = replaceRequired(adaptedHost, 'CONTEXT_WINDOW_EXCEEDED_CODE, ToolCallId as CallId,', 'offloadedImageText, CONTEXT_WINDOW_EXCEEDED_CODE, ToolCallId as CallId,', 'DSH V4 image omission')
   adaptedHost = replaceRequired(adaptedHost,
     'type: "function",\n\t\tname: tool.name,\n\t\tdescription: tool.description,\n\t\tparameters: tool.parameters',
     // Responses may normalize an omitted strict flag and require optional
@@ -144,7 +153,7 @@ export function adaptSubscriptionsPlugin(pluginRoot) {
     'DSH scoped RPC registration')
   adaptedHost = replaceRequired(adaptedHost,
     '}, { authority: "loopback" }), "dsh-plugin-subscriptions: /subscriptions-auth rpc channel");',
-    '}); // DeepViewer: authenticated Connection owns the route lifetime.',
+    '}, ctx$1); // DeepViewer: authenticated Connection owns the route lifetime.',
     'DSH authenticated RPC authority')
   const hostChanged = adaptedHost !== originalHost
   if (hostChanged) writeFileSync(hostPath, adaptedHost)

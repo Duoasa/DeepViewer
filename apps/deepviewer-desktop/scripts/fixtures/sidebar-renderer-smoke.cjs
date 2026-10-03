@@ -1,4 +1,4 @@
-// Isolated, hidden renderer startup check; no user profile or UI interactions.
+// Isolated hidden renderer. DEEPVIEWER_SMOKE_MOUNT_ONLY=1 excludes all UI interactions.
 const { app, BrowserWindow, session } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { dirname, join } = require('node:path')
@@ -16,7 +16,7 @@ app.whenReady().then(async () => {
   window.webContents.on('console-message', (_event, level, message) => { if (level >= 3) errors.push(message) })
   await window.loadURL(config.origin)
   for (let i = 0; i < 100; i++) {
-    const mounted = await window.webContents.executeJavaScript("document.querySelector('[data-dsh-better-sidebar]') !== null")
+    const mounted = await window.webContents.executeJavaScript("document.querySelector('[data-deepviewer-sidebar-runtime]') !== null")
     if (mounted) {
       await new Promise(r => setTimeout(r, 500))
       if (errors.length) throw new Error(errors.join('\n'))
@@ -39,6 +39,17 @@ app.whenReady().then(async () => {
         setTimeout(() => resolve(false), 5000);
       })`)
       if (previewReady?.ready !== 'yes' || previewReady?.storage !== 'ok') throw new Error('HTML preview failed: ' + JSON.stringify(previewReady) + ' ' + errors.join('; '))
+      if (process.env.DEEPVIEWER_SMOKE_MOUNT_ONLY === '1') {
+        const bottomMounted = await window.webContents.executeJavaScript(
+          "document.querySelector('[data-dsh-bottom-panel], [data-dsh-bottom-toggle], [data-dsh-panel-host]') !== null",
+        )
+        if (bottomMounted) throw new Error('Removed bottom workbench still mounted')
+        if (errors.length) throw new Error(errors.join('\n'))
+        clearTimeout(timer)
+        console.log('SIDEBAR_RENDERER_MOUNTED (startup only; no UI interaction)')
+        app.exit(0)
+        return
+      }
       const settingsOpened = await window.webContents.executeJavaScript(`(() => {
         const button = [...document.querySelectorAll('button')].find(b => ['设置', 'Settings'].includes(b.getAttribute('aria-label')));
         button?.click(); return !!button;
