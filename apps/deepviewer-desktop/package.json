@@ -22,7 +22,7 @@
     "package:arm64": "node scripts/package-native.mjs --arch=arm64",
     "test": "pnpm smoke",
     "typecheck": "tsc --noEmit",
-    "smoke": "vitest run test/native-workspace.test.ts test/native-package-closure.test.ts test/native-migration.test.ts test/native-modules.test.ts test/user-data-migration.test.ts test/profile-migration.test.ts test/dock-theme.test.ts test/network-policy.test.ts test/network-access.test.ts test/network-bridge.test.ts test/subscriptions-v4.test.ts test/subscriptions-ui-adapter.test.ts test/development-workflow.test.ts test/development-inputs.test.ts test/native-release-audit.test.ts",
+    "smoke": "vitest run test/native-workspace.test.ts test/native-package-closure.test.ts test/native-migration.test.ts test/native-modules.test.ts test/user-data-migration.test.ts test/profile-migration.test.ts test/dock-theme.test.ts test/network-policy.test.ts test/network-access.test.ts test/network-bridge.test.ts test/subscriptions-v4.test.ts test/subscriptions-ui-adapter.test.ts test/development-workflow.test.ts test/development-inputs.test.ts test/native-release-audit.test.ts test/native-build-metadata.test.ts",
     "smoke:data": "node --expose-internals scripts/smoke-user-data.mjs",
     "build:dev": "node scripts/bump-build-number.mjs && node scripts/build-native-desktop.mjs",
     "smoke:native": "node scripts/smoke-native-host.mjs && node scripts/smoke-native-renderer.mjs && node scripts/smoke-native-web-state.mjs && node scripts/smoke-native-updates.mjs",

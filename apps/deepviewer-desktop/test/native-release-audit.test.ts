@@ -53,6 +53,28 @@ describe('native final-package privacy audit', () => {
     expect(result.resourceFiles).toBeGreaterThan(3)
   })
 
+  it('accepts only installed Undici cookie source directories in ASAR, unpacked code and runtime', async () => {
+    const f = await fixture({ 'dsh/node_modules/undici/lib/web/cookies/index.js': 'exports.getCookies = () => [];\n' })
+    await put(f.resources, 'app.asar.unpacked/dsh/node_modules/undici/lib/web/cookies/util.js', 'exports.parseCookie = () => ({});\n')
+    await put(f.resources, 'runtime/primary-runtime/node_modules/undici/lib/web/cookies/index.js', 'exports.getCookies = () => [];\n')
+    await expect(auditNativePackagedApp(f)).resolves.toHaveProperty('asarEntries')
+  })
+
+  it.each([
+    'dsh/node_modules/undici/lib/web/Cookies',
+    'dsh/node_modules/undici/lib/web/Cookies-journal',
+    'dsh/node_modules/public-package/lib/web/cookies/index.js',
+  ])('rejects a private cookie file or unrelated cookie directory at %s', async path => {
+    const f = await fixture({ [path]: 'private cookie payload' })
+    await expect(auditNativePackagedApp(f)).rejects.toThrow('sensitive private file or data directory')
+  })
+
+  it.each(['Cookies', 'Cookies-journal'])('rejects actual %s databases in resources', async name => {
+    const f = await fixture()
+    await put(f.resources, `runtime/primary-runtime/node_modules/undici/lib/web/${name}`, Buffer.from([0, 1, 2, 3]))
+    await expect(auditNativePackagedApp(f)).rejects.toThrow('sensitive private file or data directory')
+  })
+
   it.each(['home', 'project'])('rejects the current developer %s in packed text without exposing private values', async kind => {
     const f = await fixture()
     const value = kind === 'home' ? homedir() : f.projectRoot

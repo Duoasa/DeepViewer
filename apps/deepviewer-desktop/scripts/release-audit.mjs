@@ -206,15 +206,20 @@ const PRIVATE_DIRECTORIES = new Set([
 ])
 const PRIVATE_FILES = new Set([
   '.credentials.yaml', '.credentials.yml', '.credentials.json', '.netrc', '.pypirc',
-  'cookies', 'login data', 'web data', 'singletonlock', 'singletonsocket', 'singletoncookie',
+  'cookies', 'cookies-journal', 'cookies-wal', 'cookies-shm', 'login data', 'web data', 'singletonlock', 'singletonsocket', 'singletoncookie',
   'deepviewer.log',
 ])
 
-function hasNativeSensitivePath(path) {
+function hasNativeSensitivePath(path, { isDirectory = false } = {}) {
   if (hasSensitivePath(path)) return true
   const normalized = normalizedPath(path).toLowerCase(), parts = normalized.split('/')
   const name = parts.at(-1) ?? ''
-  if (parts.some(part => PRIVATE_DIRECTORIES.has(part)) || PRIVATE_FILES.has(name)) return true
+  // Undici installs its public cookie implementation in this exact directory.
+  // Only a directory is allowed; a Cookies database at the same path is private.
+  const undiciCookieSourceDirectory = isDirectory && name === 'cookies'
+    && /(?:^|\/)node_modules\/undici\/lib\/web\/cookies$/u.test(normalized)
+  if (parts.some(part => PRIVATE_DIRECTORIES.has(part))
+    || (PRIVATE_FILES.has(name) && !undiciCookieSourceDirectory)) return true
   if (/^\.deepviewer-(?:layout|profile|desktop-migration|web-state[^/]*|model[^/]*scans)\.json$/u.test(name)) return true
   if (/^(?:deepviewer-)?model(?:-capability)?-scans\.json$/u.test(name)) return true
   if (/\.(?:p12|pfx|keychain|keychain-db)$/u.test(name) || /^authkey_[^/]+\.p8$/u.test(name)) return true
@@ -294,8 +299,8 @@ export async function auditNativePackagedApp({ appPath, projectRoot }) {
       finding(path, 'contains private key material')
     }
   }
-  const inspectPath = path => {
-    if (hasNativeSensitivePath(path)) finding(path, 'sensitive private file or data directory')
+  const inspectPath = (path, options) => {
+    if (hasNativeSensitivePath(path, options)) finding(path, 'sensitive private file or data directory')
     if (privateRoots.some(root => path.includes(root))) finding(path, 'contains a developer-machine path')
     if (usernamePattern?.test(path)) finding(path, 'contains the developer account name')
     if (environmentValues.some(({ value }) => path.includes(value))) finding(path, 'contains a sensitive environment value')
@@ -306,8 +311,8 @@ export async function auditNativePackagedApp({ appPath, projectRoot }) {
     for (const entry of entries) {
       const path = normalizedPath(entry)
       if (!NATIVE_ASAR_ROOTS.has(path.split('/')[0])) finding(`ASAR/${path}`, 'outside the native application allowlist')
-      inspectPath(path)
       const metadata = statFile(archive, path, false)
+      inspectPath(path, { isDirectory: 'files' in metadata })
       if ('files' in metadata) continue
       if ('link' in metadata) {
         const target = metadata.link
@@ -329,7 +334,7 @@ export async function auditNativePackagedApp({ appPath, projectRoot }) {
   const visit = async directory => {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name), display = relative(resources, path).split(sep).join('/')
-      inspectPath(display.replace(/^app\.asar\.unpacked\//u, ''))
+      inspectPath(display.replace(/^app\.asar\.unpacked\//u, ''), { isDirectory: entry.isDirectory() })
       if (entry.isSymbolicLink()) {
         const target = await readlink(path), resolvedTarget = resolve(dirname(path), target)
         if (isAbsolute(target)) finding(display, 'absolute symbolic link target')

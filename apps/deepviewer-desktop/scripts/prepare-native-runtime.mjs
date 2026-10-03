@@ -4,6 +4,7 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { auditRuntime, locatePackage, materializeClosure, productionGraph } from './native-package-closure.mjs'
 import { auditNativePayload, pruneForeignRuntimePackages } from './audit-native-payload.mjs'
+import { sanitizeNativeBuildMetadata } from './native-build-metadata.mjs'
 const appRoot=resolve(dirname(fileURLToPath(import.meta.url)),'..'), root=resolve(appRoot,'../..'), upstream=join(root,'upstream/deepseek-harness')
 export async function prepareNativeRuntime(outputStage = join(appRoot, '.desktop/package-stage')) {
  const {register}=await import(createRequire(join(upstream,'package.json')).resolve('tsx/esm/api'));register()
@@ -42,8 +43,11 @@ export async function prepareNativeRuntime(outputStage = join(appRoot, '.desktop
  cpSync(join(upstream,'apps/desktop/scripts/node-bin'),join(stage,'resources/runtime/bin'),{recursive:true})
  cpSync(join(appRoot,'.desktop/native-icon/DeepViewerDockThemes'),join(stage,'resources/DeepViewerDockThemes'),{recursive:true})
  cpSync(join(root,'apps/deepviewer-adapter/assets/icon-light.png'),join(stage,'resources/icon.png'))
+ const buildMetadata=sanitizeNativeBuildMetadata(stage,{projectRoot:root})
+ writeDesktopRuntime(runtime,dev.release,[...new Set(inventory.filter(item=>item.name.startsWith('@deepseek-ai/') || names.includes(item.name)).map(item=>item.name))],graph.target)
+ await verifyDesktopRuntime(runtime,dev.release.version,graph.target)
  const removedForeignPackages=pruneForeignRuntimePackages(join(stage,'resources/runtime')),architecture=auditNativePayload(stage)
- const report={schemaVersion:1,product:product.version,build:product.buildNumber,kernel:dev.release.version,protocol:dev.release.hostProtocolVersion,target:graph.target,dependencyPackages:inventory.length,runtime:auditRuntime(runtime),architecture,removedForeignPackages}
+ const report={schemaVersion:1,product:product.version,build:product.buildNumber,kernel:dev.release.version,protocol:dev.release.hostProtocolVersion,target:graph.target,dependencyPackages:inventory.length,buildMetadata,runtime:auditRuntime(runtime),architecture,removedForeignPackages}
  writeFileSync(join(stage,'audit.json'),JSON.stringify(report,null,2)+'\n');console.info(JSON.stringify({...report,architecture:{machOBinaries:architecture.machOBinaries},audit:join(stage,'audit.json')}));return stage
 }
 if (process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url)) await prepareNativeRuntime()
