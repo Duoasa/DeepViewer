@@ -29,3 +29,9 @@ Status: Implementing
 Electron builder 会转换依赖 package.json，若先封存未转换字节，实际 ASAR 会与库存 SHA-256 不一致。`normalizeNativePackageMetadata` 在 `writeDesktopRuntime` 封存前使用本次固定 electron-builder 的真实 transformer 规范化 runtime 下的依赖清单，并要求二次转换返回明确的 no-change 结果；无效 JSON、链接/特殊条目、转换失败或不幂等均阻断。运行时依赖入口、exports/imports、依赖关系、版本、许可与许可证原件保留。
 
 随后封存确切字节并由原验证器对实际 builder ASAR 逐文件核验。不能通过跳过 package.json、放宽哈希比较或只检查包名来消除漂移。Build 90 的真实 staging 扫描 755 份清单、规范化其中 268 份，实际 ASAR 库存验证通过。
+
+### D-005b：打包运行时的环境隔离
+
+`smoke-native-payload.mjs --stage=<this-build-stage>` 验证本次 production ASAR、native 模块、Host、文档格式及 skill CLI；运行时测试同时隔离 HOME、XDG cache/config/data 与 TMPDIR，不能只设置 DSH_HOME。最终已签名 app 的 `smokePreparedRuntime` 使用同等隔离，在原有 120 秒限值内完成。此隔离是验证环境设置，未修改已签名 payload。
+
+继承本机 HOME 时，字体 worker 曾在受保护的 Office 字体目录扫描阻塞。隔离测试通过只证明打包闭包与功能可用；真实用户 HOME、字体发现与目录权限行为保留 Pending Manual，不通过延长限时或更改用户字体权限扩大通过范围。
