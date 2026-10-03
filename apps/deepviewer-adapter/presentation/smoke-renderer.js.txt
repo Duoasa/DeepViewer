@@ -23,7 +23,7 @@
   if (heroMark.localName !== 'svg' || heroMark.getAttribute('viewBox') !== '0 0 150.374 160' || heroMark.querySelectorAll('path').length !== 2 || Math.abs(heroMark.getBoundingClientRect().height - 48) > 0.1 || markStyle.opacity !== '0.5') throw new Error('Released DeepViewer idle mark geometry is not rendered');
   const cursor = heroMark.querySelector('[data-deepviewer-brand-cursor]');
   const cursorStyle = getComputedStyle(cursor);
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? cursorStyle.animationName !== 'none' : (!cursorStyle.animationName.includes('deepviewer-hero-cursor-blink') || cursorStyle.animationDuration !== '1s' || !cursorStyle.animationTimingFunction.startsWith('steps(1'))) throw new Error('Released DeepViewer idle cursor animation is missing');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? cursorStyle.animationName !== 'none' : (!cursorStyle.animationName.includes('deepviewer-hero-cursor-blink') || cursorStyle.animationDuration !== '1s' || !(cursorStyle.animationTimingFunction === 'step-end' || cursorStyle.animationTimingFunction.startsWith('steps(1')))) throw new Error('Released DeepViewer idle cursor animation is missing');
   const titleStyle = getComputedStyle(hero.querySelector('[data-deepviewer-hero-title]'));
   if (titleStyle.fontSize !== '24px' || titleStyle.lineHeight !== '32px' || titleStyle.opacity !== '0.5' || getComputedStyle(hero.querySelector('[data-deepviewer-headline]')).gap !== '40px') throw new Error('Released DeepViewer idle text spacing is missing');
   const scrollBody = hero.parentElement, composerSeat = scrollBody.querySelector(':scope > [data-deepviewer-composer-seat]');
