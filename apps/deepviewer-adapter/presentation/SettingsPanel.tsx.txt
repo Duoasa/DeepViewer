@@ -112,4 +112,3 @@ function SettingsPanel({ rows, renderSlot, activeId, onSelect, onClose }: PanelP
       </div>
   ), document.body)
 }
-

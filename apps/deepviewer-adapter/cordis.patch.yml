@@ -47,7 +47,7 @@
             config:
               fetch: true
               searchTimeoutMs: 60000
-          
+
           - id: compaction
             name: cordis:group
             group: true
@@ -57,17 +57,17 @@
             config:
               - id: compaction-basic
                 name: '@deepseek-ai/dsh-compaction-basic'
-          
+
               - id: command-compact
                 name: '@deepseek-ai/dsh-command-compact'
-          
+
               - id: tool-result-pruner
                 name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
                 config:
                   thresholdChars: 8192
                   headChars: 4096
                   tailChars: 1024
-          
+
           - id: deepviewer-chat-guard
             name: "@deepviewer/adapter/chat-guard"
 
