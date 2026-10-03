@@ -23,3 +23,9 @@ Status: Implementing
 ## D-005：0.5.0 arm64 发布 (R-007, AC-008, NFR-001, NFR-002)
 
 按维护者 2026-10-03 的明确授权，从本次源码与锁文件清理并重新生成 Runtime、staging、应用和安装资产。签名/公证、最终包净化审计、DMG 完整性与校验清单必须绑定实际产物；发布到 Duoasa/DeepViewer 后核验远端 digest。最终源提交、build、资产大小和 SHA-256 以 [v0.5.0 发布记录](../../releases/v0.5.0.md) 为权威位置，待完成项明确为 Pending。源码推送和 main 合并结果独立记录；发布授权不构成已发布证据。自动更新 feed 仍受真实安装/更新 qualification 门禁约束；本次 installer 发布不绕过或自动满足该门禁。
+
+### D-005a：builder metadata 与库存一致性
+
+Electron builder 会转换依赖 package.json，若先封存未转换字节，实际 ASAR 会与库存 SHA-256 不一致。`normalizeNativePackageMetadata` 在 `writeDesktopRuntime` 封存前使用本次固定 electron-builder 的真实 transformer 规范化 runtime 下的依赖清单，并要求二次转换返回明确的 no-change 结果；无效 JSON、链接/特殊条目、转换失败或不幂等均阻断。运行时依赖入口、exports/imports、依赖关系、版本、许可与许可证原件保留。
+
+随后封存确切字节并由原验证器对实际 builder ASAR 逐文件核验。不能通过跳过 package.json、放宽哈希比较或只检查包名来消除漂移。Build 90 的真实 staging 扫描 755 份清单、规范化其中 268 份，实际 ASAR 库存验证通过。

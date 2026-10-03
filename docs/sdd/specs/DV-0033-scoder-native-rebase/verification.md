@@ -4,7 +4,7 @@ Status: Implementing
 Date: 2026-10-03
 Initial baseline: DeepViewer 0.4.0 Build 76; Scoder main `e277adc6ce512655095e6f65c63bdc72d24bae95`; DSH `0.2.0-rc.2` / `639ed015397290b3745d163aafe02ffee4aa3f84`.
 
-Latest development evidence: DeepViewer 0.4.0 Build 88；0.5.0 arm64 signed installer 的最终 build、资产与发布证据待补齐。
+Latest build evidence: DeepViewer 0.5.0 Build 90；全新 core/renderer/runtime、实际 builder ASAR 库存与净化审计通过，runtime Developer ID 签名已验证；应用签名正在进行，公证、最终安装资产、源提交与公开发布证据仍 Pending。Build 88 的 180 秒运行观察保留为独立历史证据。
 
 ## Acceptance evidence
 
@@ -13,11 +13,11 @@ Latest development evidence: DeepViewer 0.4.0 Build 88；0.5.0 arm64 signed inst
 | AC-001 | 固定 checkout；`node apps/deepviewer-desktop/scripts/smoke-native-contract-source.mjs`：初始迁入 172 契约，干净源码、重复执行幂等，Agent loop 未改；Synapse Host 7、Client 11、native seams 6 项通过；原生 Host RPC/冷历史/会话图谱检查通过 | Pass (基础验证) |
 | AC-002 | 原图 PNG SHA-256 `2fed65407833ae1ff677783c3885838a3db9116192ec440ccc8025fecb48323d`、ICNS `e70e7aae72a23e71621d8c31bea14db18a21408ae1b811ebdd803e01a6fc8f5b`；adapter 图标/SVG 与原件一致；app-identity 3、Dock/native-workspace 9 项通过；更新 feed/publish 仅指向 Duoasa/DeepViewer | Pass |
 | AC-003 | `pnpm desktop:smoke` 包含 native/profile/user-data 45 项隔离迁移测试；Scoder/Saidex/其他渠道排除、旧 layout schema1 不重放、reasoning 配置承接与 kernel-v020 校验/回滚；模型报告 v2/v3 安全元数据迁移与原件保留通过 | Pass (隔离数据) |
-| AC-004 | 根目录与固定上游 `pnpm install --frozen-lockfile` 通过；`pnpm typecheck` 通过；`pnpm desktop:smoke` 12 文件/76 项通过；模型能力 52 项通过；native UI regression 176 项通过；RPC/文件保护契约 12 项通过；production core、adapter、model-capabilities、subscriptions、Electron 主入口与独立 primary-runtime 构建通过 | Pass |
+| AC-004 | 根目录与固定上游 `pnpm install --frozen-lockfile` 通过；`pnpm typecheck` 通过；`pnpm desktop:smoke` 最终 17 文件/118 项通过（含 audit 21、源码注释 metadata 1、真实 builder metadata 5 项）；模型能力 52 项通过；native UI regression 176 项通过；RPC/文件保护/HMR 契约 15 项通过；0.5.0 Build 90 的全新 production core、adapter、model-capabilities、subscriptions、renderer、Electron 主入口与独立 primary-runtime 构建通过 | Pass |
 | AC-005 | 初始验证使用隔离 profile；后续获授权的白屏诊断及 Build 88 运行观察确认 root 挂载与热更新连续性。完整视觉、交互、旧会话与附件验收仍须由维护者确认 | Pending Manual |
 | AC-006 | 下表记录 PC 检查；真实订阅账户/API、实际安装后数据连续性与正式自动更新仍待验收 | Pending Manual |
 | AC-007 | 真实 metadata/HMR 链路及相关定向检查累计 62 项通过；最终 HMR 3 项单独重跑通过；Build 88 对 ui-renderer/ui-layout/ui-theme/connection 四个模块进行 metadata 变化后观察 180 秒，rebuilt=0，root 保持挂载 | Pass (定向运行与自动测试) |
-| AC-008 | 维护者已明确授权 0.5.0 arm64 正式签名安装包与 Duoasa/DeepViewer 发布/main 合并；最终 build、签名、公证、净化审计、DMG 完整性、资产 SHA-256 和远端 digest 待实际完成 | Pending |
+| AC-008 | 0.5.0 Build 90 全新构建通过；755 份 builder 依赖清单中规范化 268 份，实际 ASAR 逐文件库存验证通过；净化审计覆盖 20,267 个 ASAR entries 与 7,953 个资源；两组 runtime 的 13+113 个 Mach-O Developer ID 签名已验证。应用签名进行中，公证、DMG 完整性、最终资产 SHA-256、源提交、main 合并及远端 digest 仍 Pending | Pending (阶段证据通过，发布未完成) |
 
 ## Reproducible commands
 
@@ -58,7 +58,7 @@ node apps/deepviewer-desktop/scripts/smoke-native-host.mjs
 | PC-005 capabilities | Pass：空账户 status；真实调用 Pending Manual | Pass：模拟 scan/apply/restore、4 个实际 pi-ai payload（零外网） | Pass：editor read/save、Work/Chat 隔离、Synapse 查询与冷恢复 |
 | PC-006 auth/storage/redaction | Pass：Host cookie/Origin 鉴权、已有凭据引用保留；真实 OAuth Pending Manual | Pass：unsafe RPC、秘密脱敏、私有 v4 store、旧写权限剥离 | Pass：私有快照、外部路径拒绝、web-state allowlist、telemetry/feedback 禁用 |
 | PC-007 disable/recovery | Pass：native recovery、diagnostic pure core | Pass：旧 disabled choice 承接、native recovery、diagnostic pure core | Pass：内置模块不列入用户管理 bundle，全部诊断禁用退回核心 |
-| PC-008 runtime/package | Pass：新构建/staging/清单与许可证；正式安装资产未生成 | Pass：新构建/manifest 与闭包测试；正式安装资产未生成 | Pass：独立 runtime/闭包测试与原图标；签名包净化审计与正式包 Pending |
+| PC-008 runtime/package | Pass：Build 90 新构建/staging、清单与许可证；实际 ASAR 库存/净化审计通过；最终安装 Pending | Pass：Build 90 manifest/闭包与真实 builder 转换验证；实际 ASAR 审计通过；最终安装 Pending | Pass：Build 90 core/renderer/runtime 与原图标；755/268 清单规范化、ASAR 严格库存验证、20,267/7,953 净化审计与 runtime 13+113 签名验证；应用/DMG 公证及安装 Pending |
 | PC-009 real account | Pending Manual：登录/状态/实际调用/登出 | Pending Manual：真实自定义模型与配置复验 | 不适用账号；真实 profile、图谱交互、安装/更新 Pending Manual |
 
 DVP-0003 与 DVP-0004 的旧挂载退出新 profile，配置和备份保留；由 DVP-0006 与官方右侧工作台承接。历史源码/SDD 保留，不伪造旧插件在新内核通过。
@@ -82,8 +82,18 @@ node node_modules/vitest/vitest.mjs run packages/client/hmr/tests/deepviewer-cli
 
 2026-10-03，按维护者本次定向诊断授权，在 Build 88 的实际运行中对 ui-renderer、ui-layout、ui-theme、connection 四个核心模块做 metadata-only 变更；确认 ctime 改变而 mtime、大小、SHA-256 不变，随后恢复原权限。连续观察 180 秒，rebuilt=0，root 保持挂载。该证据支持 AC-007；不代替视觉、交互、旧会话/附件或真实账户验收。
 
+## Build 90 打包阶段证据
+
+0.5.0 Build 90 从本次固定源码与依赖完成全新 core、renderer、应用入口与独立 runtime 构建。完整 bounded smoke 17 文件/118 项通过，包括 release audit 21 项、私有源码 region 注释净化 1 项及实际 builder metadata 5 项；15 项 RPC/文件保护/HMR 契约通过。上述子集已包含在完整 smoke 或契约结果中，不能再相加形成独立总数。
+
+实际打包发现 electron-builder 会转换依赖 package.json，导致封存库存与 ASAR 内容不同。修复在封存前调用固定 builder 的真实 transformer，核验二次调用不再变更；扫描 755 份清单、规范化其中 268 份。真实 builder 输出的 ASAR 逐文件库存验证随后通过，验证器未放宽且未排除 package.json。
+
+实际净化审计覆盖 20,267 个 ASAR entries 与 7,953 个资源，通过；两组 runtime 的 13+113 个 Mach-O Developer ID 签名验证通过。当前应用签名正在进行，尚未公证；不能据此提前写成整个 app/DMG 签名公证、Gatekeeper 或最终安装资产通过。
+
+[PR #7](https://github.com/Duoasa/DeepViewer/pull/7) 已创建为 draft，旧候选 HEAD 的 CI success 仅证明该次 CI 输入；当前打包修复的最终源提交与后续 CI 尚待固定。不记录它为最终发布 commit，也不记作 main 已合并。
+
 ## Local build and release boundaries
 
-初始开发构建生成原生 lib/renderer、DSH runtime 和 primary-runtime，没有生成安装资产或 GitHub Release。后续白屏修复已构建并验证到 Build 88。维护者现已明确授权 0.5.0 arm64 正式签名安装包、推送 Duoasa/DeepViewer 和 main 合并；本记录同步时，最终发布 build、签名/公证、净化审计、安装资产及远端 digest 仍为 Pending，统一在 [v0.5.0 发布记录](../../releases/v0.5.0.md) 补齐。
+初始开发构建生成原生 lib/renderer、DSH runtime 和 primary-runtime，没有生成安装资产或 GitHub Release。后续白屏修复已构建并验证到 Build 88。维护者现已明确授权 0.5.0 arm64 正式签名安装包、推送 Duoasa/DeepViewer 和 main 合并；本记录同步时，Build 90 及上述 ASAR/runtime 阶段证据已确认；应用/DMG 签名公证、最终安装资产、源提交及远端 digest 仍为 Pending，统一在 [v0.5.0 发布记录](../../releases/v0.5.0.md) 补齐。
 
 0.5.0 安装包发布与自动更新 feed 发布是独立边界。`publish-native-update.mjs` 所要求的真实 signedInstall、userDataPreserved、relaunch 等 qualification 继续生效，本次安装包授权不绕过该门禁。AC-005/AC-006 保持 Pending Manual，规格保持 Implementing。
