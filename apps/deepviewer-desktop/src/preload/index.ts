@@ -23,3 +23,5 @@ const api: DeepViewerDesktopApi = {
 }
 
 contextBridge.exposeInMainWorld('deepviewerDesktop', api)
+// Compatibility for the pinned Harness overlay and existing desktop extensions.
+contextBridge.exposeInMainWorld('deepviewerDesktop', api)

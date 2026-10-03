@@ -1,7 +1,7 @@
-import { readdir, readFile, readlink, realpath, rm, stat, symlink } from 'node:fs/promises'
-import { homedir } from 'node:os'
+import { lstat, open, readdir, readFile, readlink, realpath, rm, stat, symlink } from 'node:fs/promises'
+import { homedir, userInfo } from 'node:os'
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { extractFile, listPackage } from '@electron/asar'
+import { extractFile, listPackage, statFile } from '@electron/asar'
 
 const MAX_TEXT_BYTES = 8 * 1024 * 1024
 const TEXT_EXTENSIONS = new Set([
@@ -142,8 +142,8 @@ function isAllowedAsarPath(path) {
     '.desktop/renderer/assets',
     '.desktop/renderer/index.html',
     'assets',
-    'assets/DeepViewer.icns',
     'assets/deepviewer-icon-macos26-1024.png',
+    'assets/deepviewer-icon-dark-1024.png',
     'assets/licenses',
     'assets/licenses/Figtree-OFL.txt',
     'assets/licenses/ip-address-LICENSE.txt',
@@ -153,7 +153,7 @@ function isAllowedAsarPath(path) {
     'package.json',
   ])
   return allowedExactPaths.has(path)
-    || /^\.desktop\/renderer\/assets\/[A-Za-z0-9._-]+\.(?:css|js|ttf)$/u.test(path)
+    || /^\.desktop\/renderer\/assets\/[A-Za-z0-9._-]+\.(?:css|js|ttf|png)$/u.test(path)
 }
 
 function inspectAsar(archivePath, forbiddenRoots, environmentValues, findings) {
@@ -193,4 +193,177 @@ export async function auditPackagedApp({ appPath, projectRoot, expectedAppName =
   process.stdout.write(
     `Package privacy audit passed: ${relative(projectRoot, resolvedAppPath)} (${asarEntries} allowlisted ASAR entries, no personal paths or credential values)\n`,
   )
+}
+
+const NATIVE_ASAR_ROOTS = new Set(['lib', 'renderer', 'node_modules', 'dsh', 'package.json', 'THIRD-PARTY-SHELL.json'])
+const NATIVE_TEXT_EXTENSIONS = new Set([...TEXT_EXTENSIONS,
+  '.cfg', '.conf', '.csv', '.h', '.c', '.cpp', '.ini', '.jsx', '.pem', '.plist',
+  '.properties', '.py', '.pyi', '.rb', '.rs', '.sql', '.strings', '.svg', '.tsx', '.zsh',
+])
+const PRIVATE_DIRECTORIES = new Set([
+  '.git', '.hg', '.svn', '.ssh', '.aws', '.codex', '.agents', 'harness-home',
+  'migration-backups', 'data-migrations', 'local storage', 'session storage', 'indexeddb',
+])
+const PRIVATE_FILES = new Set([
+  '.credentials.yaml', '.credentials.yml', '.credentials.json', '.netrc', '.pypirc',
+  'cookies', 'cookies-journal', 'cookies-wal', 'cookies-shm', 'login data', 'web data', 'singletonlock', 'singletonsocket', 'singletoncookie',
+  'deepviewer.log',
+])
+
+function hasNativeSensitivePath(path, { isDirectory = false } = {}) {
+  if (hasSensitivePath(path)) return true
+  const normalized = normalizedPath(path).toLowerCase(), parts = normalized.split('/')
+  const name = parts.at(-1) ?? ''
+  // Undici installs its public cookie implementation in this exact directory.
+  // Only a directory is allowed; a Cookies database at the same path is private.
+  const undiciCookieSourceDirectory = isDirectory && name === 'cookies'
+    && /(?:^|\/)node_modules\/undici\/lib\/web\/cookies$/u.test(normalized)
+  if (parts.some(part => PRIVATE_DIRECTORIES.has(part))
+    || (PRIVATE_FILES.has(name) && !undiciCookieSourceDirectory)) return true
+  if (/^\.deepviewer-(?:layout|profile|desktop-migration|web-state[^/]*|model[^/]*scans)\.json$/u.test(name)) return true
+  if (/^(?:deepviewer-)?model(?:-capability)?-scans\.json$/u.test(name)) return true
+  if (/\.(?:p12|pfx|keychain|keychain-db)$/u.test(name) || /^authkey_[^/]+\.p8$/u.test(name)) return true
+  // The kernel package can contain public session/profile implementation files;
+  // only actual home-shaped roots are private data directories.
+  return /^(?:dsh\/)?(?:sessions|profiles|storages)(?:\/|$)/u.test(normalized)
+    || /^(?:runtime\/(?:primary-runtime\/)?)?(?:sessions|profiles|storages)(?:\/|$)/u.test(normalized)
+    || /^(?:dsh\/|runtime\/(?:primary-runtime\/)?)?settings\.ya?ml$/u.test(normalized)
+}
+
+function nativeSensitiveEnvironmentValues() {
+  return sensitiveEnvironmentValues().filter(({ value }) => {
+    const trimmed = value.trim()
+    return trimmed.length >= 12
+      && !/^(?:undefined|null|false|true|fixture[-_ ]only|test[-_ ](?:key|token|secret)|example|placeholder)$/iu.test(trimmed)
+      && new Set(trimmed).size >= 6
+  })
+}
+
+function nativeTextContent(path, buffer) {
+  if (buffer[0] === 0xff && buffer[1] === 0xfe) return buffer.subarray(2).toString('utf16le')
+  if (buffer[0] === 0xfe && buffer[1] === 0xff) {
+    const bytes = Buffer.from(buffer.subarray(2))
+    if (bytes.length % 2 === 0) return bytes.swap16().toString('utf16le')
+  }
+  const sample = buffer.subarray(0, Math.min(buffer.length, 8192))
+  const textExtension = extname(path) !== '' && NATIVE_TEXT_EXTENSIONS.has(extname(path).toLowerCase())
+  if (!textExtension && sample.includes(0)) return undefined
+  // Sniff extensionless LICENSE/readme files and unknown text formats, while
+  // avoiding scanning native binary payloads as source text.
+  if (!textExtension && sample.some(byte => byte < 0x20 && ![9, 10, 13].includes(byte))) return undefined
+  return buffer.toString('utf8')
+}
+
+/** Audit the final native carrier, including its unpacked code and external runtime. */
+export async function auditNativePackagedApp({ appPath, projectRoot }) {
+  const resourceInput = join(resolve(appPath), 'Contents', 'Resources')
+  let resources
+  try {
+    const metadata = await lstat(resourceInput)
+    if (metadata.isSymbolicLink() || !metadata.isDirectory()) throw new Error('invalid resource root')
+    resources = await realpath(resourceInput)
+  } catch {
+    throw new Error('native release privacy audit failed:\n- Resources: invalid packaged resource root')
+  }
+  const archive = join(resources, 'app.asar')
+  const privateRoots = [...new Set([resolve(projectRoot), homedir()])].filter(Boolean)
+  const environmentValues = nativeSensitiveEnvironmentValues()
+  const username = userInfo().username
+  // Generic CI/account names are meaningful only as part of their home path;
+  // scanning the word "root" or "runner" would reject ordinary dependency code.
+  const privateUsername = /^[A-Za-z0-9_.-]{6,}$/u.test(username)
+    && !['runner', 'developer', 'administrator', 'username'].includes(username.toLowerCase()) ? username : undefined
+  const usernamePattern = privateUsername
+    ? new RegExp(`(?<![A-Za-z0-9_.-])${privateUsername.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}(?![A-Za-z0-9_.-])`, 'u') : undefined
+  const findings = new Set()
+  let resourceFiles = 0, asarEntries = 0
+  const redact = value => {
+    for (const token of [...privateRoots, ...(privateUsername ? [privateUsername] : []), ...environmentValues.map(item => item.value)]) {
+      value = value.replaceAll(token, '[private]')
+    }
+    return value
+  }
+  const finding = (path, reason) => findings.add(`${redact(path)}: ${reason}`)
+  const inspect = (path, buffer) => {
+    const content = nativeTextContent(path, buffer)
+    if (content === undefined) return
+    if (privateRoots.some(root => content.includes(root))) finding(path, 'contains a developer-machine path')
+    if (usernamePattern?.test(content)) {
+      finding(path, 'contains the developer account name')
+    }
+    if (environmentValues.some(({ value }) => content.includes(value)
+      || content.includes(JSON.stringify(value).slice(1, -1)))) finding(path, 'contains a sensitive environment value')
+    // Cryptography dependencies legitimately name PEM delimiters in source;
+    // require an actual multiline encoded key block rather than a label alone.
+    if (/-----BEGIN ((?:[A-Z]+ )?PRIVATE KEY)-----\r?\n(?:[A-Za-z0-9+/=]{16,}\r?\n)+-----END \1-----/u.test(content)) {
+      finding(path, 'contains private key material')
+    }
+  }
+  const inspectPath = (path, options) => {
+    if (hasNativeSensitivePath(path, options)) finding(path, 'sensitive private file or data directory')
+    if (privateRoots.some(root => path.includes(root))) finding(path, 'contains a developer-machine path')
+    if (usernamePattern?.test(path)) finding(path, 'contains the developer account name')
+    if (environmentValues.some(({ value }) => path.includes(value))) finding(path, 'contains a sensitive environment value')
+  }
+  try {
+    const entries = listPackage(archive, { isPack: false })
+    asarEntries = entries.length
+    for (const entry of entries) {
+      const path = normalizedPath(entry)
+      if (!NATIVE_ASAR_ROOTS.has(path.split('/')[0])) finding(`ASAR/${path}`, 'outside the native application allowlist')
+      const metadata = statFile(archive, path, false)
+      inspectPath(path, { isDirectory: 'files' in metadata })
+      if ('files' in metadata) continue
+      if ('link' in metadata) {
+        const target = metadata.link
+        if (isAbsolute(target)) finding(`ASAR/${path}`, 'absolute symbolic link target')
+        if (!isContainedPath('/__native_archive__', resolve('/__native_archive__', target))) {
+          finding(`ASAR/${path}`, 'symbolic link escapes the archive')
+        } else {
+          try { statFile(archive, path, true) } catch { finding(`ASAR/${path}`, 'broken or circular symbolic link') }
+        }
+        continue
+      }
+      // Unpacked payloads are scanned from disk below, rather than following
+      // ASAR metadata to an unchecked filesystem path.
+      if (!metadata.unpacked) inspect(`ASAR/${path}`, extractFile(archive, path, false))
+    }
+  } catch {
+    finding('ASAR', 'cannot inspect the native application archive')
+  }
+  const visit = async directory => {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name), display = relative(resources, path).split(sep).join('/')
+      inspectPath(display.replace(/^app\.asar\.unpacked\//u, ''), { isDirectory: entry.isDirectory() })
+      if (entry.isSymbolicLink()) {
+        const target = await readlink(path), resolvedTarget = resolve(dirname(path), target)
+        if (isAbsolute(target)) finding(display, 'absolute symbolic link target')
+        if (!isContainedPath(resources, resolvedTarget)) finding(display, 'symbolic link escapes the packaged resources')
+        else {
+          try {
+            if (!isContainedPath(resources, await realpath(path))) finding(display, 'symbolic link resolves outside the packaged resources')
+          } catch { finding(display, 'broken symbolic link') }
+        }
+      } else if (entry.isDirectory()) await visit(path)
+      else if (entry.isFile()) {
+        resourceFiles += 1
+        if (display === 'app.asar') continue
+        const file = await open(path, 'r')
+        try {
+          const sample = Buffer.alloc(8192), { bytesRead } = await file.read(sample, 0, sample.length, 0)
+          if (nativeTextContent(display, sample.subarray(0, bytesRead)) !== undefined) inspect(display, await file.readFile())
+        } finally { await file.close() }
+      } else finding(display, 'unsupported special file')
+    }
+  }
+  try {
+    if ((await lstat(resources)).isSymbolicLink()) finding('Resources', 'symbolic link resource root')
+    else await visit(resources)
+  } catch {
+    finding('Resources', 'cannot inspect packaged resources')
+  }
+  if (findings.size) throw new Error(`native release privacy audit failed:\n${[...findings].map(value => `- ${value}`).join('\n')}`)
+  const result = { asarEntries, resourceFiles }
+  process.stdout.write(`Native package privacy audit passed (${asarEntries} ASAR entries, ${resourceFiles} resource files)\n`)
+  return result
 }

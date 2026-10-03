@@ -1,6 +1,8 @@
 import './styles.css'
 import type { RuntimeStatusView } from '../shared/runtime-status.js'
-import deepViewerLoadingLogo from './assets/deepviewer-loading-logo.svg?raw'
+import lightIcon from '../../assets/deepviewer-icon-macos26-1024.png'
+import darkIcon from '../../assets/deepviewer-icon-dark-1024.png'
+import { DEEPVIEWER_LAUNCH_LOCKUP_HTML } from '../shared/launch-brand.js'
 
 function requiredElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector)
@@ -8,33 +10,17 @@ function requiredElement<T extends Element>(selector: string): T {
   return element
 }
 
-function installLogo(): void {
-  const parsed = new DOMParser().parseFromString(deepViewerLoadingLogo, 'image/svg+xml')
-  const source = parsed.documentElement
-  if (source.localName !== 'svg' || parsed.querySelector('parsererror') !== null) {
-    throw new Error('DeepViewer loading logo is not valid SVG')
-  }
-
-  const logo = document.importNode(source, true)
-  logo.removeAttribute('style')
-  logo.setAttribute('aria-hidden', 'true')
-  logo.setAttribute('focusable', 'false')
-  const cursorLine = logo.querySelector('#Vector_2')
-  if (cursorLine === null) throw new Error('DeepViewer loading logo is missing its cursor line')
-  cursorLine.setAttribute('data-deepviewer-cursor-line', '')
-  requiredElement<HTMLElement>('#brand-logo').append(logo)
-}
-
 const launch = requiredElement<HTMLElement>('#launch')
 const label = requiredElement<HTMLElement>('#status-label')
 const detail = requiredElement<HTMLElement>('#status-detail')
-const accessibleStatus = requiredElement<HTMLElement>('#accessible-status')
 const failurePanel = requiredElement<HTMLElement>('#failure-panel')
 const actions = requiredElement<HTMLElement>('#actions')
 const retry = requiredElement<HTMLButtonElement>('#retry')
 const logs = requiredElement<HTMLButtonElement>('#logs')
 
-installLogo()
+requiredElement<HTMLElement>('#brand-lockup').innerHTML = DEEPVIEWER_LAUNCH_LOCKUP_HTML
+  .replace('__DEEPVIEWER_ICON_LIGHT__', lightIcon)
+  .replace('__DEEPVIEWER_ICON_DARK__', darkIcon)
 
 function render(status: RuntimeStatusView): void {
   launch.dataset.phase = status.phase
@@ -44,39 +30,48 @@ function render(status: RuntimeStatusView): void {
 
   switch (status.phase) {
     case 'stopped':
-      label.textContent = '本地 Runtime 已停止'
-      detail.textContent = '正在等待下一次启动。'
+      label.textContent = '工作区已关闭'
+      detail.textContent = ''
       break
     case 'starting':
-      label.textContent = '正在启动 Harness'
-      detail.textContent = `启动尝试 ${String(status.attempt)}，完成后将自动进入工作区。`
+      label.textContent = status.attempt > 1 ? '正在重新打开工作区' : '正在打开你的工作区'
+      detail.textContent = ''
       break
     case 'ready':
-      label.textContent = 'Harness 已就绪'
-      detail.textContent = '正在打开 DeepViewer 工作区。'
+      label.textContent = '准备好了，即将进入'
+      detail.textContent = ''
       break
     case 'stopping':
       label.textContent = '正在安全退出'
-      detail.textContent = '正在回收 Harness 和它启动的子进程。'
+      detail.textContent = ''
       break
     case 'failed':
-      label.textContent = '本地 Runtime 启动失败'
-      detail.textContent = status.userMessage ?? '请重试；如果问题持续，请打开日志查看诊断。'
+      label.textContent = '启动未完成'
+      detail.textContent = status.userMessage ?? '请重新打开。如果仍然无法进入，可以查看日志了解原因。'
       failurePanel.hidden = false
       actions.hidden = false
       break
   }
 
-  accessibleStatus.textContent = `${label.textContent ?? ''} ${detail.textContent ?? ''}`
 }
 
 retry.addEventListener('click', () => {
   retry.disabled = true
-  void window.deepviewerDesktop.retryRuntime().finally(() => {
+  void window.deepviewerDesktop.retryRuntime().catch(() => {
+    render({ phase: 'failed', attempt: 0, changedAt: new Date().toISOString(),
+      userMessage: '重新打开未成功，请稍后再试或查看日志。' })
+  }).finally(() => {
     retry.disabled = false
   })
 })
-logs.addEventListener('click', () => void window.deepviewerDesktop.openLogDirectory())
+logs.addEventListener('click', () => {
+  void window.deepviewerDesktop.openLogDirectory().catch(() => {
+    detail.textContent = '暂时无法打开日志目录，请稍后再试。'
+  })
+})
 
 window.deepviewerDesktop.onRuntimeStatus(render)
-void window.deepviewerDesktop.getRuntimeStatus().then(render)
+void window.deepviewerDesktop.getRuntimeStatus().then(render).catch(() => {
+  render({ phase: 'failed', attempt: 0, changedAt: new Date().toISOString(),
+    userMessage: '未能获取启动状态，请重新打开工作区。' })
+})

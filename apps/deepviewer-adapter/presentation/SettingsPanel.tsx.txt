@@ -1,0 +1,114 @@
+/** Render one settings navigation entry. */
+function NavCell({
+  row,
+  active,
+  onSelect,
+}: {
+  row: SettingsSectionRow
+  active: string | undefined
+  onSelect: (id: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      className={clsx(css.navCell, row.id === active && css.active)}
+      data-modal-autofocus={row.id === active ? '' : undefined}
+      aria-current={row.id === active ? 'true' : undefined}
+      onClick={() => { onSelect(row.id) }}
+    >
+      {navIcon(row.id)}
+      <span className={css.navLabel}>{row.label}</span>
+    </button>
+  )
+}
+
+/**
+ * Full-window settings surface. The invisible mask is retained only as the
+ * legacy click-close contract for upstream component tests; it paints nothing.
+ */
+function SettingsPanel({ rows, renderSlot, activeId, onSelect, onClose }: PanelProps) {
+  const subscriptionsRow = rows.find(row => row.id === 'subscriptions')
+  const integratesSubscriptions = subscriptionsRow !== undefined && rows.some(row => row.id === 'models')
+  const visibleRows = integratesSubscriptions ? rows.filter(row => row.id !== 'subscriptions') : rows
+  const activeRow = visibleRows.find(row => row.id === (integratesSubscriptions && activeId === 'subscriptions' ? 'models' : activeId)) ?? visibleRows[0]
+  const active = activeRow?.id
+  const mainRows = visibleRows.filter(row => row.id !== 'about')
+  const footerRows = visibleRows.filter(row => row.id === 'about')
+  const titleId = useId()
+  const [sidebarWidth, setSidebarWidth] = useState(280)
+  useLayoutEffect(() => {
+    const column = document.querySelector('[data-deepviewer-sidebar]')
+    if (!column) return
+    const measure = () => {
+      const width = column.getBoundingClientRect().width
+      // A collapsed shell still needs readable settings navigation.
+      setSidebarWidth(width > 100 ? width : 280)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(column)
+    return () => { observer.disconnect() }
+  }, [])
+
+
+  const panel = useRef<HTMLDivElement>(null)
+  useModalLayer(panel, true, onClose)
+
+  return createPortal((
+      <div className={css.overlay} role="presentation">
+        <div className={css.mask} aria-hidden="true" onClick={onClose} />
+        <div ref={panel} tabIndex={-1} data-shortcut-modal="settings" data-deepviewer-settings-page className={css.panel} style={{ gridTemplateColumns: `${sidebarWidth}px minmax(0, 1fr)` }} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+          <nav data-window-drag className={css.nav} data-deepviewer-settings-sidebar aria-labelledby={titleId}>
+            <button type="button" className={css.back} onClick={onClose}>
+              <IconChevronLeftOutlineRegular className={css.backIcon} size={16} />
+              <span>{renderSlot('settings.close', {})}</span>
+            </button>
+            <div className={css.navTitle} tabIndex={-1} data-modal-autofocus={active === undefined ? '' : undefined} id={titleId}>{renderSlot('settings.header', {})}</div>
+            <div className={css.navList}>
+              <div className={css.navMain}>
+                {mainRows.map(row => (
+                  <NavCell key={row.id} row={row} active={active} onSelect={onSelect} />
+                ))}
+              </div>
+              {footerRows.length > 0 && (
+                <div className={css.navFooter}>
+                  {footerRows.map(row => (
+                    <NavCell key={row.id} row={row} active={active} onSelect={onSelect} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </nav>
+          <section className={css.content} aria-labelledby={`${titleId}-page`}>
+            <div data-window-drag className={css.dragBar} aria-hidden="true" />
+            <div className={css.contentScroll}>
+              <div className={css.contentInner}>
+                <div className={css.header}>
+                  <h1 className={css.pageTitle} id={`${titleId}-page`}>{activeRow?.label ?? ''}</h1>
+                  <div className={css.actions}>{renderSlot('settings.action', {})}</div>
+                </div>
+                <div className={css.options}>
+                  {active !== undefined && (
+                    <>
+                      {renderSlot('settings.section', { close: onClose }, { only: active })}
+                      {active === 'models' && subscriptionsRow !== undefined && (
+                        <section
+                          className={css.integratedSection}
+                          aria-labelledby={`${titleId}-subscriptions`}
+                        >
+                          <h2 className={css.integratedTitle} id={`${titleId}-subscriptions`}>
+                            {subscriptionsRow.label}
+                          </h2>
+                          {renderSlot('settings.section', { close: onClose }, { only: 'subscriptions' })}
+                        </section>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+  ), document.body)
+}

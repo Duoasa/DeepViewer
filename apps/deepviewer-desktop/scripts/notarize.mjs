@@ -16,7 +16,7 @@ if (architectureOption !== undefined && architectureOption !== 'arm64') {
 }
 const profileOption = process.argv.find(argument => argument.startsWith('--keychain-profile='))
   ?.slice('--keychain-profile='.length)
-const keychainProfile = profileOption ?? process.env.DEEPVIEWER_NOTARY_PROFILE
+const keychainProfile = profileOption ?? process.env.DEEPVIEWER_NOTARY_PROFILE ?? process.env.DEEPVIEWER_NOTARY_PROFILE
 if (typeof keychainProfile !== 'string' || keychainProfile.trim() === '') {
   throw new Error('set DEEPVIEWER_NOTARY_PROFILE or --keychain-profile to a notarytool Keychain profile name')
 }

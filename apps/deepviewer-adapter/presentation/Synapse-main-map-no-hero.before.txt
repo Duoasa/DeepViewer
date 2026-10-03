@@ -1,0 +1,2 @@
+  const hero = sessionId === undefined
+    || (shellPhase === 'blank' && (openState === 'open' || summaryBlank === true))

@@ -67,9 +67,9 @@ try {
   prepareUserData({ appData: root, userData, development: true })
   const home = join(userData, 'harness-home')
   assert.deepEqual(await readHistories(home, 'write'), before)
-  for (const fixture of cases) assert.ok((await readFile(join(home, 'sessions', fixture.project, fixture.id, 'session.v3.jsonl.zstd'))).length > 0)
+  for (const fixture of cases) assert.ok((await readFile(join(home, 'sessions', fixture.project, fixture.id, 'session.v4.jsonl.zstd'))).length > 0)
   assert.equal(prepareUserData({ appData: root, userData, development: true }).migrated, false)
   assert.deepEqual(await readHistories(home, 'read'), before)
   for (const original of originals) assert.deepEqual(await readFile(original.path), original.bytes)
-  console.log(JSON.stringify({ passed: true, workEvents: before.work.count, chatEvents: before.chat.count, modesAndWorkspacePreserved: true, semanticHistoryUnchanged: true, dshFormat: 'v2 -> v3 zstd', sourceUnchanged: true, restartRead: true }))
+  console.log(JSON.stringify({ passed: true, workEvents: before.work.count, chatEvents: before.chat.count, modesAndWorkspacePreserved: true, semanticHistoryUnchanged: true, dshFormat: 'v2 -> v3 -> v4 zstd', sourceUnchanged: true, restartRead: true }))
 } finally { await rm(root, { recursive: true, force: true }) }

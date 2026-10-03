@@ -1,0 +1,10 @@
+.root { flex: none; margin: 8px 0 20px; }
+.tabs { display: flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--dsw-alias-interactive-bg-hover); }
+.tabs button { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-width: 0; height: 34px; border: 0; border-radius: 9px; background: transparent; color: var(--dsw-alias-label-secondary); font: inherit; font-weight: 500; cursor: pointer; }
+.tabs button[aria-pressed='true'] { background: var(--dsw-alias-button-elevated-fill); color: var(--dsw-alias-label-primary); }
+.tabs button:disabled { cursor: wait; }
+.tabs button:focus-visible { outline: 2px solid var(--dsw-alias-label-primary); outline-offset: 2px; }
+.root[data-wide='false'] .tabs { flex-direction: column; }
+:global([data-platform='darwin']) .tabs button[aria-pressed='true'] { background: rgb(255 255 255 / .55); }
+:global([data-platform='darwin']) :global([data-ds-dark-theme]) .tabs button[aria-pressed='true'] { background: rgb(255 255 255 / .15); }
+.error { margin-top: 6px; font-size: 12px; color: var(--dsw-alias-state-warn-primary); overflow-wrap: anywhere; }

@@ -1,0 +1,11 @@
+/* Shared product font, bundled with the app; no dependency on installed fonts. */
+@font-face {
+  font-family: 'Smiley Sans';
+  src: url('/assets/deepviewer/fonts/SmileySans-Oblique.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --deepviewer-font-smiley: 'Smiley Sans', var(--dsw-font-family, sans-serif);
+}

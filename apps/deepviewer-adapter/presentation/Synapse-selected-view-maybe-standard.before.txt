@@ -1,0 +1,2 @@
+  interface SessionMaybeStandardProps {
+    /** Selector hook whose values are absent without a current Session. */

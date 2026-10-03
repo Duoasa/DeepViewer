@@ -1,0 +1,4 @@
+  const viewId = view ?? active?.id
+  if (session.blank && conversationPhase(session, conversation) === 'blank' && viewId !== 'deepviewer-map') return null
+  return (
+    <div className={css.viewArea} data-deepviewer-view-area="">

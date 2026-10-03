@@ -1,0 +1,3 @@
+  /** Open a registered View on the addressed Session through native navigation. */
+  openSessionView?: ((sessionId: SessionId, view: string, focus: string) => Promise<void>) | undefined
+  /** Acknowledge the current one-shot focus request. */

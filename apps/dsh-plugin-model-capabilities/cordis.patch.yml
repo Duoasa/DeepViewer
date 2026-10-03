@@ -1,0 +1,17 @@
+# Bundle self-activation patch for @deepviewer/dsh-plugin-model-capabilities.
+#
+# Mounting this package as a profile bundle (`dsh plugin --profile web add
+# @deepviewer/dsh-plugin-model-capabilities`, a profile-local node_modules link,
+# or `--patch <this file>`) inserts the host half below. The browser half
+# (Settings → Models → provider card) is discovered from the `dsh.client`
+# declaration in package.json; the host half exposes the RPC channel it calls.
+#
+# Configure limits by patching this row from a profile cordis.patch.yml:
+#   - id: model-capabilities
+#     config:
+#       limits:
+#         concurrency: 3
+#         imageRetryOutputTokens: 2048
+- insert:
+    - id: model-capabilities
+      name: "@deepviewer/dsh-plugin-model-capabilities"

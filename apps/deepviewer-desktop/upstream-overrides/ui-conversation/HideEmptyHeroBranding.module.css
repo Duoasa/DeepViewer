@@ -1,19 +1,10 @@
-/* The welcome occupies the space above the bottom composer. Its top padding
-   equals the workspace-row prelude inside the composer, so the visible module
-   centers between the window top and the input card top rather than the
-   composer seat's outer edge. */
+/* DeepViewer welcome chrome, grouped with the single resident composer. */
 .root {
   position: relative;
-  inset: auto;
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
+  flex: none;
   height: auto;
   min-width: 0;
-  min-height: 0;
-  padding: var(--deepviewer-hero-input-prelude-height) 24px 0;
+  padding: 0 20px 30px;
   pointer-events: none;
 }
 
@@ -21,49 +12,68 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
   width: 100%;
+  animation: deepviewer-welcome-enter 500ms cubic-bezier(.22, 1, .36, 1) both;
 }
 
-.logo {
-  display: block;
-  width: auto;
-  height: 48px;
+.avatar {
+  position: relative;
+  width: 112px;
+  height: 112px;
   flex: none;
-  overflow: visible;
-  color: var(--dsw-alias-label-primary);
-  opacity: 0.5;
 }
 
-.logoCursor {
-  animation: deepviewer-hero-cursor-blink 1s steps(1, jump-end) infinite;
+.mascotStill,
+.mascotCanvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.mascotCanvas { opacity: 0; }
+.avatar[data-motion-ready='true'] .mascotCanvas { opacity: 1; }
+.avatar[data-motion-ready='true'] .mascotStill { opacity: 0; }
+
+/* Resolve the installed font by its actual family and PostScript names.
+   The user's font remains local, with a system fallback on other machines. */
+@font-face {
+  font-family: 'DeepViewer Welcome';
+  src: local('Smiley Sans Oblique'), local('SmileySans-Oblique');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 .prompt {
   margin: 0;
   color: var(--dsw-alias-label-primary);
-  font-family: var(--dsw-font-family);
-  font-size: 24px;
+  font-family: 'DeepViewer Welcome', 'Smiley Sans Oblique', var(--dsw-font-family);
+  font-size: clamp(24px, 3vw, 30px);
   font-weight: 400;
-  line-height: 32px;
-  opacity: 0.5;
+  font-synthesis: none;
+  letter-spacing: .015em;
+  line-height: 1.4;
   text-align: center;
 }
 
-@keyframes deepviewer-hero-cursor-blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
+@keyframes deepviewer-welcome-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  50%,
-  100% {
-    opacity: 0;
-  }
+@media (max-height: 620px) {
+  .root { padding-bottom: 16px; }
+  .stack { gap: 12px; }
+  .avatar { width: 88px; height: 88px; }
+  .prompt { font-size: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .logoCursor {
-    animation: none;
-  }
+  .stack { animation: none; }
+  .mascotCanvas { display: none; }
+  .avatar[data-motion-ready='true'] .mascotStill { opacity: 1; }
 }

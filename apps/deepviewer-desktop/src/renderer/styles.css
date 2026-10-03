@@ -1,170 +1,21 @@
+@import '../shared/launch-brand.css';
+
 @font-face {
   font-family: "DeepViewer Figtree";
   src: url("./assets/Figtree-VariableFont_wght.ttf") format("truetype");
   font-style: normal;
   font-weight: 300 900;
-  font-display: block;
+  font-display: swap;
 }
 
-:root {
-  color: #fff;
-  background: #151517;
-  font-family: "DeepViewer Figtree", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-  font-synthesis: none;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  width: 100%;
-  min-width: 320px;
-  min-height: 100%;
-  margin: 0;
-  overflow: hidden;
-  background: #151517;
-}
-
-button {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 10px;
-  padding: 9px 15px;
-  color: #151517;
-  background: rgba(255, 255, 255, 0.92);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button.secondary {
-  color: rgba(255, 255, 255, 0.88);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.9);
-  outline-offset: 3px;
-}
-
-button:disabled {
-  cursor: wait;
-  opacity: 0.6;
-}
-
-.launch {
-  position: relative;
-  display: grid;
-  width: 100vw;
-  min-height: 100vh;
-  place-items: center;
-  overflow: hidden;
-  background: #151517;
-}
-
-.loading-lockup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 80px;
-}
-
-.brand-logo {
-  width: 112.7805px;
-  height: 120px;
-  flex: 0 0 auto;
-}
-
-.brand-logo > svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.brand-logo [data-deepviewer-cursor-line] {
-  animation: deepviewer-cursor-blink 1s steps(1, jump-end) infinite;
-}
-
-h1 {
-  margin: 0;
-  color: #fff;
-  font-family: "DeepViewer Figtree", sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  line-height: 40px;
-  letter-spacing: 0;
-}
-
-.failure-panel {
+:root { color-scheme: light dark; background: #faf9f7; }
+html, body { width: 100%; min-width: 320px; min-height: 100%; margin: 0; }
+body::before {
+  content: '';
   position: fixed;
-  top: calc(50% + 184px);
-  left: 50%;
-  width: min(520px, calc(100vw - 48px));
-  padding: 16px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  background: rgba(32, 32, 35, 0.96);
-  text-align: center;
-  transform: translateX(-50%);
+  inset: 0 0 auto;
+  height: 52px;
+  z-index: 1;
+  -webkit-app-region: drag;
 }
-
-.failure-panel[hidden],
-.actions[hidden] {
-  display: none;
-}
-
-.status-label {
-  margin: 0 0 6px;
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.status-detail {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.64);
-  font-size: 13px;
-  line-height: 20px;
-}
-
-.actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 14px;
-  gap: 10px;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.launch[data-phase="failed"] .brand-logo [data-deepviewer-cursor-line] {
-  animation: none;
-}
-
-@keyframes deepviewer-cursor-blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .brand-logo [data-deepviewer-cursor-line] {
-    animation: none;
-  }
-}
+@media (prefers-color-scheme: dark) { :root { background: #171717; } }

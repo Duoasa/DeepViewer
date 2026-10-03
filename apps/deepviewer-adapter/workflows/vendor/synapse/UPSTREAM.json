@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/liangmianya/dsh-synapse",
+  "version": "0.4.1",
+  "commit": "56935dc1862e7791b212f6eb2dd26404def5a575",
+  "integration": "Store retained; authenticated RPC and native client adapters owned by DeepViewer"
+}

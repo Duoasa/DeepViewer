@@ -1,0 +1,28 @@
+/* Center the entire welcome + composer as one group; auto margins collapse
+   on short windows so a tall draft remains reachable by scrolling. */
+.root {
+  --deepviewer-composer-bottom-offset: 32px;
+}
+
+.root[data-phase='hero'] .scrollBody,
+.embeddedBody[data-content-phase='hero'] .scrollBody {
+  justify-content: flex-start;
+}
+
+.root[data-phase='hero'] .composerSeat,
+.embeddedBody[data-content-phase='hero'] .composerSeat {
+  margin-block: auto;
+  padding-top: 32px;
+}
+
+.composerHero {
+  padding-bottom: 48px;
+}
+
+.heroGlow { display: none; }
+
+@media (max-height: 620px) {
+  .composerHero { padding-bottom: 24px; }
+  .root[data-phase='hero'] .composerSeat,
+  .embeddedBody[data-content-phase='hero'] .composerSeat { padding-top: 24px; }
+}

@@ -16,7 +16,7 @@ export class ScanService {
   }
   profile(route) {
     if (typeof route !== 'string' || !route || ['__proto__','constructor','prototype'].includes(route)) throw Error('无效提供方')
-    const descriptor = this.read(), user = descriptor?.user?.providers
+    const descriptor = this.read(), user = descriptor?.value?.providers ?? descriptor?.user?.providers
     if (!user || !Object.hasOwn(user, route)) throw Error('请先保存此 API 的设置')
     const profile = descriptor.value?.providers?.[route] ?? user[route]
     if (!['openai-completions', 'openai-responses'].includes(profile.api)) throw Error('目前支持 OpenAI Chat Completions / Responses 兼容 API')
@@ -82,7 +82,7 @@ export class ScanService {
     const job = this.jobs.get(route), { descriptor, profile } = this.profile(route)
     if (!job || job.id !== id || job.status !== 'complete' || job.appliedFingerprint) throw Error('没有可应用的完整扫描结果')
     if (job.scanVersion !== SCAN_VERSION || fingerprint(profile) !== job.snapshot) throw Error('扫描规则或提供方配置已变化，请重新扫描')
-    const existing = descriptor.user.providers[route].models ?? []
+    const existing = profile.models ?? []
     const value = mergedModels(existing, job.results, exclude)
     job.beforeModels = structuredClone(existing); this.save()
     await this.mutate([{ op: 'set', path: ['providers', route, 'models'], value }], descriptor.revision)

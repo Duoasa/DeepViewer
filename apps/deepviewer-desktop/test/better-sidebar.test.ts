@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -12,7 +12,7 @@ function fixture() {
   const plugin = join(root, 'node_modules/dsh-better-sidebar')
   mkdirSync(join(plugin, 'lib'), { recursive: true })
   writeFileSync(join(plugin, 'package.json'), JSON.stringify({
-    name: 'dsh-better-sidebar', version: '0.19.1', license: 'MIT', deepviewerAdapter: 'deepviewer-dsh015-sidebar-management-v2',
+    name: 'dsh-better-sidebar', version: '0.19.1', license: 'MIT', deepviewerAdapter: 'deepviewer-dsh017-sidebar-management-v1',
     dsh: { bundle: { patch: './cordis.patch.yml' }, client: { platform: 'web', inject: ['@deepseek-ai/dsh-client-ui-sidebar-right'] } },
   }))
   for (const file of ['lib/index.js', 'lib/client.js', 'lib/client-terminal.js', 'lib/client-editor.js', 'lib/client-mermaid.js', 'LICENSE', 'cordis.patch.yml']) writeFileSync(join(plugin, file), '')
@@ -46,8 +46,15 @@ describe('Better Sidebar integration', () => {
     const app = { isPackaged: false, getPath: () => join(root, 'userdata'), getAppPath: () => root } as unknown as App
     const launch = resolveHarnessLaunch(app)
     expect(launch.integrationName).toBe('BETTER_SIDEBAR')
-    expect(launch.args).toContain(join(root, 'node_modules/dsh-better-sidebar/cordis.patch.yml'))
-    expect(launch.fallback?.args).not.toContain(join(root, 'node_modules/dsh-better-sidebar/cordis.patch.yml'))
+    const home = launch.env.DSH_HOME!
+    const enablePatch = join(home, 'deepviewer-sidebar-enable.patch.yml')
+    expect(launch.args).toContain(enablePatch)
+    expect(launch.fallback?.args).not.toContain(enablePatch)
+    expect(launch.fallback?.args).toContain(join(home, 'deepviewer-desktop.patch.yml'))
+    expect(readFileSync(join(home, 'deepviewer-desktop.patch.yml'), 'utf8')).toContain('id: better-sidebar\n  disabled: true')
+    expect(readFileSync(enablePatch, 'utf8')).toContain('id: better-sidebar\n  disabled: false')
+    const profile = JSON.parse(readFileSync(join(home, 'profiles/web/package.json'), 'utf8'))
+    expect(profile.dsh.profile.bundles).toContain('dsh-better-sidebar')
     expect(launch.fallback?.env).toBe(launch.env)
     expect(launch.env.DSH_PERMISSION_MODE).toBe('workspace-write')
   })

@@ -1,0 +1,30 @@
+.brandLogo {
+  display: block;
+  width: 106px;
+  height: 112px;
+  flex: none;
+  color: var(--dsw-alias-label-primary);
+  background-color: currentColor;
+  mask: url('/assets/deepviewer/deepviewer-loading-logo.svg') center / contain no-repeat;
+  user-select: none;
+}
+:global([data-deepviewer-hero]) { padding: 0 20px 30px; }
+:global([data-deepviewer-headline]) { flex-direction: column; align-items: center; gap: 20px; }
+:global([data-deepviewer-headline] > span:first-child) { width: auto; height: auto; }
+:global([data-deepviewer-hero-title]) { font-family: var(--deepviewer-font-smiley); font-weight: 400; font-size: clamp(24px, 3vw, 30px); font-synthesis: none; }
+:global([data-deepviewer-hero-title] > span:nth-child(2)) { display: none; }
+.brandName { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.brandMark { display: block; width: 24px; height: 24px; border-radius: 6px; }
+.about { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+.aboutIcon { width: 64px; height: 64px; border-radius: 16px; }
+.aboutTitle { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+.aboutVersion { color: var(--dsw-alias-label-secondary); margin: 0; }
+
+.editAction { flex: none; white-space: nowrap; font-family: inherit; }
+
+/* Use the conversation's live typography setting and theme foreground. */
+:global(body [data-chat-running]) {
+  color: var(--dsw-alias-label-secondary);
+  font-size: var(--dsh-content-font-size, 14px);
+  --dsw-alias-label-shimmer: var(--dsw-alias-label-primary);
+}

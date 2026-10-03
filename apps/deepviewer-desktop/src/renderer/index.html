@@ -7,22 +7,22 @@
     <title>DeepViewer</title>
   </head>
   <body>
-    <main id="launch" class="launch" data-phase="starting" aria-busy="true">
-      <section class="loading-lockup" aria-label="DeepViewer">
-        <div id="brand-logo" class="brand-logo" aria-hidden="true"></div>
-        <h1>DeepViewer</h1>
-      </section>
-
-      <section id="failure-panel" class="failure-panel" aria-live="polite" hidden>
-        <p id="status-label" class="status-label">正在启动 Harness</p>
-        <p id="status-detail" class="status-detail">首次启动可能需要几秒钟。</p>
-        <div id="actions" class="actions" hidden>
-          <button id="retry" type="button">重试</button>
-          <button id="logs" class="secondary" type="button">打开日志</button>
-        </div>
-      </section>
-
-      <p id="accessible-status" class="visually-hidden" aria-live="polite"></p>
+    <main id="launch" class="deepviewer-launch" data-phase="starting" aria-busy="true">
+      <div class="deepviewer-launch__center">
+        <div id="brand-lockup"></div>
+        <section id="failure-panel" class="deepviewer-launch__failure" aria-live="polite" hidden>
+          <h2 class="deepviewer-launch__failure-title">暂时没能打开工作区</h2>
+          <p id="status-detail" class="deepviewer-launch__detail"></p>
+          <div id="actions" class="deepviewer-launch__actions" hidden>
+            <button id="retry" type="button">重新打开</button>
+            <button id="logs" class="secondary" type="button">查看日志</button>
+          </div>
+        </section>
+      </div>
+      <p class="deepviewer-launch__status" role="status">
+        <span class="deepviewer-launch__dot" aria-hidden="true"></span>
+        <span id="status-label">正在打开你的工作区</span>
+      </p>
     </main>
     <script type="module" src="/main.ts"></script>
   </body>

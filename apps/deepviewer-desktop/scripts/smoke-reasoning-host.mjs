@@ -11,11 +11,12 @@ mkdirSync(home+'/profiles/node_modules/@deepviewer',{recursive:true})
 symlinkSync(upstream+'/node_modules/@deepviewer/dsh-plugin-reasoning',home+'/profiles/node_modules/@deepviewer/dsh-plugin-reasoning')
 const requests=[]
 const fake=createServer(async(req,res)=>{
- if(req.url==='/v1/models'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({data:[{id:'smoke-model'},{id:'blocked-model'}]}));return}
+ if(new URL(req.url,'http://fixture').pathname.endsWith('/models')){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({data:[{id:'smoke-model'},{id:'blocked-model'}]}));return}
  let text='';for await(const chunk of req)text+=chunk
+ if(!text){res.writeHead(404);res.end();return}
  const body=JSON.parse(text);requests.push(body)
  assert.equal(req.headers.authorization,'Bearer fixture-only')
- assert.equal(body.max_tokens,128)
+ assert.equal(body.max_tokens,1)
  if(body.model==='blocked-model'){res.writeHead(403);res.end('denied');return}
  if(body.messages[0].role==='developer'){res.writeHead(400);res.end('messages: Unexpected role developer. Allowed roles are user or assistant');return}
  if(body.reasoning_effort==='__deepviewer_invalid_effort__'){res.writeHead(400);res.end('invalid reasoning_effort');return}
@@ -25,8 +26,9 @@ const fake=createServer(async(req,res)=>{
 await new Promise(resolve=>fake.listen(0,'127.0.0.1',resolve))
 const fakeBase='http://127.0.0.1:'+fake.address().port+'/v1'
 writeFileSync(home+'/.credentials.yaml',JSON.stringify({version:1,refs:{SCAN_FIXTURE_KEY:'fixture-only'}}),{mode:0o600})
+writeFileSync(home+'/fixture-network.mjs', `const original = globalThis.fetch; globalThis.fetch = (input, options) => { const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url); if (!['127.0.0.1', 'localhost'].includes(url.hostname)) return Promise.resolve(new Response('{}', {status: 404})); return original(input, options); };` )
 writeFileSync(home+'/settings.yaml', JSON.stringify({'llm-pi-ai':{providers:{smoke:{api:'openai-completions',baseURL:fakeBase,apiKeyEnv:'SCAN_FIXTURE_KEY',models:[{id:'smoke-model',name:'Smoke model',contextWindow:4096,maxTokens:256}]}}}}))
-const child=spawn(process.execPath,['--expose-internals',upstream+'/apps/cli/lib/bin.js','web','--patch',upstream+'/node_modules/@deepviewer/dsh-plugin-reasoning/cordis.patch.yml','--port','0','--no-open'],{env:{...process.env,DSH_HOME:home},stdio:['ignore','pipe','pipe']})
+const child=spawn(process.execPath,['--expose-internals','--import',home+'/fixture-network.mjs',upstream+'/apps/cli/lib/bin.js','web','--patch',upstream+'/node_modules/@deepviewer/dsh-plugin-reasoning/cordis.patch.yml','--port','0','--no-open'],{env:{...process.env,HOME:home,DSH_HOME:home,DSH_TELEMETRY_DISABLED:'1'},stdio:['ignore','pipe','pipe']})
 let logs='';for(const stream of [child.stdout,child.stderr])stream.on('data',x=>logs+=x)
 try {
  let url;for(let i=0;i<100;i++){url=logs.match(/http:\/\/127\.0\.0\.1:\d+\/\?token=[A-Za-z0-9_-]+/)?.[0];if(url)break;if(child.exitCode!==null)break;await new Promise(r=>setTimeout(r,200))}
@@ -34,17 +36,19 @@ try {
  const auth=await fetch(url,{redirect:'manual'}),cookie=auth.headers.getSetCookie().map(x=>x.split(';')[0]).join('; '),origin=new URL(url).origin
  async function rpc(endpoint,payload={},channel='/api/') {const r=await fetch(origin+channel+endpoint,{method:'POST',headers:{'Content-Type':'application/json',Cookie:cookie,Origin:origin},body:JSON.stringify({type:'client-request',rpcId:crypto.randomUUID(),method:endpoint,payload:channel==='/api/'?{args:payload}:payload})});const text=await r.text();if(!r.ok)throw Error('RPC '+r.status+' '+text.slice(0,400));const answer=JSON.parse(text).result;if(!answer.ok)throw Error(JSON.stringify(answer.error));return answer.value}
  console.log('Host started; isolated home:',home)
- const result=await rpc('settings/describe');console.log('describe namespaces:',result.namespaces.length)
+ let result
+ for(let i=0;i<100;i++){result=await rpc('settings/describe');if(result.namespaces.find(x=>x.ns==='llm-pi-ai')?.value?.providers?.smoke)break;await new Promise(r=>setTimeout(r,100))}
+ console.log('describe namespaces:',result.namespaces.length)
  const catalog=await rpc('session/modelCatalog'); assert.equal(catalog.groups.find(x=>x.id==='smoke').models[0].reasoning,undefined)
  const namespace=result.namespaces.find(x=>x.ns==='llm-pi-ai')
- const models=structuredClone(namespace.user.providers.smoke.models)
+ const models=structuredClone(namespace.value.providers.smoke.models)
  models[0].reasoningEfforts={low:'low',high:'high'}
  const payload={ns:'llm-pi-ai',ops:[{op:'set',path:['providers','smoke','models'],value:models}],expectedRevision:namespace.revision}
  const saved=await rpc('settings/mutate',payload)
  const updated=await rpc('session/modelCatalog')
  assert.deepEqual(updated.groups.find(x=>x.id==='smoke').models[0].reasoning.efforts.map(x=>x.id),['low','high'])
  await assert.rejects(rpc('settings/mutate',payload),/revision|conflict|stale/i)
- await rpc('settings/mutate',{...payload,ops:[{...payload.ops[0],value:namespace.user.providers.smoke.models}],expectedRevision:saved.revision})
+ await rpc('settings/mutate',{...payload,ops:[{...payload.ops[0],value:namespace.value.providers.smoke.models}],expectedRevision:saved.revision})
  const restored=await rpc('session/modelCatalog')
  assert.equal(restored.groups.find(x=>x.id==='smoke').models[0].reasoning,undefined)
  const html=await (await fetch(origin+'/',{headers:{Cookie:cookie}})).text()
@@ -56,11 +60,11 @@ try {
  for(let i=0;i<100;i++){report=await scan('status',{route:'smoke'});if(report.status!=='running')break;await new Promise(r=>setTimeout(r,50))}
  assert.equal(report.status,'complete')
  assert.deepEqual(report.results.find(x=>x.id==='smoke-model').efforts,['low','medium','high'])
- assert.equal(report.results.find(x=>x.id==='blocked-model').availability,'unavailable')
+ assert.equal(report.results.find(x=>x.id==='blocked-model').availability,'permission_denied')
  await scan('apply',{route:'smoke',id:report.id,exclude:true})
  const savedScan=(await rpc('settings/describe')).namespaces.find(x=>x.ns==='llm-pi-ai')
- assert.equal(savedScan.user.providers.smoke.models[0].compat.supportsDeveloperRole,false)
- assert.deepEqual(savedScan.user.providers.smoke.models[0].input,['text','image'])
+ assert.equal(savedScan.value.providers.smoke.models[0].compat.supportsDeveloperRole,false)
+ assert.deepEqual(savedScan.value.providers.smoke.models[0].input,['text','image'])
  const scannedCatalog=await rpc('session/modelCatalog')
  assert.deepEqual(scannedCatalog.groups.find(x=>x.id==='smoke').models[0].reasoning.efforts.map(x=>x.id),['low','medium','high'])
  // modelCatalog exposes picker fields only; the upload gate uses resolveModelInfo.
@@ -69,14 +73,14 @@ try {
  const PiAi=await import(pathToFileURL(upstream+'/packages/llm/llm-pi-ai/lib/index.js'))
  const ctx=new Context(), forks=[]
  try {
-   forks.push(await ctx.plugin(Llm));forks.push(await ctx.plugin(PiAi,{providers:{smoke:savedScan.user.providers.smoke}}))
+   forks.push(await ctx.plugin(Llm));forks.push(await ctx.plugin(PiAi,{providers:{smoke:savedScan.value.providers.smoke}}))
    assert.deepEqual((await ctx.llm.resolveModelInfo('smoke','smoke-model')).inputModalities,['text','image'])
  } finally {for(const fork of forks.reverse()) fork.dispose()}
 
  await scan('restore',{route:'smoke',id:report.id})
  assert.equal((await rpc('session/modelCatalog')).groups.find(x=>x.id==='smoke').models[0].reasoning,undefined)
- assert.equal(requests.length,9)
+ assert.equal(requests.length,8)
  const appliedView=(await rpc('settings/describe')).namespaces.find(x=>x.ns==='llm-pi-ai')
- assert.equal(appliedView.user.providers.smoke.models[0].compat?.supportsDeveloperRole,undefined)
+ assert.equal(appliedView.value.providers.smoke.models[0].compat?.supportsDeveloperRole,undefined)
  console.log('PASS: authenticated plugin scan RPC, local fake API, capability apply/restore, settings CAS and native model catalog; no external model requests')
 }finally{fake.close();if(child.exitCode===null){child.kill('SIGTERM');await new Promise(r=>{child.once('exit',r);setTimeout(()=>{child.kill('SIGKILL');r()},2000)})}}

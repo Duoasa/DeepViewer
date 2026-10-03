@@ -1,0 +1,4 @@
+  interface SessionMaybeStandardProps {
+    /** Native selected view; absent before a Session is selected. */
+    useConversationView?: MaybeSnapshotSelectorHook<string | null>
+    /** Selector hook whose values are absent without a current Session. */

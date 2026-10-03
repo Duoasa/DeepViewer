@@ -1,10 +1,9 @@
-import deepViewerLoadingLogo from '../renderer/assets/deepviewer-loading-logo.svg?raw'
+import launchBrandCss from '../shared/launch-brand.css?raw'
+import { DEEPVIEWER_LAUNCH_LOCKUP_HTML } from '../shared/launch-brand.js'
 import figtreeFontDataUri from '../renderer/assets/Figtree-VariableFont_wght.ttf?inline'
 
+// Retain the private overlay id for lifecycle compatibility.
 export const HARNESS_LOADING_OVERLAY_ID = 'deepviewer-harness-loading-overlay'
-const LOADING_LOCKUP_CLASS = 'deepviewer-harness-loading-lockup'
-const LOADING_LOGO_CLASS = 'deepviewer-harness-loading-logo'
-const LOADING_HINT_CLASS = 'deepviewer-harness-loading-hint'
 
 export const HARNESS_LOADING_BRAND_CSS = `
 @font-face {
@@ -12,121 +11,38 @@ export const HARNESS_LOADING_BRAND_CSS = `
   src: url("${figtreeFontDataUri}") format("truetype");
   font-style: normal;
   font-weight: 300 900;
-  font-display: block;
+  font-display: swap;
 }
-
-#${HARNESS_LOADING_OVERLAY_ID} {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483646;
-  display: grid;
-  min-width: 100vw;
-  min-height: 100vh;
-  place-items: center;
-  overflow: hidden;
-  isolation: isolate;
-  background: #151517;
-}
-
-#${HARNESS_LOADING_OVERLAY_ID} .${LOADING_LOCKUP_CLASS} {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 80px;
-}
-
-#${HARNESS_LOADING_OVERLAY_ID} .${LOADING_LOGO_CLASS} {
-  display: block;
-  width: 112.7805px;
-  height: 120px;
-  flex: 0 0 auto;
-  overflow: visible;
-}
-
-#${HARNESS_LOADING_OVERLAY_ID} .${LOADING_LOGO_CLASS} #Vector_2 {
-  opacity: 1;
-  animation: none;
-}
-
-#${HARNESS_LOADING_OVERLAY_ID} .${LOADING_HINT_CLASS} {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.6);
-  background-image: linear-gradient(
-    100deg,
-    rgba(255, 255, 255, 0.38) 0%,
-    rgba(255, 255, 255, 0.62) 38%,
-    rgba(255, 255, 255, 1) 50%,
-    rgba(255, 255, 255, 0.62) 62%,
-    rgba(255, 255, 255, 0.38) 100%
-  );
-  background-position: 120% 0;
-  background-size: 220% 100%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: "DeepViewer Figtree", -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 40px;
-  letter-spacing: 0;
-  will-change: background-position;
-  animation: deepviewer-loading-shimmer 1.8s linear infinite;
-}
-
-@keyframes deepviewer-loading-shimmer {
-  from {
-    background-position: 120% 0;
-  }
-
-  to {
-    background-position: -120% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #${HARNESS_LOADING_OVERLAY_ID} .${LOADING_HINT_CLASS} {
-    color: rgba(255, 255, 255, 0.6);
-    background-image: none;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.6);
-    will-change: auto;
-    animation: none;
-  }
-}
+${launchBrandCss}
+#${HARNESS_LOADING_OVERLAY_ID} { position: fixed; inset: 0; z-index: 2147483646; overflow: auto; }
+/* Continue the same lockup across the document handoff without a second entrance. */
+#${HARNESS_LOADING_OVERLAY_ID} .deepviewer-launch__brand { animation: none; }
 `
 
 export const HARNESS_LOADING_BRAND_SCRIPT = `
 (() => {
   const OVERLAY_ID = ${JSON.stringify(HARNESS_LOADING_OVERLAY_ID)};
-  const LOCKUP_CLASS = ${JSON.stringify(LOADING_LOCKUP_CLASS)};
-  const LOGO_CLASS = ${JSON.stringify(LOADING_LOGO_CLASS)};
-  const HINT_CLASS = ${JSON.stringify(LOADING_HINT_CLASS)};
   const APP_FRAME_STYLE =
     'style[data-plugin-css="@deepseek-ai/dsh-client-ui-layout/AppFrame.module.css"]';
-  const logoSource = ${JSON.stringify(deepViewerLoadingLogo)};
-
   if (document.getElementById(OVERLAY_ID) !== null) return;
-
-  const parsed = new DOMParser().parseFromString(logoSource, 'image/svg+xml');
-  if (parsed.querySelector('parsererror') !== null || parsed.documentElement.localName !== 'svg') return;
-  const logo = document.importNode(parsed.documentElement, true);
-  logo.removeAttribute('style');
-  logo.classList.add(LOGO_CLASS);
-  logo.setAttribute('aria-hidden', 'true');
-  logo.setAttribute('focusable', 'false');
-
-  const hint = document.createElement('p');
-  hint.className = HINT_CLASS;
-  hint.textContent = 'Loading Plugins...';
-
-  const lockup = document.createElement('div');
-  lockup.className = LOCKUP_CLASS;
-  lockup.append(logo, hint);
 
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
+  overlay.className = 'deepviewer-launch';
   overlay.setAttribute('role', 'status');
-  overlay.setAttribute('aria-label', 'Loading Plugins');
-  overlay.append(lockup);
+  overlay.setAttribute('aria-label', '正在准备工作区');
+  const center = document.createElement('div');
+  center.className = 'deepviewer-launch__center';
+  center.innerHTML = ${JSON.stringify(DEEPVIEWER_LAUNCH_LOCKUP_HTML.replace('__DEEPVIEWER_ICON_LIGHT__', '/deepviewer-icon.png').replace('__DEEPVIEWER_ICON_DARK__', '/deepviewer-icon-dark.png'))};
+  const status = document.createElement('p');
+  status.className = 'deepviewer-launch__status';
+  const dot = document.createElement('span');
+  dot.className = 'deepviewer-launch__dot';
+  dot.setAttribute('aria-hidden', 'true');
+  const hint = document.createElement('span');
+  hint.textContent = '正在准备工作区';
+  status.append(dot, hint);
+  overlay.append(center, status);
   document.body.append(overlay);
 
   const normaliseText = (text) => text

@@ -239,7 +239,10 @@ export class RuntimeManager {
     }
     const signal = AbortSignal.timeout(timeoutMs)
     const response = await fetch(parsed, { signal, redirect: 'manual' })
-    if (response.status === 303 && response.headers.get('location') === '/') {
+    // RC2 strips the launch token with './'; earlier cores used '/'. Both
+    // resolve to the validated loopback root, without widening redirect trust.
+    const location = response.headers.get('location')
+    if (response.status === 303 && (location === '/' || location === './')) {
       const cookies = response.headers.getSetCookie().map(cookie => cookie.split(';')[0]).join('; ')
       await response.body?.cancel()
       if (cookies === '') throw new Error('runtime authentication returned no session cookie')

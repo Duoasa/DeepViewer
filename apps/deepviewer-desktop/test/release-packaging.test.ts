@@ -23,7 +23,7 @@ describe('public release privacy gate (DV-0003 AC-011)', () => {
     expect(packageScript).toContain("'.desktop/build/main.js'")
     expect(packageScript).toContain("'.desktop/build/preload.cjs'")
     expect(packageScript).toContain("'.desktop/renderer/index.html'")
-    expect(packageScript).toContain("'assets/DeepViewer.icns'")
+    expect(packageScript).toContain('const appIcon = [nativeIcon.icns, nativeIcon.document]')
     expect(packageScript).toContain("'assets/licenses/Figtree-OFL.txt'")
     expect(packageScript).toContain('rendererAssetPattern')
     expect(packageScript).toContain("resolve(stagingAppRoot, 'package.json')")
@@ -51,7 +51,7 @@ describe('public release privacy gate (DV-0003 AC-011)', () => {
       packageScript.indexOf("await run('hdiutil'"),
     )
     expect(auditScript).toContain("'.desktop/build/main.js'")
-    expect(auditScript).toContain("'assets/DeepViewer.icns'")
+    expect(auditScript).toContain("'assets/deepviewer-icon-macos26-1024.png'")
     expect(auditScript).toContain('isAllowedAsarPath')
     expect(auditScript).toContain('SENSITIVE_ENVIRONMENT_NAME')
     expect(auditScript).toContain('contains a developer-machine path')

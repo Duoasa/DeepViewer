@@ -12,15 +12,15 @@
   <a href="https://github.com/Duoasa/DeepViewer/releases"><img alt="最新版本" src="https://img.shields.io/github/v/release/Duoasa/DeepViewer?display_name=tag&include_prereleases"></a>
   <a href="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Duoasa/DeepViewer/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="支持 Apple Silicon Mac" src="https://img.shields.io/badge/macOS-Apple%20Silicon-111111?logo=apple">
-  <img alt="Electron 43" src="https://img.shields.io/badge/Electron-43-47848F?logo=electron&logoColor=white">
+  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white">
   <a href="LICENSE"><img alt="MIT 许可证" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness/discussions/2828"><img alt="在 GitHub 上讨论" src="https://img.shields.io/badge/Discuss-GitHub%20Discussions-181717?logo=github&logoColor=white"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3"><strong>下载 0.3.3（ARM64）</strong></a>
+  <a href="#安装与数据"><strong>0.5.0 发布候选（ARM64）</strong></a>
   ·
-  <a href="#相比上一公开版本-025-的功能变化">本版更新</a>
+  <a href="#相比上一公开版本-033-的功能变化">本版更新</a>
   ·
   <a href="#安装与数据">隐私与数据</a>
   ·
@@ -33,8 +33,9 @@
 
 DeepViewer 是建立在
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 之上的独立开源桌面
-Agent 工作台。它将固定版本的 Runtime 封装进 macOS 应用，并加入 Work / Chat 空间、
-文件交付、侧栏工作台与桌面控制。
+Agent 工作台。它通过原生 Electron/DesktopHost 将固定版本的 Runtime 封装进 macOS
+应用，提供 Work / Chat 空间、文件交付、侧栏工作台和会话图谱。0.5.0 源码承接
+Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。
 
 <p align="center">
   <img src="Resources/screenshots/image-delivery.png" width="100%" alt="DeepViewer 0.3.3 将生成图片作为附件交付并在侧栏预览">
@@ -44,93 +45,100 @@ Agent 工作台。它将固定版本的 Runtime 封装进 macOS 应用，并加�
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> 当前正式发布为 **DeepViewer 0.3.3 / Build 75**，内置 DeepSeek Harness `0.1.5-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已完成 Developer ID 签名和 Apple 公证。迁移会话、设置与附件的最终界面验收仍由维护者进行。
+> **DeepViewer 0.5.0 正在准备公开发布**，内置 DeepSeek Harness `0.2.0-rc.2`，**仅支持 Apple Silicon arm64**。本次目标是从源码全新生成 Developer ID 签名并经 Apple 公证的 DMG；最终 Build 号、签名/公证结果、校验清单和下载链接待证据确认。界面、真实账户及迁移会话/设置/附件仍保留独立的人工验收边界。
 
 > [!TIP]
-> [Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 提供 SHA-256 校验清单。安装版和开发版现使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一公开 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
+> 安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一公开 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
 
-## 相比上一公开版本 0.2.5 的功能变化
+> [!NOTE]
+> 本 README 的全部截图均为 **0.3.3 / Build 75 历史参考**，本次没有替换截图，不代表 0.5.0 当前界面或视觉验收结果。
 
-| 领域 | 0.3.3 的变化 |
+## 相比上一公开版本 0.3.3 的功能变化
+
+| 领域 | 0.5.0 候选版本的变化 |
 | --- | --- |
-| Work 与 Chat | 将依赖工作区的 Work 会话与无工作区的 Chat 历史区分；可从侧栏创建项目、搜索 Chat 历史。重启后无需逐条打开会话，也能从持久记录恢复模式和标题。 |
-| 文件与预览 | 生成的图片及其他文件以附件卡片交付。将工作区外或无后缀的产物复制到会话工作区，并根据真实类型补齐扩展名，使卡片和侧栏预览指向同一文件。 |
-| 侧栏工作台 | 集成开源 Better Sidebar，提供文件、编辑器、终端、Git 和浏览器面板；桌面适配窗口控件、相对文件路径、导航与鉴权。 |
-| 模型能力 | 增加第一方推理与多模态能力编辑器，按模型进行有边界的能力扫描；扫描通过不等于提供方的所有功能均已实测。 |
-| 过程与外观 | 同类上下文和操作合并为可展开摘要，字号与多模态状态跟随会话字号；加强悬停反馈，增加图片生成流光，以及侧栏 12 × 12 px Drive 运行指示。设置布局和系统外观与桌面壳对齐。 |
-| 网络 | 内置 Runtime 采用系统代理/PAC，保留显式代理配置；连接错误更清晰，访问内网地址前请求限定范围的授权。 |
-| 升级连续性 | 安装版与开发版分别使用固定数据目录。首次启动带备份导入同渠道旧会话和附件；后续应用及 Harness 升级继续使用固定目录。冷启动列表从持久事件恢复 Work/Chat 分类。 |
+| 原生桌面 | 从旧自建桌面壳和 DSH 0.1.5 覆盖层迁移到官方 Electron/DesktopHost 与固定 DSH `0.2.0-rc.2`，以 Scoder `0.7.0 / Build 43` 为源码基线。 |
+| Work、Chat 与会话图谱 | 保留依赖工作区的 Work 和无工作区的 Chat，增加内置 Synapse 会话图谱，用于查看会话关联与上下文。 |
+| 侧栏工作台 | Harness 原生面板承接独立 Better Sidebar 的挂载；DeepViewer 保留文件/编辑器/Git 操作、会话相对路径、桌面浏览器集成与权限检查。 |
+| 内置模块 | subscriptions `0.3.1` 和 model-capabilities `1.0.2` 作为应用模块内置；模型能力模块替代旧 reasoning 插件，并承接其支持的设置。 |
+| 文件与外观 | 保留附件交付和工作区预览，在原生壳中恢复 DeepViewer 品牌，跟随桌面/系统外观。 |
+| 开发稳定性 | 文件同步仅改变产物元数据时保留已挂载的界面；真实源码变化和完成构建的时间戳仍触发热更新。 |
+| 升级连续性 | 保留稳定版/开发版独立数据根目录，在新内核打开存储前快照旧 DeepViewer 数据，保留迁移与回滚备份；Scoder 和 Saidex 数据不作为迁移候选。 |
+| 网络 | 保留系统代理/PAC、显式代理、限定范围的 loopback/RPC 鉴权与内网访问授权边界。 |
 
-本版**不包含**已经移除的 Taskboard 集成。部分提供方、侧栏及迁移数据流程仍需真实账户和界面人工验收；验证边界见[发布记录](docs/sdd/releases/v0.3.3.md)。
+独立 Better Sidebar 和 reasoning 插件退出挂载，由本次迁移的原生功能与模型能力模块承接。Taskboard 保持移除，历史预览插件保持停用。当前验证边界见 [0.5.0 规格](docs/sdd/specs/DV-0033-scoder-native-rebase/spec.md)；[0.3.3 发布记录](docs/sdd/releases/v0.3.3.md)仅提供历史证据。
 
 ### Work、Chat 与过程披露
 
 Work 按项目组织会话，Chat 可以脱离工作区保存对话。两种模式都能在启动后恢复历史；同类上下文、思考、搜索和操作会合并为可展开的摘要。
 
-![Work 项目与会话历史](Resources/screenshots/work-session.png)
+![0.3.3 历史参考：Work 项目与会话历史](Resources/screenshots/work-session.png)
 
-![独立 Chat 与展开的过程披露](Resources/screenshots/chat-and-disclosure.png)
+![0.3.3 历史参考：独立 Chat 与展开的过程披露](Resources/screenshots/chat-and-disclosure.png)
 
 ### 文件与侧栏工作台
 
 侧栏可以查看工作区文件、预览生成的 HTML，并与对话并排浏览网页。文件路径、面板导航和浏览器访问都与当前桌面会话关联。
 
-![Work 对话右侧打开网页](Resources/screenshots/browser-workbench.png)
+![0.3.3 历史参考：Work 对话右侧打开网页](Resources/screenshots/browser-workbench.png)
 
-![在侧栏预览生成的 HTML 页面](Resources/screenshots/html-preview.png)
+![0.3.3 历史参考：在侧栏预览生成的 HTML 页面](Resources/screenshots/html-preview.png)
 
 ### 图片生成与附件交付
 
 生成文件以具有可用名称和后缀的附件卡片交付。即使图片最初生成在工作区外，也会复制到会话工作区，让附件与侧栏预览指向同一个文件。
 
-![生成图片的附件卡片与侧栏预览](Resources/screenshots/image-delivery.png)
+![0.3.3 历史参考：生成图片的附件卡片与侧栏预览](Resources/screenshots/image-delivery.png)
 
-![图片生成结果、过程披露与侧栏预览](Resources/screenshots/image-generation.png)
+![0.3.3 历史参考：图片生成结果、过程披露与侧栏预览](Resources/screenshots/image-generation.png)
 
 ### 外观与版本信息
 
 设置页跟随桌面外观，“关于”页面展示应用构建号和内置 Harness 版本。
 
-![关于 DeepViewer 显示 0.3.3 Build 75 与 Harness 0.1.5-rc.2](Resources/screenshots/about-version.png)
+![0.3.3 历史参考：关于页显示 Build 75 与 Harness 0.1.5-rc.2](Resources/screenshots/about-version.png)
 
 ## 安装与数据
 
-1. 在 [Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 下载 `DeepViewer-0.3.3-macos-arm64.dmg`，并用 `SHA256SUMS.txt` 校验。
+1. 待 0.5.0 发布后，从 [GitHub Releases](https://github.com/Duoasa/DeepViewer/releases) 下载预期文件 `DeepViewer-0.5.0-arm64.dmg`，并用 `SHA256SUMS.txt` 校验。候选版本的最终资产与下载链接待证据确认。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开应用并配置模型提供方或订阅账户。无需全局安装 Node.js 或 Harness。
 
 本地服务仅监听随机 loopback 端口。安装版数据固定存放于 `~/Library/Application Support/DeepViewer`，开发版固定存放于 `~/Library/Application Support/DeepViewer Dev`。覆盖安装应用不会替换这些目录；首次迁移会先复制、校验并保留备份。重大升级前仍建议自行备份。
 
-公开安装包从明确允许的代码、固定 Runtime、资源和许可证全新构建，不包含维护者的会话、工作区、设置、日志、账户凭据、开发机主目录路径或交接文件。签名发布前会检查包体。
+打包流程从明确允许的代码、固定 Runtime、资源和许可证生成独立包体。正式验收要求检查最终包中的开发机路径、私有数据和越界链接，并核验签名、公证与校验清单。0.5.0 候选包的最终证据仍待确认。
 
 ## 开源引用与 DeepViewer 修改
 
 | 组件 | 来源与许可证 | DeepViewer 的修改 |
 | --- | --- | --- |
-| Agent 内核 | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)，MIT，固定在 `fb2c4b9e698e30edb738bca4cf0618587db7d203`（`0.1.5-rc.2`） | 桌面集成及[可复原源码补丁](upstream/snapshots/v0.3.3/README.md)，覆盖 Work/Chat、会话恢复、文件交付、过程披露、主题和网络桥接；Agent Loop 仍由上游维护。 |
-| 订阅与图片工具 | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions)，MIT，`0.3.1` | DSH 0.1.5 兼容适配、限定范围 RPC/loopback 检查、剩余额度显示及图片生成状态样式。 |
-| 侧栏工作台 | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar)，MIT，`0.19.1` | macOS 窗口和设置适配、原生面板路由、会话相对路径、桌面浏览器与鉴权集成。 |
-| 模型能力编辑器 | [DeepViewer 第一方插件](apps/dsh-plugin-reasoning)，MIT，`0.1.0` | 提供方/模型扫描，以及推理和多模态能力的手动配置。 |
+| Agent 内核与原生壳 | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)，MIT，固定在 `639ed015397290b3745d163aafe02ffee4aa3f84`（`0.2.0-rc.2`） | 官方 Electron/DesktopHost 加 [DeepViewer adapter](apps/deepviewer-adapter) 与经过检查的兼容契约；Agent Loop 仍由上游维护。 |
+| 桌面源码基线 | [Duoasa/scoder](https://github.com/Duoasa/scoder)，`0.7.0 / Build 43`，固定在 `e277adc6ce512655095e6f65c63bdc72d24bae95`；保留原始版权说明 | 恢复 DeepViewer 品牌、包名/更新目标和数据隔离，保留原生功能，修复元数据变化引发的界面热卸载；不导入 Scoder 发布记录与用户数据。 |
+| 订阅与图片工具 | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions)，MIT，`0.3.1` | 内置 DSH 0.2.0 兼容模块，限定范围 RPC/loopback 检查、剩余额度显示及图片生成状态样式。 |
+| 侧栏来源 | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar)，MIT | 独立插件退出挂载，工作台由 Harness 原生面板承接；复用工作流代码保留来源与版权。 |
+| 模型能力 | [DeepViewer model-capabilities 模块](apps/dsh-plugin-model-capabilities)，MIT，`1.0.2` | 提供方/模型扫描和推理/多模态配置，替代旧 `dsh-plugin-reasoning` 挂载并承接支持的设置。 |
+| 会话图谱 | [Vendored Synapse 源码](apps/deepviewer-adapter/workflows/vendor/synapse)，保留原始许可证和来源记录 | 在 DeepViewer adapter 中内置会话图谱集成。 |
 
 历史第一方预览插件已停用，改用 Harness 官方预览。[dashi-taskboard](https://github.com/chuspeeism/dashi-taskboard) 曾参与评估，现已移除，Runtime 不再包含 Taskboard。上游版权和第三方许可证仍归各项目所有。
 
 ## 从源码构建
 
-需要 macOS arm64、Node.js 24+ 和 pnpm 11.19.0。仓库中的补丁可以从固定的 Harness 提交还原本版确切源码，不依赖用户数据或预构建应用。
+需要 macOS arm64、Node.js 24+ 和 pnpm 11.19.0。bootstrap 获取固定的 Harness 源码并应用经过检查的适配契约，不依赖用户数据或预构建应用。
 
 ```sh
 git clone https://github.com/Duoasa/DeepViewer.git
 cd DeepViewer
 pnpm install --frozen-lockfile
-git clone https://github.com/deepseek-ai/deepseek-harness upstream/deepseek-harness
-git -C upstream/deepseek-harness checkout fb2c4b9e698e30edb738bca4cf0618587db7d203
-git -C upstream/deepseek-harness apply --whitespace=nowarn ../snapshots/v0.3.3/harness.patch
+node apps/deepviewer-desktop/scripts/bootstrap-native-upstream.mjs
 pnpm --dir upstream/deepseek-harness install --frozen-lockfile
-pnpm --dir upstream/deepseek-harness run build:official
-pnpm desktop:build
+pnpm desktop:dev
 ```
 
-`pnpm desktop:build` 会为继续开发递增本地 Build 号。[源码快照说明](upstream/snapshots/v0.3.3/README.md)提供复现固定 Build 75 的 Runtime 封包、Developer ID 签名与 Apple 公证步骤。签名凭据只保存在本机钥匙串，不提交到仓库。
+`pnpm desktop:dev` 会构建并启动使用独立数据目录的 DeepViewer Dev；`pnpm desktop:dev:restart` 重启本项目开发进程，`pnpm desktop:build` 仅构建、不启动。开发构建会递增本地 Build 号。
+
+基础验证使用 `pnpm typecheck` 和 `pnpm desktop:smoke`，原生集成及适配契约检查见 [CI 流程](.github/workflows/ci.yml)。`pnpm desktop:preview` 制作本地预览包；`pnpm desktop:release` 准备签名 arm64 DMG/ZIP，需要设置 `DEEPVIEWER_SIGN_IDENTITY`、`DEEPVIEWER_TEAM_ID` 和 `DEEPVIEWER_NOTARY_PROFILE`，不会自动发布。签名/公证凭据留在本机，notary profile 保存在钥匙串。
+
+[0.3.3 源码快照说明](upstream/snapshots/v0.3.3/README.md)保留为 Build 75 的历史复现指南，不用于 0.5.0 构建。
 
 [SDD 文档](docs/sdd/README.md)记录架构、插件来源、需求和验证。DeepViewer 原创代码采用 [MIT License](LICENSE)；各上游许可证继续适用。
 

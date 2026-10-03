@@ -1,0 +1,42 @@
+/* The map owns the remaining view height; the single native composer stays in flow. */
+[data-conversation-scroll]:has([data-deepviewer-map]) {
+  overflow: hidden;
+  scrollbar-gutter: auto;
+  margin-right: 0;
+}
+[data-conversation-scroll]:has([data-deepviewer-map]) > [data-slot='conversation.session'],
+[data-conversation-scroll]:has([data-deepviewer-map]) [data-deepviewer-view-area] {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+[data-conversation-scroll]:has([data-deepviewer-map]) > [data-deepviewer-composer-seat] {
+  position: relative;
+  inset: auto;
+  flex: none;
+  background: var(--dsw-alias-bg-base);
+}
+[data-conversation-content]:has([data-deepviewer-map]) [data-side] { display: none; }
+
+body:has([data-deepviewer-map]) [data-deepviewer-navigation-row] { flex-wrap: wrap; }
+body:has([data-deepviewer-map]) [data-deepviewer-navigation-row] > [role='tablist'] { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+body:has([data-deepviewer-map]) [data-deepviewer-session-statistics] { flex: 1 1 240px; }
+
+/* The native underline otherwise extends one pixel below a scrolling tab strip. */
+body:has([data-deepviewer-map]) [data-deepviewer-navigation-row] > [role='tablist'] > [role='tab']::after { bottom: 0; }
+
+/* With a right inspector, the map owns the full content height. The single native
+   composer occupies only its left column; the iframe reserves its measured height. */
+[data-conversation-content][data-deepviewer-map-inspector] > [data-conversation-scroll] { position: relative; }
+[data-conversation-content][data-deepviewer-map-inspector] > [data-conversation-scroll] > [data-deepviewer-composer-seat] {
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: var(--deepviewer-map-inspector-width);
+  width: auto;
+  background: var(--dsw-alias-bg-base);
+}

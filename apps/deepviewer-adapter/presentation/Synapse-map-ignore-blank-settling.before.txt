@@ -1,0 +1,1 @@
+(shellPhase === 'blank' && openState === 'loading' && summaryBlank !== true)

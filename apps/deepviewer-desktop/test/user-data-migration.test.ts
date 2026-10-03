@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync, readdi
 import { tmpdir, hostname } from 'node:os'
 import { join } from 'node:path'
 import { DATA_LAYOUT_FILE, prepareUserData, type MigrationOptions } from '../src/main/user-data-migration.js'
-import { resolveDevelopmentUserDataPath, resolveInstalledUserDataPath } from '../src/main/development-profile.js'
+import { configureDevelopmentProfile, developmentUserDataOverride, resolveDevelopmentUserDataPath, resolveInstalledUserDataPath } from '../src/main/development-profile.js'
 
 const roots: string[] = []
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }) })
@@ -44,11 +44,50 @@ describe('stable data roots', () => {
     expect(get(dev, 'settings.yaml')).toBe('dev-config')
   })
 
+  it.each([true, false])('never imports Scoder or Saidex profiles into DeepViewer (development=%s)', development => {
+    const options = setup(development)
+    for (const profile of [
+      join(options.appData, 'Saidex Preview', '0.3.2-preview.1'),
+      join(options.appData, 'Saidex Dev', 'dsh-0.1.7-rc.2'),
+      join(options.appData, 'Saidex'),
+      join(options.appData, 'Scoder Preview', '0.7.0-preview.1'),
+      join(options.appData, 'Scoder Dev', 'dsh-0.2.0-rc.2'),
+      join(options.appData, 'Scoder'),
+    ]) put(profile, '.credentials.yaml', 'fixture-only-private')
+    const result = prepareUserData(options)
+    expect(result.sourceCount).toBe(0)
+    expect(existsSync(join(options.userData, 'harness-home', '.credentials.yaml'))).toBe(false)
+  })
+
   it('explicit smoke profiles never discover real legacy data', () => {
     const options = setup()
     put(join(options.appData, 'DeepViewer Dev', 'dsh-0.1.5-rc.2'), '.credentials.yaml', 'private')
     prepareUserData({ ...options, explicitDirectory: true })
     expect(existsSync(join(options.userData, 'harness-home', '.credentials.yaml'))).toBe(false)
+  })
+
+  it('ignores foreign profile environment overrides while honoring DeepViewer overrides', () => {
+    const options = setup()
+    let selected: string | undefined
+    const app = { getName: () => 'DeepViewer', getPath: () => options.appData, setPath: (_name: 'userData', path: string) => { selected = path } }
+    const foreign = { SAIDEX_PROFILE: 'development', SAIDEX_DEV_USER_DATA: '/foreign/profile', SCODER_PROFILE: 'development', SCODER_DEV_USER_DATA: '/foreign/scoder' }
+    expect(configureDevelopmentProfile(app, foreign)).toBe(false)
+    expect(developmentUserDataOverride(foreign)).toBeUndefined()
+    expect(selected).toBeUndefined()
+    expect(configureDevelopmentProfile(app, { ...foreign, DEEPVIEWER_PROFILE: 'development', DEEPVIEWER_DEV_USER_DATA: '/isolated/deepviewer' })).toBe(true)
+    expect(selected).toBe('/isolated/deepviewer')
+  })
+
+  it('recognizes the established 0.3.3 layout ledger and does not reimport deleted records', () => {
+    const options = setup()
+    const ledger = JSON.stringify({ schemaVersion: 1, transaction: 'old-deepviewer', completedAt: '2026-09-22T00:00:00Z', sources: [], conflicts: [] })
+    put(options.userData, '.deepviewer-layout.json', ledger)
+    put(options.userData, 'settings.yaml', 'current-config')
+    put(join(options.userData, 'dsh-0.1.5-rc.2'), 'sessions/project/deleted/session.jsonl', 'deleted-record')
+    expect(prepareUserData(options)).toEqual({ migrated: false, sourceCount: 0, conflictCount: 0 })
+    expect(get(options.userData, '.deepviewer-layout.json')).toBe(ledger)
+    expect(get(options.userData, 'settings.yaml')).toBe('current-config')
+    expect(existsSync(join(options.userData, 'harness-home/sessions/project/deleted'))).toBe(false)
   })
 })
 
@@ -56,7 +95,7 @@ describe('legacy profile import', () => {
   it('unions existing and multiple legacy histories, workspaces and attachments while retaining source snapshots', () => {
     const options = setup()
     const older = join(options.userData, 'dsh-0.1.4')
-    const recent = join(options.userData, 'dsh-0.1.5-rc.2')
+    const recent = join(options.userData, 'dsh-0.1.7-rc.2')
     put(options.userData, 'sessions/project/a/session.jsonl', 'old-target-history')
     put(options.userData, 'storages/workspace.json', registry({ original: { path: '/projects/one', ids: ['a'] } }))
     put(older, 'sessions/project/b/session.jsonl', 'older-history', 2_000)
@@ -87,7 +126,7 @@ describe('legacy profile import', () => {
 
   it('never combines divergent generations, and keeps conflicts in complete snapshots', () => {
     const options = setup()
-    const legacy = join(options.userData, 'dsh-0.1.5-rc.2')
+    const legacy = join(options.userData, 'dsh-0.1.7-rc.2')
     put(options.userData, 'sessions/p/s/session.jsonl', 'old', 1_000)
     put(legacy, 'sessions/p/s/session.v3.jsonl', 'new', 2_000)
     const result = prepareUserData(options)
@@ -98,7 +137,7 @@ describe('legacy profile import', () => {
 
   it('does not resurrect deleted sessions or overwrite settings on subsequent app/core upgrades', () => {
     const options = setup()
-    const legacy = join(options.userData, 'dsh-0.1.5-rc.2')
+    const legacy = join(options.userData, 'dsh-0.1.7-rc.2')
     put(legacy, 'sessions/p/s/session.jsonl', 'history')
     put(legacy, 'settings.yaml', 'old-setting')
     prepareUserData(options)
@@ -112,7 +151,7 @@ describe('legacy profile import', () => {
 
   it('regenerates cache and dependency links, preserving regular configuration', () => {
     const options = setup()
-    const legacy = join(options.userData, 'dsh-0.1.5-rc.2')
+    const legacy = join(options.userData, 'dsh-0.1.7-rc.2')
     put(legacy, 'profiles/web/cordis.patch.yml', 'user-plugin-config')
     put(legacy, 'sessions/p/s/session.lock', '')
     put(legacy, 'sessions/p/s/session.jsonl', 'history')
@@ -129,7 +168,7 @@ describe('legacy profile import', () => {
   it.each(['prepared', 'backed-up', 'published'] as const)('recovers a crash at %s without losing either history', phase => {
     const options = setup()
     put(options.userData, 'sessions/p/old/session.jsonl', 'old')
-    put(join(options.userData, 'dsh-0.1.5-rc.2'), 'sessions/p/new/session.jsonl', 'new', 2_000)
+    put(join(options.userData, 'dsh-0.1.7-rc.2'), 'sessions/p/new/session.jsonl', 'new', 2_000)
     expect(() => prepareUserData({ ...options, checkpoint: current => { if (current === phase) throw new Error('simulated crash') } })).toThrow('simulated crash')
     prepareUserData(options)
     expect(get(options.userData, 'sessions/p/old/session.jsonl')).toBe('old')
@@ -140,7 +179,7 @@ describe('legacy profile import', () => {
 
   it('recovers the first installation interrupted before publication', () => {
     const options = setup()
-    put(join(options.userData, 'dsh-0.1.5-rc.2'), 'sessions/p/new/session.jsonl', 'new')
+    put(join(options.userData, 'dsh-0.1.7-rc.2'), 'sessions/p/new/session.jsonl', 'new')
     expect(() => prepareUserData({ ...options, checkpoint: phase => { if (phase === 'backed-up') throw new Error('crash') } })).toThrow()
     prepareUserData(options)
     expect(get(options.userData, 'sessions/p/new/session.jsonl')).toBe('new')
@@ -149,7 +188,7 @@ describe('legacy profile import', () => {
   it('rejects a source modified during import and leaves the current profile untouched', () => {
     const options = setup()
     put(options.userData, 'settings.yaml', 'original')
-    const legacy = join(options.userData, 'dsh-0.1.5-rc.2')
+    const legacy = join(options.userData, 'dsh-0.1.7-rc.2')
     put(legacy, 'sessions/p/s/session.jsonl', 'before')
     expect(() => prepareUserData({ ...options, checkpoint: phase => { if (phase === 'snapshotted') put(legacy, 'sessions/p/s/session.jsonl', 'after') } })).toThrow('Source data changed')
     expect(get(options.userData, 'settings.yaml')).toBe('original')
@@ -165,7 +204,7 @@ describe('legacy profile import', () => {
   it('does not guess an unknown workspace format', () => {
     const options = setup()
     put(options.userData, 'settings.yaml', 'safe')
-    put(join(options.userData, 'dsh-0.1.5-rc.2'), 'storages/workspace.json', '{"unit":{"name":"workspace","version":99}}')
+    put(join(options.userData, 'dsh-0.1.7-rc.2'), 'storages/workspace.json', '{"unit":{"name":"workspace","version":99}}')
     expect(() => prepareUserData(options)).toThrow('Unsupported workspace registry')
     expect(get(options.userData, 'settings.yaml')).toBe('safe')
   })
@@ -184,7 +223,7 @@ describe('legacy profile import', () => {
 
   it('blocks while an older Electron instance owns its legacy directory', () => {
     const options = setup()
-    const legacy = join(options.userData, 'dsh-0.1.5-rc.2')
+    const legacy = join(options.userData, 'dsh-0.1.7-rc.2')
     put(legacy, 'settings.yaml', 'old')
     symlinkSync(`${hostname()}-${process.ppid}`, join(legacy, 'SingletonLock'))
     expect(() => prepareUserData(options)).toThrow('Quit the older app')

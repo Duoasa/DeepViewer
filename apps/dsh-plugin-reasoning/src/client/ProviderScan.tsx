@@ -10,7 +10,7 @@ export function ProviderScan({ provider, configured, keyConfigured, mirror, writ
   const route = provider.provider
   const snapshot = useSyncExternalStore(callback => mirror.subscribe(callback), () => mirror.getSnapshot())
   const namespace = snapshot.view?.namespaces.find(view => view.ns === 'llm-pi-ai')
-  const profile = (namespace?.user as { providers?: Record<string, { api?: string; baseURL?: string }> })?.providers?.[route]
+  const profile = ((namespace?.value ?? namespace?.user) as { providers?: Record<string, { api?: string; baseURL?: string }> })?.providers?.[route]
   const [state, setState] = useState<ScanState>({ status: 'loading' })
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), [exclude, setExclude] = useState(false)
   useEffect(() => {

@@ -1,0 +1,397 @@
+[
+  {
+    "id": "deepviewer-settings-panel",
+    "file": "packages/client/ui-settings-general/src/client/SettingsRoot.tsx",
+    "beforeFile": "SettingsPanel.native.tsx.txt",
+    "afterFile": "SettingsPanel.tsx.txt"
+  },
+  {
+    "id": "deepviewer-settings-back-icon",
+    "file": "packages/client/ui-settings-general/src/client/SettingsRoot.tsx",
+    "before": "IconArchiveOutlineMedium, IconCloseOutlineRegular,",
+    "after": "IconArchiveOutlineMedium, IconChevronLeftOutlineRegular,"
+  },
+  {
+    "id": "deepviewer-settings-back-zh",
+    "file": "packages/client/ui-settings-general/src/client/locales.ts",
+    "before": "'close': '关闭'",
+    "after": "'close': '返回 DeepViewer'"
+  },
+  {
+    "id": "deepviewer-settings-back-en",
+    "file": "packages/client/ui-settings-general/src/client/locales.ts",
+    "before": "'close': 'Close'",
+    "after": "'close': 'Back to DeepViewer'"
+  },
+  {
+    "id": "deepviewer-running-pixels",
+    "file": "packages/client/ui-workspace/src/client/rows/Rows.tsx",
+    "before": "      <StateDot state={statuses[0].state} />",
+    "after": "      {statuses[0].state === 'ongoing' ? (\n        <span className={css.driveLoader} data-state=\"ongoing\" aria-hidden=\"true\">\n          {[90, 180, 270, 0, 90, 180, 90, 180, 270].map((delay, index) => (\n            <span key={index} className={css.driveCell} style={{ animationDelay: `${delay}ms` }} />\n          ))}\n        </span>\n      ) : <StateDot state={statuses[0].state} />}"
+  },
+  {
+    "id": "deepviewer-running-title",
+    "file": "packages/client/ui-workspace/src/client/rows/Rows.tsx",
+    "before": "        className={css.title}",
+    "after": "        className={clsx(css.title, primaryStatus.state === 'ongoing' && css.driveTitle)}"
+  },
+  {
+    "id": "deepviewer-sidebar-anchor",
+    "file": "packages/client/ui-sidebar/src/client/SidebarRoot.tsx",
+    "before": "      ref={column}",
+    "after": "      ref={column}\n      data-deepviewer-sidebar=\"\""
+  },
+  {
+    "id": "deepviewer-chat-list-spacing",
+    "file": "packages/client/ui-workspace/src/client/rows/WorkspaceBrowser.tsx",
+    "before": "className={clsx(css.root, !wide && css.rail)}",
+    "after": "className={clsx(css.root, isChat && css.chatHistory, !wide && css.rail)}"
+  },
+  {
+    "id": "deepviewer-sidebar-search-layout",
+    "file": "packages/client/ui-workspace/src/client/rows/WorkspaceBrowser.tsx",
+    "before": "<div className={css.sectionHeader}>",
+    "after": "<div className={clsx(css.sectionHeader, searchExpanded && css.sectionHeaderExpanded)}>"
+  },
+  {
+    "id": "deepviewer-chat-history-label",
+    "file": "packages/client/ui-workspace/src/client/rows/WorkspaceBrowser.tsx",
+    "before": "{groupBy === 'flat' ? t('section.sessions') : t('section.workspaces')}",
+    "after": "{isChat ? t('chat.history') : groupBy === 'flat' ? t('section.sessions') : t('section.workspaces')}"
+  },
+  {
+    "id": "deepviewer-chat-actions",
+    "file": "packages/client/ui-workspace/src/client/rows/WorkspaceBrowser.tsx",
+    "before": "<div className={clsx(css.headerActions, wide && searchExpanded && css.headerActionsHidden)}>",
+    "after": "<div hidden={isChat} className={clsx(css.headerActions, wide && searchExpanded && css.headerActionsHidden)}>"
+  },
+  {
+    "id": "deepviewer-chat-label-zh",
+    "file": "packages/client/ui-workspace/src/client/locales.ts",
+    "before": "'section.sessions': '会话',",
+    "after": "'section.sessions': '会话',\n  'chat.history': '聊天记录',"
+  },
+  {
+    "id": "deepviewer-chat-label-en",
+    "file": "packages/client/ui-workspace/src/client/locales.ts",
+    "before": "'section.sessions': 'Sessions',",
+    "after": "'section.sessions': 'Sessions',\n  'chat.history': 'Chat history',"
+  },
+  {
+    "id": "deepviewer-direct-settings-entry",
+    "file": "packages/client/ui-settings-general/src/client/SettingsRoot.tsx",
+    "before": "        {renderSlot('settings.launcher', {\n          wide, settingsOpen: open, openSettings: actions.open,\n          ...(shortcut?.keys.length ? { settingsShortcut: { keys: shortcut.keys, aria: shortcut.aria } } : {}),\n          openOnboarding: (id) => { close(); setRequestedOnboarding(id) },\n        }, { fallback: ",
+    "after": "        "
+  },
+  {
+    "id": "deepviewer-direct-settings-entry-close",
+    "file": "packages/client/ui-settings-general/src/client/SettingsRoot.tsx",
+    "before": "        </Tooltip> })}",
+    "after": "        </Tooltip>"
+  },
+  {
+    "id": "deepviewer-chat-copy-type",
+    "file": "packages/preset/agent-preset-registry/src/display.ts",
+    "before": "  | 'presetCordisName' | 'presetCordisDescription'",
+    "after": "  | 'presetCordisName' | 'presetCordisDescription'\n  | 'presetDeepViewerChatName' | 'presetDeepViewerChatDescription'"
+  },
+  {
+    "id": "deepviewer-chat-copy-resolver",
+    "file": "packages/preset/agent-preset-registry/src/display.ts",
+    "before": "  const keys = isBuiltInPreset(preset) ?",
+    "after": "  // Translate shipped DeepViewer copy while preserving user-authored overrides and stable IDs.\n  if (preset.id === 'deepviewer-chat') return {\n    name: preset.name === undefined || preset.name === 'Chat' ? t('presetDeepViewerChatName') : preset.name,\n    description: preset.description === undefined || preset.description === 'Workspace-free conversation with web and uploaded attachments.'\n      ? t('presetDeepViewerChatDescription') : preset.description,\n  }\n  const keys = isBuiltInPreset(preset) ?"
+  },
+  {
+    "id": "deepviewer-chat-locale-type",
+    "file": "packages/client/ui-agent-preset/src/client/locales.ts",
+    "before": "  | 'presetCordisDescription'",
+    "after": "  | 'presetCordisDescription'\n  | 'presetDeepViewerChatName'\n  | 'presetDeepViewerChatDescription'"
+  },
+  {
+    "id": "deepviewer-chat-locale-en",
+    "file": "packages/client/ui-agent-preset/src/client/locales.ts",
+    "before": "  presetStandardName: 'Standard mode',",
+    "after": "  presetDeepViewerChatName: 'Chat',\n  presetDeepViewerChatDescription: 'Chat without a workspace, with web access and uploaded attachments.',\n  presetStandardName: 'Standard mode',"
+  },
+  {
+    "id": "deepviewer-chat-locale-zh",
+    "file": "packages/client/ui-agent-preset/src/client/locales.ts",
+    "before": "  presetStandardName: '标准模式',",
+    "after": "  presetDeepViewerChatName: '聊天',\n  presetDeepViewerChatDescription: '无需工作区即可聊天，支持网页访问和上传附件。',\n  presetStandardName: '标准模式',"
+  },
+  {
+    "id": "deepviewer-running-copy-zh",
+    "file": "packages/client/ui-chat/src/client/locale.ts",
+    "before": "'chat.deepDiving': '深度求索中'",
+    "after": "'chat.deepDiving': '深度求索中'"
+  },
+  {
+    "id": "deepviewer-running-clock-copy-zh",
+    "file": "packages/client/ui-chat/src/client/locale.ts",
+    "before": "'chat.deepDivingFor': '深度求索中，用时 {duration} ···'",
+    "after": "'chat.deepDivingFor': '深度求索中，用时 {duration} ···'"
+  },
+  {
+    "id": "deepviewer-running-copy-en",
+    "file": "packages/client/ui-chat/src/client/locale.ts",
+    "before": "'chat.deepDiving': 'Deep diving'",
+    "after": "'chat.deepDiving': 'Thinking'"
+  },
+  {
+    "id": "deepviewer-running-clock-copy-en",
+    "file": "packages/client/ui-chat/src/client/locale.ts",
+    "before": "'chat.deepDivingFor': 'Deep diving for {duration} ···'",
+    "after": "'chat.deepDivingFor': 'Thinking for {duration} ···'"
+  },
+  {
+    "id": "deepviewer-running-remove-whale-import",
+    "file": "packages/client/ui-chat/src/client/chat/RunningStatus.tsx",
+    "before": "import { RunningWhaleTail } from './RunningWhaleTail.tsx'\n",
+    "after": "// DeepViewer running status uses its localized thinking text.\n"
+  },
+  {
+    "id": "deepviewer-running-remove-whale",
+    "file": "packages/client/ui-chat/src/client/chat/RunningStatus.tsx",
+    "before": "        <RunningWhaleTail />\n",
+    "after": "        {/* DeepViewer: no decorative whale before the running label. */}\n"
+  },
+  {
+    "id": "deepviewer-stats-center-type",
+    "file": "packages/client/ui-conversation/src/client/contract/slots.ts",
+    "before": "    /** Right-aligned Session utilities in ascending order. */",
+    "after": "    /** DeepViewer centered native session statistics. */\n    'conversation.session.header.center': {\n      kind: 'list'\n      scope: 'session'\n      owner: ConversationHeaderActionOwnerProps\n    }\n    /** Right-aligned Session utilities in ascending order. */"
+  },
+  {
+    "id": "deepviewer-stats-center-props",
+    "file": "packages/client/ui-conversation/src/client/contract/slots.ts",
+    "before": "    | 'conversation.session.header.utilities'",
+    "after": "    | 'conversation.session.header.center'\n    | 'conversation.session.header.utilities'"
+  },
+  {
+    "id": "deepviewer-stats-center-register",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "before": "      'conversation.session.header.utilities': { kind: 'list', scope: 'session' },",
+    "after": "      'conversation.session.header.center': { kind: 'list', scope: 'session' },\n      'conversation.session.header.utilities': { kind: 'list', scope: 'session' },"
+  },
+  {
+    "id": "deepviewer-stats-center-render",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx",
+    "before": "            <div className={css.headerUtilities}>",
+    "after": "            {/* DeepViewer statistics live beside the view tabs. */}\n            <div className={css.headerUtilities}>",
+    "previousAfter": "            <div className={css.headerCenter} data-deepviewer-session-statistics=\"\">\n              {renderSlot('conversation.session.header.center', {})}\n            </div>\n            <div className={css.headerUtilities}>"
+  },
+  {
+    "id": "deepviewer-stats-center-layout",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationRoot.module.css",
+    "before": ".titleCluster {",
+    "after": "/* DeepViewer statistics use the separate view-navigation row. */\n.titleCluster {",
+    "previousAfter": ".titleRow:has(.headerCenter) {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr) auto;\n}\n\n.headerCenter {\n  grid-column: 2;\n  grid-row: 1;\n  min-width: 0;\n  max-width: 100%;\n  -webkit-app-region: no-drag;\n}\n\n.titleRow:has(.headerCenter) .headerUtilities {\n  grid-column: 3;\n  grid-row: 1;\n  justify-self: end;\n  margin-left: 8px;\n}\n\n.titleRow:has(.headerCenter) .headerCorner {\n  grid-column: 4;\n  grid-row: 1;\n}\n\n.titleCluster {"
+  },
+  {
+    "id": "deepviewer-context-next-to-model",
+    "file": "packages/client/ui-conversation/src/client/skeleton/InputBar.tsx",
+    "before": "              {sessionId === undefined ? null : renderSlot('conversation.input.model', { locked: modelSeatLocked })}",
+    "after": "              {sessionId === undefined ? null : renderSlot('conversation.input.model', { locked: modelSeatLocked })}\n              {activity ? null : <ContextMeter useProjection={useProjection} t={t} />}"
+  },
+  {
+    "id": "deepviewer-context-remove-footer",
+    "file": "packages/client/ui-conversation/src/client/skeleton/InputBar.tsx",
+    "before": "        {activity ? null : <ContextMeter useProjection={useProjection} t={t} />}\n      </div>",
+    "after": "      </div>"
+  },
+  {
+    "id": "deepviewer-statistics-navigation-row",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx",
+    "before": "      {showTabs && (\n        // data-conversation-tabs: marks the tab strip, which the window-chrome\n        // geometry and the browser coverage lane anchor on.\n        <div className={css.tabs} role=\"tablist\" data-conversation-tabs=\"\">\n          {tabs.map(viewTab => (\n            <button\n              key={viewTab.id}\n              type=\"button\"\n              role=\"tab\"\n              aria-selected={viewTab.id === active?.id}\n              className={clsx(css.tab, viewTab.id === active?.id && css.tabActive)}\n              onClick={() => { selectView(viewTab.id) }}\n            >\n              {viewTab.label}\n            </button>\n          ))}\n        </div>\n      )}",
+    "after": "      {(!hideChrome || visibleTabs.some(tab => tab.id === 'deepviewer-map')) && (\n        <div className={css.navigationRow} data-deepviewer-navigation-row=\"\">\n          {showTabs && (\n        <div className={css.tabs} role=\"tablist\" data-conversation-tabs=\"\">\n          {visibleTabs.map(viewTab => (\n            <button\n              key={viewTab.id}\n              type=\"button\"\n              role=\"tab\"\n              aria-selected={viewTab.id === active?.id}\n              className={clsx(css.tab, viewTab.id === active?.id && css.tabActive)}\n              onClick={() => { selectView(viewTab.id) }}\n            >\n              {viewTab.label}\n            </button>\n          ))}\n        </div>\n          )}\n          {!hideChrome && <div className={css.headerCenter} data-deepviewer-session-statistics=\"\">\n            {renderSlot('conversation.session.header.center', {})}\n          </div>}\n        </div>\n      )}",
+    "previousAfter": "      {!hideChrome && (\n        <div className={css.navigationRow} data-deepviewer-navigation-row=\"\">\n          {showTabs && (\n        <div className={css.tabs} role=\"tablist\" data-conversation-tabs=\"\">\n          {tabs.map(viewTab => (\n            <button\n              key={viewTab.id}\n              type=\"button\"\n              role=\"tab\"\n              aria-selected={viewTab.id === active?.id}\n              className={clsx(css.tab, viewTab.id === active?.id && css.tabActive)}\n              onClick={() => { selectView(viewTab.id) }}\n            >\n              {viewTab.label}\n            </button>\n          ))}\n        </div>\n          )}\n          <div className={css.headerCenter} data-deepviewer-session-statistics=\"\">\n            {renderSlot('conversation.session.header.center', {})}\n          </div>\n        </div>\n      )}"
+  },
+  {
+    "id": "deepviewer-statistics-navigation-style",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationRoot.module.css",
+    "before": ".tabs {",
+    "after": ".navigationRow {\n  grid-column: 1 / -1;\n  display: flex;\n  align-items: stretch;\n  gap: 16px;\n  min-width: 0;\n  margin-top: 10px;\n}\n\n.navigationRow .tabs {\n  flex: none;\n  margin-top: 0;\n}\n\n.headerCenter {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  align-items: flex-start;\n  min-width: 0;\n  padding-bottom: 9px;\n  -webkit-app-region: no-drag;\n}\n\n.headerCenter > * {\n  min-width: 0;\n  max-width: 100%;\n}\n\n.tabs {"
+  },
+  {
+    "id": "deepviewer-window-safe-minimum",
+    "file": "apps/desktop/src/main.ts",
+    "before": "    minWidth: 520,\n    minHeight: 600,",
+    "after": "    minWidth: 900,\n    minHeight: 640,"
+  },
+  {
+    "id": "deepviewer-shared-sidebar-material-light",
+    "file": "packages/client/ui-layout/src/client/AppFrame.module.css",
+    "before": "  background:\n    linear-gradient(\n      to bottom,\n      rgb(122 155 240 / 0.1),\n      rgb(122 155 240 / 0) 35%,\n      rgb(143 137 184 / 0) 68%,\n      rgb(143 137 184 / 0.09)\n    ),\n    color-mix(in srgb, color-mix(in srgb, var(--dsw-specific-sidebar-fill) 97%, rgb(122 155 240)) 40%, transparent);",
+    "after": "  background: var(--deepviewer-sidebar-material);"
+  },
+  {
+    "id": "deepviewer-shared-sidebar-material-dark",
+    "file": "packages/client/ui-layout/src/client/AppFrame.module.css",
+    "before": "  background:\n    linear-gradient(\n      to bottom,\n      rgb(122 155 240 / 0.08),\n      rgb(122 155 240 / 0) 35%,\n      rgb(143 137 184 / 0) 68%,\n      rgb(143 137 184 / 0.07)\n    ),\n    color-mix(in srgb, var(--dsw-specific-sidebar-fill) 50%, transparent);",
+    "after": "  background: var(--deepviewer-sidebar-material);"
+  },
+  {
+    "id": "deepviewer-shared-sidebar-material-reduced",
+    "file": "packages/client/ui-layout/src/client/AppFrame.module.css",
+    "before": "background: color-mix(in srgb, var(--dsw-specific-sidebar-fill) 90%, transparent);",
+    "after": "background: var(--deepviewer-sidebar-material);"
+  },
+  {
+    "id": "deepviewer-boot-sidebar-material",
+    "file": "packages/client/web/src/boot-page.module.css",
+    "before": ".card {",
+    "after": "/* Shared DeepViewer material: available before React/theme plugins load.\n   The native window already supplies sidebar vibrancy; these are translucent tints. */\n:global(html[data-platform='darwin'] body) {\n  --deepviewer-sidebar-material:\n    linear-gradient(\n      to bottom,\n      rgb(122 155 240 / 0.1),\n      rgb(122 155 240 / 0) 35%,\n      rgb(143 137 184 / 0) 68%,\n      rgb(143 137 184 / 0.09)\n    ),\n    color-mix(in srgb, color-mix(in srgb, var(--dsw-specific-sidebar-fill, #f3f4f6) 97%, rgb(122 155 240)) 40%, transparent);\n}\n:global(html[data-platform='darwin'] body[data-ds-dark-theme]) {\n  --deepviewer-sidebar-material:\n    linear-gradient(\n      to bottom,\n      rgb(122 155 240 / 0.08),\n      rgb(122 155 240 / 0) 35%,\n      rgb(143 137 184 / 0) 68%,\n      rgb(143 137 184 / 0.07)\n    ),\n    color-mix(in srgb, var(--dsw-specific-sidebar-fill, #202124) 50%, transparent);\n}\n@media (prefers-reduced-transparency: reduce) {\n  :global(html[data-platform='darwin'] body) {\n    --deepviewer-sidebar-material: color-mix(in srgb, var(--dsw-specific-sidebar-fill, #f3f4f6) 90%, transparent);\n  }\n  :global(html[data-platform='darwin'] body[data-ds-dark-theme]) {\n    --deepviewer-sidebar-material: color-mix(in srgb, var(--dsw-specific-sidebar-fill, #202124) 90%, transparent);\n  }\n}\n:global(html[data-platform='darwin']) .boot {\n  background: var(--deepviewer-sidebar-material);\n}\n\n.card {"
+  },
+  {
+    "id": "deepviewer-general-remove-version-import",
+    "file": "packages/client/ui-settings-general/src/client/index.ts",
+    "before": "import { CurrentVersionRow } from './CurrentVersionRow.tsx'",
+    "after": "// DeepViewer version information is owned by the About page."
+  },
+  {
+    "id": "deepviewer-general-remove-version-row",
+    "file": "packages/client/ui-settings-general/src/client/index.ts",
+    "before": "  // Version information follows the core preferences.\n  ctx.slots.inject('settings.general.item', () => ctx.slots.register({\n    name: 'settings.general.item', id: 'current-version', order: 100, locale: NS,\n  }, CurrentVersionRow))",
+    "after": "  // The duplicate upstream version row is not registered in DeepViewer."
+  },
+  {
+    "id": "deepviewer-synapse-view-owner-navigation",
+    "file": "packages/client/ui-conversation/src/client/contract/slots.ts",
+    "beforeFile": "Synapse-view-owner-navigation.before.txt",
+    "afterFile": "Synapse-view-owner-navigation.after.txt",
+    "previousAfter": "  /** Open a registered View on the addressed Session through native navigation. */\n  openSessionView: (sessionId: SessionId, view: string, focus: string) => Promise<void>\n  /** Acknowledge the current one-shot focus request. */"
+  },
+  {
+    "id": "deepviewer-synapse-session-navigation-injected",
+    "file": "packages/client/ui-conversation/src/client/contract/slots.ts",
+    "beforeFile": "Synapse-session-navigation-injected.before.txt",
+    "afterFile": "Synapse-session-navigation-injected.after.txt",
+    "previousAfter": "  /** Address the native target Session's view store, never the caller's store. */\n  openSessionView: (sessionId: SessionId, view: string, focus: string) => Promise<void>\n  /** Bind input draft persistence to the Session-owned store instance. */"
+  },
+  {
+    "id": "deepviewer-synapse-selected-view-standard",
+    "file": "packages/client/ui-conversation/src/client/contract/slots.ts",
+    "beforeFile": "Synapse-selected-view-standard.before.txt",
+    "afterFile": "Synapse-selected-view-standard.after.txt",
+    "previousAfter": "  interface SessionStandardProps {\n    /** Native selected view; changes with persisted view actions and restoration. */\n    useConversationView: SnapshotSelectorHook<string | null>\n    /** Selector hook over target-neutral Conversation assembly. */"
+  },
+  {
+    "id": "deepviewer-synapse-selected-view-maybe-standard",
+    "file": "packages/client/ui-conversation/src/client/contract/slots.ts",
+    "beforeFile": "Synapse-selected-view-maybe-standard.before.txt",
+    "afterFile": "Synapse-selected-view-maybe-standard.after.txt",
+    "previousAfter": "  interface SessionMaybeStandardProps {\n    /** Native selected view; absent before a Session is selected. */\n    useConversationView: MaybeSnapshotSelectorHook<string | null>\n    /** Selector hook whose values are absent without a current Session. */"
+  },
+  {
+    "id": "deepviewer-synapse-target-native-navigation",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "beforeFile": "Synapse-target-native-navigation.before.txt",
+    "afterFile": "Synapse-target-native-navigation.after.txt",
+    "previousAfter": "  // DeepViewer target navigation uses the renderer-owned BoundActions of the exact\n  // Session generation. It never manufactures a second persistent store.\n  const selectedViews = new Map<SessionId, ReturnType<typeof createSnapshotStore<string | null>>>()\n  const sessionViewActions = new Map<SessionId, { binding: SessionBinding; actions: BoundActions<typeof conversationStore> }>()\n  let pendingView: { sessionId: SessionId; view: string; focus: string; resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> } | undefined\n  const selectedView = (sessionId: SessionId) => {\n    let source = selectedViews.get(sessionId)\n    if (source === undefined) {\n      source = createSnapshotStore<string | null>(readConversationViewPreference(sessionId))\n      selectedViews.set(sessionId, source)\n      const binding = sessions.binding(sessionId)\n      binding?.ctx.effect(() => () => {\n        if (selectedViews.get(sessionId) === source) selectedViews.delete(sessionId)\n        if (sessionViewActions.get(sessionId)?.binding === binding) sessionViewActions.delete(sessionId)\n        if (pendingView?.sessionId === sessionId) {\n          const pending = pendingView; pendingView = undefined; clearTimeout(pending.timer)\n          pending.reject(new Error('Conversation target was released'))\n        }\n      }, 'DeepViewer selected conversation view')\n    }\n    return source\n  }\n  const restoreView = (sessionId: SessionId): void => {\n    const preferred = pendingView?.sessionId === sessionId ? pendingView.view : readConversationViewPreference(sessionId)\n    activateView(sessionId, preferred)\n    selectedView(sessionId).set(preferred)\n  }\n  const applyPendingView = (): void => {\n    const pending = pendingView\n    if (pending === undefined) return\n    const target = sessionViewActions.get(pending.sessionId)\n    if (target === undefined || sessions.binding(pending.sessionId) !== target.binding) return\n    pendingView = undefined; clearTimeout(pending.timer)\n    activateView(pending.sessionId, pending.view)\n    target.actions.openView(pending.view, pending.focus)\n    selectedView(pending.sessionId).set(pending.view)\n    pending.resolve()\n  }\n  const bindSessionViewActions = (sessionId: SessionId, actions: BoundActions<typeof conversationStore>): void => {\n    const binding = sessions.binding(sessionId)\n    if (binding === undefined) throw new Error('Conversation target has no native binding')\n    sessionViewActions.set(sessionId, { binding, actions })\n    queueMicrotask(applyPendingView)\n  }\n  const openSessionView = (targetId: SessionId, view: string, focus: string): Promise<void> => {\n    if (!viewTabs().some(tab => tab.id === view)) return Promise.reject(new Error('Unknown conversation view'))\n    if (pendingView !== undefined) {\n      const previous = pendingView; pendingView = undefined; clearTimeout(previous.timer)\n      previous.reject(new Error('Conversation navigation was superseded'))\n    }\n    return new Promise<void>((resolve, reject) => {\n      const timer = setTimeout(() => {\n        if (pendingView?.timer !== timer) return\n        pendingView = undefined\n        reject(new Error('Conversation target did not become available'))\n      }, 8_000)\n      pendingView = { sessionId: targetId, view, focus, resolve, reject, timer }\n      try {\n        // Native navigation synchronously retains the target as mainView and\n        // selects it before the target store acknowledges its focus request.\n        workspaceNavigation.openSession(targetId)\n        if (sessions.binding(targetId) === undefined) throw new Error('Conversation target has no native binding')\n        selectedView(targetId).set(view)\n        applyPendingView()\n      } catch (error: unknown) {\n        if (pendingView?.timer === timer) { pendingView = undefined; clearTimeout(timer) }\n        reject(error instanceof Error ? error : new Error(String(error)))\n      }\n    })\n  }\n  ctx.effect(() => () => {\n    if (pendingView === undefined) return\n    const pending = pendingView; pendingView = undefined; clearTimeout(pending.timer)\n    pending.reject(new Error('Conversation navigation was disposed'))\n  }, 'DeepViewer native conversation navigation')"
+  },
+  {
+    "id": "deepviewer-synapse-selected-view-roster",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "beforeFile": "Synapse-selected-view-roster.before.txt",
+    "afterFile": "Synapse-selected-view-roster.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-selected-view-source",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "beforeFile": "Synapse-selected-view-source.before.txt",
+    "afterFile": "Synapse-selected-view-source.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-bind-body-target-actions",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "beforeFile": "Synapse-bind-body-target-actions.before.txt",
+    "afterFile": "Synapse-bind-body-target-actions.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-share-target-navigation",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "beforeFile": "Synapse-share-target-navigation.before.txt",
+    "afterFile": "Synapse-share-target-navigation.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-bind-header-target-actions",
+    "file": "packages/client/ui-conversation/src/client/apply.ts",
+    "beforeFile": "Synapse-bind-header-target-actions.before.txt",
+    "afterFile": "Synapse-bind-header-target-actions.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-view-navigation-owner",
+    "file": "packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx",
+    "beforeFile": "Synapse-view-navigation-owner.before.txt",
+    "afterFile": "Synapse-view-navigation-owner.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-blank-view-area",
+    "file": "packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx",
+    "beforeFile": "Synapse-blank-view-area.before.txt",
+    "afterFile": "Synapse-blank-view-area.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-render-target-navigation",
+    "file": "packages/client/ui-conversation/src/client/skeleton/DefaultConversationViews.tsx",
+    "beforeFile": "Synapse-render-target-navigation.before.txt",
+    "afterFile": "Synapse-render-target-navigation.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-main-selected-view",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationMainPanel.tsx",
+    "beforeFile": "Synapse-main-selected-view.before.txt",
+    "afterFile": "Synapse-main-selected-view.after.txt",
+    "previousAfter": "  const { sessionId, useSession, useSessions, useConversation, useConversationView, renderSlot, renderFactorySlot } = props\n  const mapActive = useConversationView(view => view === 'deepviewer-map') === true"
+  },
+  {
+    "id": "deepviewer-synapse-main-map-no-hero",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationMainPanel.tsx",
+    "beforeFile": "Synapse-main-map-no-hero.before.txt",
+    "afterFile": "Synapse-main-map-no-hero.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-blank-map-tabs",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationSession.tsx",
+    "beforeFile": "Synapse-blank-map-tabs.before.txt",
+    "afterFile": "Synapse-blank-map-tabs.after.txt",
+    "previousAfter": "  const showTabs = tabs.length > 1\n  const visibleTabs = hideChrome ? tabs.filter(tab => tab.id === 'chat' || tab.id === 'deepviewer-map') : tabs"
+  },
+  {
+    "id": "deepviewer-synapse-composer-flow-marker",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationContent.tsx",
+    "beforeFile": "Synapse-composer-flow-marker.before.txt",
+    "afterFile": "Synapse-composer-flow-marker.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-chat-focus-react-import",
+    "file": "packages/client/ui-chat/src/client/chat/ChatView.tsx",
+    "beforeFile": "Synapse-chat-focus-react-import.before.txt",
+    "afterFile": "Synapse-chat-focus-react-import.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-chat-focus-seq-import",
+    "file": "packages/client/ui-chat/src/client/chat/ChatView.tsx",
+    "beforeFile": "Synapse-chat-focus-seq-import.before.txt",
+    "afterFile": "Synapse-chat-focus-seq-import.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-chat-focus-owner",
+    "file": "packages/client/ui-chat/src/client/chat/ChatView.tsx",
+    "beforeFile": "Synapse-chat-focus-owner.before.txt",
+    "afterFile": "Synapse-chat-focus-owner.after.txt"
+  },
+  {
+    "id": "deepviewer-synapse-chat-native-seq-focus",
+    "file": "packages/client/ui-chat/src/client/chat/ChatView.tsx",
+    "beforeFile": "Synapse-chat-native-seq-focus.before.txt",
+    "afterFile": "Synapse-chat-native-seq-focus.after.txt",
+    "previousAfter": "  // DeepViewer map focus is a native history + turn navigation request. The\n  // existing rail and scroll owner retain paging, reading, and cancellation.\n  const [sequenceFocus, setSequenceFocus] = useState<{ request: NonNullable<typeof viewRequest>; seq: number } | null>(null)\n  const attemptedFocus = useRef<typeof viewRequest>(null)\n  useEffect(() => {\n    if (viewRequest?.view !== 'chat' || openState !== 'open' || !scroll.initialized || attemptedFocus.current === viewRequest) return\n    const match = /^seq:(0|[1-9]\\d*)$/.exec(viewRequest.focus)\n    if (match === null) return\n    const seq = Number(match[1])\n    if (!Number.isSafeInteger(seq)) { completeViewRequest(); return }\n    attemptedFocus.current = viewRequest\n    let live = true\n    void loadThrough(SessionSeq(seq)).then(() => {\n      if (live) setSequenceFocus({ request: viewRequest, seq })\n    }, () => { if (live) completeViewRequest() })\n    return () => { live = false }\n  }, [viewRequest, openState, scroll.initialized, loadThrough, completeViewRequest])\n  useLayoutEffect(() => {\n    if (sequenceFocus === null || sequenceFocus.request !== viewRequest || !scroll.initialized) return\n    const { seq } = sequenceFocus\n    const located = nodeStore.values().filter(node => node.anchorSeq <= seq\n      && (node.location.kind === 'turn' || node.location.kind === 'step'))\n      .sort((left, right) => right.anchorSeq - left.anchorSeq)[0]\n    const location = located?.location\n    let turn = location?.kind === 'turn' || location?.kind === 'step' ? location.turn.turn : undefined\n    if (turn === undefined && Array.isArray(turnOutline)) {\n      const outline = (turnOutline as readonly { seq?: unknown; turn?: unknown }[])\n        .filter(item => typeof item.seq === 'number' && item.seq <= seq && typeof item.turn === 'number')\n        .sort((left, right) => Number(right.seq) - Number(left.seq))[0]\n      if (typeof outline?.turn === 'number') turn = outline.turn\n    }\n    const item = railItems.find(candidate => candidate.turn === turn)\n    if (item === undefined) return\n    scroll.navigateToTurn(item)\n    completeViewRequest()\n    setSequenceFocus(null)\n  }, [sequenceFocus, viewRequest, scroll.initialized, scroll.navigateToTurn, nodeStore, order, turnOutline, railItems, completeViewRequest])\n  useEffect(() => {\n    if (sequenceFocus === null || sequenceFocus.request !== viewRequest) return\n    const timer = setTimeout(() => {\n      completeViewRequest(); setSequenceFocus(null)\n    }, 5_000)\n    return () => { clearTimeout(timer) }\n  }, [sequenceFocus, viewRequest, completeViewRequest])\n\n  return (\n    <div className={css.frame}>"
+  },
+  {
+    "id": "deepviewer-synapse-map-ignore-blank-settling",
+    "file": "packages/client/ui-conversation/src/client/skeleton/ConversationMainPanel.tsx",
+    "beforeFile": "Synapse-map-ignore-blank-settling.before.txt",
+    "afterFile": "Synapse-map-ignore-blank-settling.after.txt"
+  }
+]

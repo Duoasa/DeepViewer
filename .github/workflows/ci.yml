@@ -17,13 +17,22 @@ concurrency:
 jobs:
   validate:
     name: Typecheck, smoke, and build
-    runs-on: ubuntu-24.04
+    # Profile migration uses macOS shlock; validate on the supported desktop OS.
+    runs-on: macos-15
     timeout-minutes: 20
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
         with:
+          persist-credentials: false
+
+      - name: Check out pinned Harness
+        uses: actions/checkout@v6
+        with:
+          repository: deepseek-ai/deepseek-harness
+          ref: 639ed015397290b3745d163aafe02ffee4aa3f84
+          path: upstream/deepseek-harness
           persist-credentials: false
 
       - name: Install pnpm
@@ -41,9 +50,32 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      # Development snapshots use bounded smoke coverage; full regression is separate.
-      - name: Smoke
+      - name: Validate pinned adapter contracts
+        run: node apps/deepviewer-desktop/scripts/bootstrap-native-upstream.mjs
+
+      - name: Install Harness dependencies
+        run: pnpm --dir upstream/deepseek-harness install --frozen-lockfile
+
+      - name: Build Harness and DeepViewer plugins
+        run: node apps/deepviewer-desktop/scripts/build-native-desktop.mjs --core-only
+
+      - name: Bounded smoke coverage
         run: pnpm desktop:smoke
 
-      - name: Build
-        run: pnpm desktop:build
+      - name: Native Synapse integration and UI regression smoke
+        run: |
+          pnpm --filter @deepviewer/desktop smoke:synapse
+          pnpm --filter @deepviewer/desktop smoke:ui-regression
+
+      - name: Fresh upstream contracts and policy fixtures
+        run: |
+          node apps/deepviewer-desktop/scripts/smoke-native-contract-source.mjs
+          node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs
+          pnpm --filter @deepviewer/desktop smoke:contracts
+          node --test --test-timeout=15000 apps/dsh-plugin-model-capabilities/test/*.test.mjs
+          node --experimental-strip-types --test apps/deepviewer-adapter/tests/workflows.test.mjs
+
+      - name: Authenticated Host and model plugin smoke
+        run: |
+          node apps/deepviewer-desktop/scripts/smoke-model-capabilities-host.mjs
+          node apps/dsh-plugin-model-capabilities/scripts/smoke-runtime.mjs

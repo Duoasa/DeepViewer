@@ -1,0 +1,3 @@
+  /** Address the native target Session's view store, never the caller's store. */
+  openSessionView?: ((sessionId: SessionId, view: string, focus: string) => Promise<void>) | undefined
+  /** Bind input draft persistence to the Session-owned store instance. */

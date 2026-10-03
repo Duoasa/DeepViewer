@@ -1,0 +1,239 @@
+// @vitest-environment jsdom
+import { act, cleanup, render } from '@testing-library/react'
+import { afterEach, expect, it, vi } from 'vitest'
+import { registerSynapseView } from '../../../../node_modules/@deepviewer/adapter/src/client/SynapseView.tsx'
+
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); document.body.removeAttribute('style') })
+function source<T>(initial: T) {
+  let value = initial
+  const listeners = new Set<() => void>()
+  return { getSnapshot: () => value, subscribe: (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener) } },
+    set: (next: T) => { value = next; for (const listener of [...listeners]) listener() }, listeners }
+}
+function fixture() {
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { callback(0); return 1 })
+  const resizeObservers: { callback: () => void; elements: Set<Element>; disconnect: ReturnType<typeof vi.fn> }[] = []
+  vi.stubGlobal('ResizeObserver', class {
+    observer: typeof resizeObservers[number]
+    constructor(callback: () => void) { this.observer = { callback, elements: new Set(), disconnect: vi.fn(() => this.observer.elements.clear()) }; resizeObservers.push(this.observer) }
+    observe(element: Element) { this.observer.elements.add(element) }
+    disconnect() { this.observer.disconnect() }
+  })
+  let Component: any, registration: any
+  const rows: any = { parent: { displayTitle: 'Parent', cwd: '/fixture', running: false }, child: { displayTitle: 'Child', cwd: '/fixture', running: false },
+    running: { displayTitle: 'Running', running: true }, cold: { displayTitle: 'Cold', running: false } }
+  const list = source({ ids: Object.keys(rows), byId: rows }), counts = new Map<string, number>()
+  const lifecycle = new Map<string, ReturnType<typeof source<any>>>(), chats = new Map<string, ReturnType<typeof source<any>>>()
+  const drafts = new Map<string, { setDraft: ReturnType<typeof vi.fn>; focus: ReturnType<typeof vi.fn>; notify: ReturnType<typeof vi.fn>; state: ReturnType<typeof source<{ draft: string }>> }>()
+  const loadThrough = vi.fn(async () => {}), prompt = vi.fn(async () => ({ ok: true })), fork = vi.fn(async () => 'child')
+  const retain = vi.fn((id: string, options: any) => {
+    expect(options.source).toBe('deepviewerMap'); counts.set(id, (counts.get(id) ?? 0) + 1)
+    if (!lifecycle.has(id)) lifecycle.set(id, source({ running: rows[id]?.running ?? false }))
+    if (!chats.has(id)) chats.set(id, source({ legacy: { partial: null, nodes: [] } }))
+    if (!drafts.has(id)) { const state = source({ draft: '' }); drafts.set(id, { state, setDraft: vi.fn((draft: string) => state.set({ draft })), focus: vi.fn(), notify: vi.fn() }) }
+    const session = { ...lifecycle.get(id)!, loadThrough, prompt }
+    const binding = { sessionId: id, session, ctx: { fixtureId: id } }
+    let released = false
+    return { sessionId: id, binding, ready: Promise.resolve(binding), release: () => { if (!released) { released = true; counts.set(id, counts.get(id)! - 1) } } }
+  })
+  const openSession = vi.fn(), openView = vi.fn()
+  const openSessionView = vi.fn(async (id: string, view: string, focus: string) => { openSession(id); openView(view, focus) })
+  let activeLocale = 'zh', fontSize = 16
+  const handlers = new Map<string, Set<() => void>>()
+  const ctx: any = {
+    locale: { bind: () => (key: string) => key, getLocale: () => ({ active: activeLocale }) },
+    slots: { inject: (_: unknown, callback: any) => callback(), register: (options: any, component: any) => { registration = options; Component = component } },
+    sessions: { list, fork, retain, binding: (id: string) => drafts.has(id) ? { ctx: { fixtureId: id } } : undefined, using: async (id: string, options: any, operation: any) => { const reference = retain(id, options); try { return await operation(reference) } finally { reference.release() } }, create: vi.fn(async () => 'child') },
+    workspaces: { list: source({ items: [{ workspaceId: 'workspace', sessionIds: ['parent', 'child'], title: 'Fixture', path: '/fixture' }] }) },
+    uiWorkspace: { openSession }, uiConversation: { binding: (binding: any) => ({ target: () => chats.get(binding.sessionId)! }) },
+    conversation: { input: { for: (scope: any) => drafts.get(scope.fixtureId)! } },
+    theme: { getTheme: () => ({ fontSize, active: { colorScheme: 'dark' } }) },
+    on: (name: string, listener: () => void) => { const listeners = handlers.get(name) ?? new Set(); handlers.set(name, listeners); listeners.add(listener); return () => { listeners.delete(listener) } },
+    get: () => ({ rpc: { call: vi.fn(async () => ({ ok: true, value: { workspaces: [] } })) } }),
+  }
+  registerSynapseView(ctx)
+  const view = render(<div data-conversation-content=""><div data-conversation-scroll=""><Component sessionId="parent" openView={openView} openSessionView={openSessionView} /><div data-deepviewer-composer-seat="" /></div></div>)
+  const frame = view.container.querySelector('iframe')!, frameWindow = frame.contentWindow!
+  const send = vi.spyOn(frameWindow, 'postMessage')
+  const flush = async () => { await act(async () => { for (let index = 0; index < 8; index++) await Promise.resolve() }) }
+  async function event(type: string, payload: any = {}, valid = true, origin = location.origin) {
+    await act(async () => { window.dispatchEvent(new MessageEvent('message', { origin, source: valid ? frameWindow : window, data: { source: 'dsh-synapse', type, ...payload } })); for (let index = 0; index < 12; index++) await Promise.resolve() })
+  }
+  return { ctx, view, frame, send, event, flush, registration, counts, chats, lifecycle, drafts, retain, prompt, fork, loadThrough, openSession, openView, openSessionView, list,
+    resizeObservers, changeAppearance: (locale: string, size: number) => { activeLocale = locale; fontSize = size; for (const name of ['locale/change', 'theme/change']) for (const handler of handlers.get(name) ?? []) handler() }, handlers }
+}
+
+it('canvas activation navigates the native session and keeps the map selected', async () => {
+  const f = fixture(); await f.flush()
+  expect(f.registration.id).toBe('deepviewer-map')
+  expect(f.frame.style.minHeight).toBe('0px')
+  await f.event('synapse:activate-session', { sessionId: 'child' })
+  expect(f.openSessionView).toHaveBeenCalledWith('child', 'deepviewer-map', '')
+  expect(f.openSession).toHaveBeenCalledWith('child')
+  await f.event('synapse:open-session', { sessionId: 'parent', seq: 42 })
+  expect(f.loadThrough).toHaveBeenCalledWith(42)
+  expect(f.openSessionView).toHaveBeenCalledWith('parent', 'chat', 'seq:42')
+  await f.event('synapse:open-session', { sessionId: 'parent', seq: -1 })
+  expect(f.loadThrough).toHaveBeenCalledTimes(1)
+})
+
+it('compose prepares the native draft and branch without sending a prompt', async () => {
+  const f = fixture(); await f.flush()
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: 2, text: 'Follow this idea', requestId: 'compose' })
+  expect(f.fork).toHaveBeenCalledWith({ sessionId: 'parent', atSeq: 2, increaseTitle: true })
+  expect(f.drafts.get('child')!.setDraft).toHaveBeenCalledWith('Follow this idea')
+  expect(f.drafts.get('child')!.focus).toHaveBeenCalled()
+  expect(f.openSessionView).toHaveBeenCalledWith('child', 'deepviewer-map', '')
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:composed', requestId: 'compose', session: expect.objectContaining({ id: 'child' }) }), location.origin)
+  await f.event('synapse:send-message', { sessionId: 'parent', text: 'Legacy send forbidden' })
+  expect(f.prompt).not.toHaveBeenCalled()
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: -1 })
+  expect(f.fork).toHaveBeenCalledTimes(1)
+  await f.event('synapse:compose', { text: 'New draft', requestId: 'new' })
+  expect(f.ctx.sessions.create).toHaveBeenCalledWith({ workspaceId: 'workspace' })
+})
+
+it('streaming observes only selected and running sessions and releases every reference', async () => {
+  const f = fixture(); await f.flush()
+  expect(f.counts.get('parent')).toBe(1); expect(f.counts.get('running')).toBe(1); expect(f.counts.has('cold')).toBe(false)
+  await act(async () => { f.chats.get('running')!.set({ legacy: { nodes: [{ kind: 'user', seq: 7 }], partial: { blocks: [{ kind: 'reasoning', text: 'hidden' }, { kind: 'text', text: 'Live answer' }] } } }) })
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:live-reply', sessionId: 'running', running: true, text: 'Live answer', userSeq: 7 }), location.origin)
+  await act(async () => { const current = f.list.getSnapshot(); f.list.set({ ...current, byId: { ...current.byId, running: { ...current.byId.running, running: false } } }); await Promise.resolve() })
+  expect(f.counts.get('running')).toBe(0)
+  f.view.unmount(); await f.flush()
+  for (const count of f.counts.values()) expect(count).toBe(0)
+  for (const chat of f.chats.values()) expect(chat.listeners.size).toBe(0)
+})
+
+it('presentation follows locale and font settings while commands enforce source and origin', async () => {
+  const f = fixture(); await f.flush()
+  document.body.style.setProperty('--dsw-alias-bg-base', '#121212')
+  await act(async () => { f.changeAppearance('en', 22); await Promise.resolve() })
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:presentation', locale: 'en-US', fontSize: 22, fontFamily: expect.any(String), tokens: expect.objectContaining({ background: '#121212' }) }), location.origin)
+  await f.event('synapse:compose', { sessionId: 'parent', text: 'wrong frame' }, false)
+  await f.event('synapse:compose', { sessionId: 'parent', text: 'wrong origin' }, true, 'https://foreign.invalid')
+  expect(f.drafts.get('parent')!.setDraft).not.toHaveBeenCalled()
+  const calls = f.openSessionView.mock.calls.length
+  f.view.unmount()
+  await f.event('synapse:activate-session', { sessionId: 'child' })
+  expect(f.openSessionView).toHaveBeenCalledTimes(calls)
+  for (const listeners of f.handlers.values()) expect(listeners.size).toBe(0)
+})
+
+
+it('a slow historical jump cannot overwrite a later native session selection', async () => {
+  const f = fixture(); await f.flush()
+  let finish!: () => void
+  f.loadThrough.mockImplementationOnce(() => new Promise<void>(resolve => { finish = resolve }))
+  await f.event('synapse:open-session', { sessionId: 'parent', seq: 80 })
+  await f.event('synapse:activate-session', { sessionId: 'child' })
+  await act(async () => { finish(); for (let index = 0; index < 8; index++) await Promise.resolve() })
+  expect(f.openSessionView).toHaveBeenCalledTimes(1)
+  expect(f.openSessionView).toHaveBeenLastCalledWith('child', 'deepviewer-map', '')
+  f.openSessionView.mockRejectedValueOnce(new Error('navigation refused'))
+  await f.event('synapse:activate-session', { sessionId: 'parent' })
+  await f.event('synapse:request-current')
+  expect(f.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: 'synapse:map-opened' }), location.origin)
+  const current = f.send.mock.calls.filter(([message]: any) => message.type === 'synapse:current-session').at(-1)![0]
+  expect(current.session.id).toBe('child')
+})
+
+
+it('compose selection preserves an existing native draft and plain followup leaves it untouched', async () => {
+  const f = fixture(); await f.flush()
+  f.drafts.get('parent')!.state.set({ draft: 'Existing thought' })
+  await f.event('synapse:compose', { sessionId: 'parent', text: 'Quoted selection' })
+  expect(f.drafts.get('parent')!.setDraft).toHaveBeenLastCalledWith('Existing thought\n\nQuoted selection')
+  const calls = f.drafts.get('parent')!.setDraft.mock.calls.length
+  await f.event('synapse:compose', { sessionId: 'parent' })
+  expect(f.drafts.get('parent')!.setDraft).toHaveBeenCalledTimes(calls)
+  expect(f.prompt).not.toHaveBeenCalled()
+})
+
+
+it('streaming anchors to a human steering message and excludes newer injected context', async () => {
+  const f = fixture(); await f.flush()
+  await act(async () => { f.chats.get('running')!.set({ legacy: { nodes: [
+    { kind: 'user', seq: 7, source: { kind: 'user' } },
+    { kind: 'steering', seq: 11, source: { kind: 'user' } },
+    { kind: 'context', seq: 12, source: { kind: 'model-change' } },
+  ], partial: { blocks: [{ kind: 'text', text: 'Steered answer' }] } } }) })
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:live-reply', sessionId: 'running', running: true, text: 'Steered answer', userSeq: 11 }), location.origin)
+})
+
+
+it('map layout coordinates the native composer and validates inspector geometry', async () => {
+  const f = fixture(); await f.flush()
+  const content = f.frame.closest<HTMLElement>('[data-conversation-content]')!
+  const composer = content.querySelector<HTMLElement>('[data-deepviewer-composer-seat]')!
+  Object.defineProperty(f.frame, 'clientWidth', { configurable: true, value: 900 })
+  Object.defineProperty(composer, 'offsetHeight', { configurable: true, value: 164 })
+  const geometry = f.resizeObservers[0]!
+  expect(geometry.elements.has(f.frame)).toBe(true); expect(geometry.elements.has(composer)).toBe(true)
+  await act(async () => { geometry.callback() })
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:layout', composerHeight: 164 }), location.origin)
+  const count = f.send.mock.calls.filter(([message]: any) => message.type === 'synapse:layout').length
+  await act(async () => { geometry.callback() })
+  expect(f.send.mock.calls.filter(([message]: any) => message.type === 'synapse:layout')).toHaveLength(count)
+  await f.event('synapse:layout', { inspectorWidth: 360 })
+  expect(content.hasAttribute('data-deepviewer-map-inspector')).toBe(true)
+  expect(content.style.getPropertyValue('--deepviewer-map-inspector-width')).toBe('360px')
+  for (const width of [-1, NaN, Infinity, 901, '360']) await f.event('synapse:layout', { inspectorWidth: width })
+  await f.event('synapse:layout', { inspectorWidth: 250 }, false)
+  await f.event('synapse:layout', { inspectorWidth: 250 }, true, 'https://foreign.invalid')
+  expect(content.style.getPropertyValue('--deepviewer-map-inspector-width')).toBe('360px')
+  Object.defineProperty(f.frame, 'clientWidth', { configurable: true, value: 320 })
+  await act(async () => { geometry.callback() })
+  expect(content.hasAttribute('data-deepviewer-map-inspector')).toBe(false)
+  expect(content.style.getPropertyValue('--deepviewer-map-inspector-width')).toBe('')
+  Object.defineProperty(f.frame, 'clientWidth', { configurable: true, value: 900 })
+  await f.event('synapse:layout', { inspectorWidth: 320 })
+  await f.event('synapse:layout', { inspectorWidth: 0 })
+  expect(content.hasAttribute('data-deepviewer-map-inspector')).toBe(false)
+  await f.event('synapse:layout', { inspectorWidth: 320 })
+  f.view.unmount()
+  expect(geometry.disconnect).toHaveBeenCalledOnce()
+  expect(content.hasAttribute('data-deepviewer-map-inspector')).toBe(false)
+  const calls = f.send.mock.calls.length
+  await act(async () => { geometry.callback() })
+  expect(f.send).toHaveBeenCalledTimes(calls)
+})
+
+it('a pending fork rejects a second fork without creating another native child', async () => {
+  const f = fixture(); await f.flush()
+  let completeFork!: (id: string) => void
+  f.fork.mockImplementationOnce(() => new Promise<string>(resolve => { completeFork = resolve }))
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: 2, requestId: 'first-fork' })
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: 2, requestId: 'second-fork' })
+  expect(f.fork).toHaveBeenCalledTimes(1)
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:bridge-error', requestId: 'second-fork', message: expect.stringContaining('already') }), location.origin)
+  await act(async () => { completeFork('child'); for (let index = 0; index < 12; index++) await Promise.resolve() })
+  expect(f.openSessionView).toHaveBeenCalledWith('child', 'deepviewer-map', '')
+  expect(f.drafts.get('child')!.focus).toHaveBeenCalled()
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: 2, requestId: 'later-fork' })
+  expect(f.fork).toHaveBeenCalledTimes(2)
+})
+
+it('navigation failure after child preparation is visible after the RPC was acknowledged', async () => {
+  const f = fixture(); await f.flush()
+  f.openSessionView.mockRejectedValueOnce(new Error('Destination did not render'))
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: 2, requestId: 'failed-navigation' })
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:composed', requestId: 'failed-navigation', session: expect.objectContaining({ id: 'child' }) }), location.origin)
+  expect(f.drafts.get('child')!.notify).toHaveBeenCalledWith('error', 'Destination did not render')
+  expect(f.drafts.get('parent')!.notify).toHaveBeenCalledWith('error', 'Destination did not render')
+  const error = f.send.mock.calls.map(([message]: any) => message).find(message => message.type === 'synapse:bridge-error' && message.message === 'Destination did not render')
+  expect(error?.requestId).toBeUndefined()
+  expect(f.drafts.get('child')!.focus).not.toHaveBeenCalled()
+})
+
+it('a superseded mounted compose rejects its RPC instead of waiting for the iframe timeout', async () => {
+  const f = fixture(); await f.flush()
+  let completeFork!: (id: string) => void
+  f.fork.mockImplementationOnce(() => new Promise<string>(resolve => { completeFork = resolve }))
+  await f.event('synapse:compose', { sessionId: 'parent', fork: true, atSeq: 2, requestId: 'superseded-fork' })
+  await f.event('synapse:activate-session', { sessionId: 'running' })
+  await act(async () => { completeFork('child'); for (let index = 0; index < 12; index++) await Promise.resolve() })
+  expect(f.send).toHaveBeenCalledWith(expect.objectContaining({ type: 'synapse:bridge-error', requestId: 'superseded-fork', message: expect.stringContaining('superseded') }), location.origin)
+  expect(f.drafts.get('child')!.focus).not.toHaveBeenCalled()
+  expect(f.prompt).not.toHaveBeenCalled()
+})

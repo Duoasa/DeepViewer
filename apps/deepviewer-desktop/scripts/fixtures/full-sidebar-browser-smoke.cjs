@@ -17,7 +17,7 @@ app.whenReady().then(async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`
  win=new BrowserWindow({show:false,width:1500,height:950,webPreferences:{preload,webviewTag:true,contextIsolation:true,nodeIntegration:false,sandbox:true}})
  await win.loadURL(config.origin)
- await until(()=>run(`!!document.querySelector('[data-dsh-better-sidebar]')`),'app mount')
+ await until(()=>run(`!!document.querySelector('[data-deepviewer-sidebar-runtime]')`),'app mount')
  await run(`[...document.querySelectorAll('button')].find(e=>e.textContent.trim()==='继续')?.click()`)
  await until(()=>run(`!![...document.querySelectorAll('button')].find(e=>e.textContent.trim()==='稍后配置')`),'isolated onboarding')
  await run(`[...document.querySelectorAll('button')].find(e=>e.textContent.trim()==='稍后配置').click()`)

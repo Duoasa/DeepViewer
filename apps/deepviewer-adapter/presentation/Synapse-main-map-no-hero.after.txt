@@ -1,0 +1,2 @@
+  const hero = !mapActive && (sessionId === undefined
+    || (shellPhase === 'blank' && (openState === 'open' || summaryBlank === true)))

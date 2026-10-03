@@ -15,8 +15,8 @@ import {
 const rendererRoot = resolve(import.meta.dirname, '../src/renderer')
 const rendererHtml = readFileSync(resolve(rendererRoot, 'index.html'), 'utf8')
 const rendererScript = readFileSync(resolve(rendererRoot, 'main.ts'), 'utf8')
-const rendererCss = readFileSync(resolve(rendererRoot, 'styles.css'), 'utf8')
-const loadingLogo = readFileSync(resolve(rendererRoot, 'assets/deepviewer-loading-logo.svg'), 'utf8')
+const rendererCss = readFileSync(resolve(rendererRoot, '../shared/launch-brand.css'), 'utf8')
+const brandMarkup = readFileSync(resolve(rendererRoot, '../shared/launch-brand.ts'), 'utf8')
 const windowController = readFileSync(
   resolve(import.meta.dirname, '../src/main/window-controller.ts'),
   'utf8',
@@ -26,41 +26,38 @@ const rendererViteConfig = readFileSync(
   'utf8',
 )
 
-describe('DeepViewer branded loading surfaces (DV-0006)', () => {
-  it('uses the exact local Figma logo and isolates its cursor line', () => {
-    expect(loadingLogo).toContain('width="150.374"')
-    expect(loadingLogo).toContain('height="160"')
-    expect(loadingLogo).toContain('id="Vector"')
-    expect(loadingLogo).toContain('id="Vector_2"')
-    expect(rendererScript).toContain("querySelector('#Vector_2')")
-    expect(rendererScript).toContain("setAttribute('data-deepviewer-cursor-line', '')")
+describe('DeepViewer branded loading surfaces (DV-0035)', () => {
+  it('uses the supplied light and dark DeepViewer assets across both loading stages', () => {
+    expect(rendererScript).toContain('assets/deepviewer-icon-macos26-1024.png')
+    expect(rendererScript).toContain('assets/deepviewer-icon-dark-1024.png')
+    expect(rendererScript).toContain('DEEPVIEWER_LAUNCH_LOCKUP_HTML')
+    expect(brandMarkup).toContain('prefers-color-scheme: dark')
+    expect(brandMarkup).toContain('DeepViewer</h1>')
+    expect(HARNESS_LOADING_BRAND_SCRIPT).toContain('/deepviewer-icon.png')
+    expect(HARNESS_LOADING_BRAND_SCRIPT).toContain('/deepviewer-icon-dark.png')
+    expect(rendererScript + HARNESS_LOADING_BRAND_SCRIPT).not.toContain('Vector_2')
   })
 
-  it('centers the runtime lockup in the viewport instead of the Figma canvas', () => {
-    expect(rendererHtml).toContain('class="loading-lockup"')
-    expect(rendererHtml).toContain('<h1>DeepViewer</h1>')
+  it('keeps recovery within the flow so it remains reachable in short windows', () => {
+    expect(rendererHtml).toContain('deepviewer-launch__center')
+    expect(rendererHtml).toContain('role="status"')
     expect(rendererCss).toContain('min-height: 100vh')
-    expect(rendererCss).toContain('place-items: center')
-    expect(rendererCss).toContain('gap: 80px')
-    expect(rendererCss).toContain('width: 112.7805px')
-    expect(rendererCss).toContain('height: 120px')
-    expect(rendererCss).toContain('font-size: 48px')
-    expect(rendererCss).toContain('line-height: 40px')
-    expect(rendererCss).not.toContain('1600px')
-    expect(rendererCss).not.toContain('900px')
+    expect(rendererCss).toContain('grid-template-rows: 1fr auto')
+    expect(rendererCss).toContain('overflow-wrap: anywhere')
+    expect(rendererCss).not.toContain('position: fixed')
   })
 
   it('builds file-protocol-compatible relative renderer asset URLs', () => {
     expect(rendererViteConfig).toContain("base: './'")
   })
 
-  it('only blinks the runtime cursor line and respects reduced motion', () => {
-    expect(rendererCss).toContain(
-      '.brand-logo [data-deepviewer-cursor-line] {\n  animation: deepviewer-cursor-blink 1s steps(1, jump-end) infinite;',
-    )
-    expect(rendererCss).toContain('@keyframes deepviewer-cursor-blink')
+  it('supports theme changes and a stationary reduced-motion state', () => {
+    expect(rendererCss).toContain('@media (prefers-color-scheme: dark)')
     expect(rendererCss).toContain('@media (prefers-reduced-motion: reduce)')
-    expect(rendererCss).toContain('.launch[data-phase="failed"]')
+    expect(rendererCss).toContain('.deepviewer-launch[data-phase="failed"]')
+    expect(rendererCss).toContain('.deepviewer-launch[data-phase="ready"]')
+    expect(rendererCss).toContain('animation: none')
+    expect(rendererCss).not.toContain('deepviewer-cursor-blink')
   })
 
   it('preserves launch failure recovery without adding a new bridge API', () => {
@@ -89,7 +86,7 @@ describe('DeepViewer branded loading surfaces (DV-0006)', () => {
   it('installs an independent Harness loading overlay with a stable logo', () => {
     expect(HARNESS_LOADING_OVERLAY_ID).toBe('deepviewer-harness-loading-overlay')
     expect(() => new Function(HARNESS_LOADING_BRAND_SCRIPT)).not.toThrow()
-    expect(HARNESS_LOADING_BRAND_SCRIPT).toContain("hint.textContent = 'Loading Plugins...'")
+    expect(HARNESS_LOADING_BRAND_SCRIPT).toContain("hint.textContent = '正在准备工作区'")
     expect(HARNESS_LOADING_BRAND_SCRIPT).toContain('document.body.append(overlay)')
     expect(HARNESS_LOADING_BRAND_SCRIPT).toContain('new MutationObserver')
     expect(HARNESS_LOADING_BRAND_SCRIPT).toContain("hasLeafText('failed to load plugins')")
@@ -97,24 +94,14 @@ describe('DeepViewer branded loading surfaces (DV-0006)', () => {
     expect(HARNESS_LOADING_BRAND_SCRIPT).toContain('setTimeout(removeOverlay, 15000)')
     expect(HARNESS_LOADING_BRAND_SCRIPT).not.toContain("textContent?.trim() === 'HARNESS'")
     expect(HARNESS_LOADING_BRAND_CSS).toContain('z-index: 2147483646')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('width: 112.7805px')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('height: 120px')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('#Vector_2')
     expect(HARNESS_LOADING_BRAND_CSS).toContain('animation: none')
     expect(HARNESS_LOADING_BRAND_CSS).not.toContain('deepviewer-cursor-blink')
   })
 
-  it('centers the plugin lockup and applies shimmer only to its text', () => {
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('min-height: 100vh')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('place-items: center')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('gap: 80px')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('font-size: 24px')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('line-height: 40px')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('@keyframes deepviewer-loading-shimmer')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('will-change: background-position')
-    expect(HARNESS_LOADING_BRAND_CSS).toContain('@media (prefers-reduced-motion: reduce)')
-    expect(HARNESS_LOADING_BRAND_CSS).not.toContain('1600px')
-    expect(HARNESS_LOADING_BRAND_CSS).not.toContain('900px')
+  it('shares layout and theme styles across the runtime handoff', () => {
+    expect(HARNESS_LOADING_BRAND_CSS).toContain(rendererCss.trim())
+    expect(HARNESS_LOADING_BRAND_CSS).toContain('.deepviewer-launch__brand { animation: none; }')
+    expect(HARNESS_LOADING_BRAND_SCRIPT).toContain("overlay.className = 'deepviewer-launch'")
   })
 
   it('injects the plugin brand only outside the trusted local launch surface', () => {

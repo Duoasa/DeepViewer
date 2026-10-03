@@ -42,7 +42,19 @@ export const MACOS_WINDOW_CHROME_CSS = `
   position: absolute;
   inset: 0 0 auto;
   height: ${MACOS_TOP_SAFE_AREA_HEIGHT}px;
+  background: var(--dsw-alias-bg-base);
+  z-index: var(--dsh-dockkit-dock-layer, 10);
+  border-left: 0.5px solid var(--dsw-alias-border-l4);
+  box-sizing: border-box;
+  transform: translateX(var(--dsh-sidebar-width));
+  visibility: hidden;
+  transition: transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);
   -webkit-app-region: drag;
+}
+[data-sidebar-right-panel][data-sidebar-right-open]::before {
+  transform: none;
+  visibility: visible;
+  transition: transform var(--ds-transition-duration-slow) var(--ds-ease-in-out);
 }
 
 html,
@@ -117,26 +129,17 @@ body:has([data-deepviewer-settings-sidebar]) [data-deepviewer-macos-frame] {
 #deepviewer-macos-session-stats {
   position: absolute;
   inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   padding: 0 48px;
-  overflow: hidden;
-  color: var(--dsw-alias-label-tertiary, rgba(255, 255, 255, 0.58));
-  font-family: var(--dsw-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
-  font-size: 12px;
-  line-height: ${MACOS_TOP_SAFE_AREA_HEIGHT}px;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
   pointer-events: none;
-  user-select: none;
 }
-
-#deepviewer-macos-session-stats[hidden] {
-  display: none;
-}
-
-[data-deepviewer-macos-session-stats-source] {
-  display: none !important;
+#deepviewer-macos-session-stats [data-composer-stats] {
+  pointer-events: auto;
+  -webkit-app-region: no-drag;
 }
 
 [data-deepviewer-macos-workspace-fade] {
@@ -180,6 +183,12 @@ body:has([data-deepviewer-settings-sidebar]) [data-deepviewer-macos-frame] {
 
 :root[data-deepviewer-macos-fullscreen] #deepviewer-macos-sidebar-toggle {
   left: 16px;
+}
+
+/* The maximized preview owns the title row, including the traffic-light area. */
+:root[data-deepviewer-right-maximized] #deepviewer-macos-sidebar-toggle {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 #deepviewer-macos-sidebar-toggle:hover {
@@ -227,17 +236,15 @@ body:has([data-deepviewer-settings-sidebar]) [data-deepviewer-macos-frame] {
   pointer-events: none !important;
 }
 
-[data-deepviewer-macos-frame][data-sidebar-collapsed] {
-  grid-template-columns: 0px minmax(0, 1fr) var(--deepviewer-details-column, 0px) !important;
-}
-
+/* RC2 owns all three interpolatable tracks, including zero-width collapse. */
 [data-deepviewer-macos-frame][data-sidebar-collapsed]
   > [data-deepviewer-macos-sidebar-column] {
   border-right: 0 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-deepviewer-macos-frame] {
+  [data-deepviewer-macos-frame],
+  [data-sidebar-right-panel]::before {
     transition: none !important;
   }
 }
@@ -257,8 +264,6 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
     'style[data-plugin-css="@deepseek-ai/dsh-client-ui-sidebar/SidebarRoot.module.css"]';
   const FRAME_STYLE =
     'style[data-plugin-css="@deepseek-ai/dsh-client-ui-layout/AppFrame.module.css"]';
-  const STATS_STYLE =
-    'style[data-plugin-css="@deepseek-ai/dsh-client-ui-chat/StatsPills.module.css"]';
   const WORKSPACE_STYLE =
     'style[data-plugin-css="@deepseek-ai/dsh-client-ui-workspace/WorkspaceBrowser.module.css"]';
 
@@ -394,28 +399,12 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
 
     const sync = () => {
       const collapsed = frame.hasAttribute('data-sidebar-collapsed');
-      const widthTokens = frame.style.gridTemplateColumns.match(/-?\\d+(?:\\.\\d+)?px/gu) ?? [];
-      const detailsWidth = widthTokens[widthTokens.length - 1] ?? '0px';
-      if (frame.style.getPropertyValue('--deepviewer-details-column') !== detailsWidth) {
-        frame.style.setProperty('--deepviewer-details-column', detailsWidth);
-      }
       const desiredToggleHost = collapsed ? mainSafeArea : toggleHost;
       if (button.parentElement !== desiredToggleHost) desiredToggleHost.append(button);
       button.setAttribute('aria-expanded', String(!collapsed));
       button.setAttribute('aria-label', collapsed ? '打开侧栏' : '收起侧栏');
       button.title = collapsed ? '打开侧栏' : '收起侧栏';
       makeWordmarkStatic();
-    };
-
-    const syncStats = () => {
-      const statsClass = moduleClass(STATS_STYLE, 'root');
-      const source = elementForClass(statsClass);
-      const text = source instanceof HTMLElement ? (source.textContent ?? '').trim() : '';
-      if (source instanceof HTMLElement) {
-        source.dataset.deepviewerMacosSessionStatsSource = '';
-      }
-      if (statsDisplay.textContent !== text) statsDisplay.textContent = text;
-      statsDisplay.hidden = text === '';
     };
 
     let nativeThemeSource = '';
@@ -437,22 +426,19 @@ export const MACOS_WINDOW_CHROME_SCRIPT = `
     const frameObserver = new MutationObserver(sync);
     frameObserver.observe(frame, {
       attributes: true,
-      attributeFilter: ['data-sidebar-collapsed', 'style'],
+      attributeFilter: ['data-sidebar-collapsed'],
     });
     const sidebarObserver = new MutationObserver(() => {
       makeWordmarkStatic();
       syncWorkspaceFade();
     });
     sidebarObserver.observe(sidebar, { childList: true, subtree: true });
-    const statsObserver = new MutationObserver(syncStats);
-    statsObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
     const themeObserver = new MutationObserver(syncNativeTheme);
     themeObserver.observe(document.body, {
       attributes: true,
       attributeFilter: ['data-deepviewer-theme-source'],
     });
     sync();
-    syncStats();
     syncNativeTheme();
     return true;
   };

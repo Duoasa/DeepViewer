@@ -1,0 +1,2 @@
+        bindDraftMirror: write => inputHub.shell(sessionId).bindMirror(write),
+        openView,
