@@ -4,7 +4,7 @@ Status: Implementing
 Date: 2026-10-03
 Initial baseline: DeepViewer 0.4.0 Build 76; Scoder main `e277adc6ce512655095e6f65c63bdc72d24bae95`; DSH `0.2.0-rc.2` / `639ed015397290b3745d163aafe02ffee4aa3f84`.
 
-Latest build evidence: DeepViewer 0.5.0 Build 90；全新 core/renderer/runtime、实际 builder ASAR 库存与最终净化审计、runtime/app/DMG Developer ID 签名、app/DMG 公证、stapling/Gatekeeper、DMG 完整性与只读挂载检查、本地资产校验和通过。构建源提交为 `994c3e6ee8c507c4767dce4a39ec50aacde38969`，对应 CI `37129096610` success；最终发布源提交、tag、main 合并与 GitHub 发布/远端 digest 仍 Pending。Build 88 的 180 秒运行观察保留为独立历史证据。
+Latest build/release evidence: DeepViewer 0.5.0 Build 90；全新构建、严格 ASAR 库存与最终净化审计、runtime/app/DMG Developer ID 签名、公证、stapling/Gatekeeper、DMG 完整性/只读挂载及资产校验通过。构建源提交 `994c3e6ee8c507c4767dce4a39ec50aacde38969` 的 CI `37129096610` success；最终 tagged source `01e6903b54e0b5c80a3ff4e6d9a6319d173cbd54` 的 CI `37131406670` success。PR #7 已合并，`v0.5.0` 已公开为 Latest，两个公开资产的远端 digest 与本地匹配。Build 88 的 180 秒运行观察保留为独立历史证据；人工验收状态不变。
 
 ## Acceptance evidence
 
@@ -17,7 +17,7 @@ Latest build evidence: DeepViewer 0.5.0 Build 90；全新 core/renderer/runtime�
 | AC-005 | 初始验证使用隔离 profile；后续获授权的白屏诊断及 Build 88 运行观察确认 root 挂载与热更新连续性。完整视觉、交互、旧会话与附件验收仍须由维护者确认 | Pending Manual |
 | AC-006 | 下表记录 PC 检查；真实订阅账户/API、实际安装后数据连续性、真实用户 HOME/字体权限与正式自动更新仍待验收 | Pending Manual |
 | AC-007 | 真实 metadata/HMR 链路及相关定向检查累计 62 项通过；最终 HMR 3 项单独重跑通过；Build 88 对 ui-renderer/ui-layout/ui-theme/connection 四个模块进行 metadata 变化后观察 180 秒，rebuilt=0，root 保持挂载 | Pass (定向运行与自动测试) |
-| AC-008 | 0.5.0 Build 90 全新构建与实际 ASAR 严格库存验证通过（755 份 builder 清单，268 份规范化）；最终净化审计覆盖 20,267 个 ASAR entries / 7,953 个资源；13+113 个 runtime Mach-O 与 app/DMG Developer ID 签名、公证、stapling/Gatekeeper、DMG 完整性和只读挂载检查通过；隔离 HOME/XDG/TMPDIR 的源码 payload 及最终签名 app 运行时检查通过；本地资产与 DMG 校验清单通过。最终发布源提交、tag、main 合并与远端 digest 仍 Pending | Pending (本地证据通过，公开发布未完成) |
+| AC-008 | 0.5.0 Build 90 全新构建与实际 ASAR 严格库存验证通过（755 份 builder 清单，268 份规范化）；最终净化审计覆盖 20,267 个 ASAR entries / 7,953 个资源；13+113 个 runtime Mach-O 与 app/DMG Developer ID 签名、公证、stapling/Gatekeeper、DMG 完整性/只读挂载及隔离运行时通过。最终 source/tag 固定，PR #7 已合并；[v0.5.0 Latest](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) 已公开，DMG 与 SHA256SUMS.txt 共 2 个远端资产的大小/digest 与本地全部匹配；ZIP/blockmap/feed 未发布 | Pass (已授权 installer 发布范围) |
 
 ## Reproducible commands
 
@@ -95,7 +95,11 @@ node node_modules/vitest/vitest.mjs run packages/client/hmr/tests/deepviewer-cli
 
 本地新生成的 `SHA256SUMS.txt` 只包含本次 DMG，核验 OK。ZIP 与 ZIP blockmap 的本地字节数和 SHA-256 已记录，未公开或发布更新 feed。
 
-构建源提交 `994c3e6ee8c507c4767dce4a39ec50aacde38969` 的 [CI 37129096610](https://github.com/Duoasa/DeepViewer/actions/runs/37129096610) success。后续源码 `smoke-native-payload.mjs` 的 HOME 隔离与 stage 参数修复未修改已签名 payload；最终发布 commit 与后续 CI 尚待固定。[PR #7](https://github.com/Duoasa/DeepViewer/pull/7) 仍为 draft，尚未 main 合并或公开发布。
+构建源提交 `994c3e6ee8c507c4767dce4a39ec50aacde38969` 的 [CI 37129096610](https://github.com/Duoasa/DeepViewer/actions/runs/37129096610) success。后续源码 `smoke-native-payload.mjs` 的 HOME 隔离与 stage 参数修复未修改已签名 payload；最终发布 tag `v0.5.0` 指向 `01e6903b54e0b5c80a3ff4e6d9a6319d173cbd54`，对应 [CI 37131406670](https://github.com/Duoasa/DeepViewer/actions/runs/37131406670) success。
+
+[PR #7](https://github.com/Duoasa/DeepViewer/pull/7) 于 `2026-10-03T15:07:10Z` 合并为 `02ea5612b2b0daaeebf33aab0a8078b252d7611f`；author/committer 的维护者身份经 API 核验。该 merge commit 的 [CI 37132108558](https://github.com/Duoasa/DeepViewer/actions/runs/37132108558) success，完成于 `2026-10-03T15:15:12Z`；包含 typecheck、固定契约、构建、bounded smoke、原生集成/UI 回归与 Host 检查。后续仅同步发布文档的提交使用 `[skip ci]`，不重复构建，CI 证据仍绑定上述代码提交。
+
+[v0.5.0](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) 于 `2026-10-03T15:08:12Z`（北京时间 23:08:12）公开为 Latest，release ID `402558457`，draft=false/prerelease=false。公开资产只有 DMG 与 `SHA256SUMS.txt`；GitHub 大小与 digest 自动对照均匹配本地，直接下载 URL 的无鉴权 HEAD 跟随重定向检查均返回 HTTP 200，详细值与 receipt 见发布记录。ZIP/blockmap/feed 未发布。
 
 ### Prepared runtime 隔离检查
 
@@ -105,6 +109,6 @@ node node_modules/vitest/vitest.mjs run packages/client/hmr/tests/deepviewer-cli
 
 ## Local build and release boundaries
 
-初始开发构建生成原生 lib/renderer、DSH runtime 和 primary-runtime，没有生成安装资产或 GitHub Release。后续白屏修复已构建并验证到 Build 88。维护者现已明确授权 0.5.0 arm64 正式签名安装包、推送 Duoasa/DeepViewer 和 main 合并；本记录同步时，Build 90 本地签名、公证、安装资产及校验清单已完成。最终发布源提交、tag、main 合并、GitHub Release 与远端 digest 仍为 Pending，统一在 [v0.5.0 发布记录](../../releases/v0.5.0.md) 补齐。
+初始开发构建生成原生 lib/renderer、DSH runtime 和 primary-runtime，没有生成安装资产或 GitHub Release。后续白屏修复已构建并验证到 Build 88。维护者明确授权的 0.5.0 arm64 正式签名安装包、源码推送和 main 合并现已完成；最终 source/tag、公开 Release 与远端 digest 已记录在 [v0.5.0 发布记录](../../releases/v0.5.0.md)。本次公开安装包证据支持 AC-008，不替代功能与真实用户环境的人工验收。
 
 0.5.0 安装包发布与自动更新 feed 发布是独立边界。`publish-native-update.mjs` 所要求的真实 signedInstall、userDataPreserved、relaunch 等 qualification 继续生效，本次安装包授权不绕过该门禁。AC-005/AC-006 保持 Pending Manual，规格保持 Implementing。

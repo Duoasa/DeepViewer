@@ -2,13 +2,13 @@
 
 本目录记录 DeepViewer 的公开发布与正在准备的候选版本，包括版本元数据、源代码提交、下载资产、校验值、验证范围和已知限制。
 
-发布记录是历史事实，不替代功能规格的验收流程。预发布版本可以关联仍处于 `Implementing` 的规格；只有全部验收条件具备证据后，规格才可按治理规则进入 `Verified` 或 `Released`。
+发布记录是历史事实，不替代功能规格的验收流程。维护者明确授权的安装包发布可以关联仍处于 `Implementing` 的规格，并保留人工验收边界；只有全部验收条件具备证据后，规格才可按治理规则进入 `Verified` 或 `Released`。
 
 ## 版本索引
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
-| `v0.5.0`（候选） | Signed installer candidate / ARM64；Preparing | 未发布（准备于 2026-10-03） | DV-0033 | [DeepViewer 0.5.0](v0.5.0.md) |
+| `v0.5.0` | Public signed installer / Latest / ARM64 | 2026-10-03 | DV-0033（Implementing；Pending Manual 保留） | [DeepViewer 0.5.0](v0.5.0.md) |
 | `v0.3.3` | Public release / ARM64 | 2026-09-23 | DV-0031, DV-0032 | [DeepViewer 0.3.3](v0.3.3.md) |
 | `v0.2.5-preview.1` | Release / Latest / ARM64 only | 2026-09-15 | DV-0017 | [DeepViewer 0.2.5](v0.2.5-preview.1.md) |
 | `v0.2.3` | Public preview / Previous Latest | 2026-08-23 | DV-0015 | [DeepViewer 0.2.3 (Build 1)](v0.2.3.md) |

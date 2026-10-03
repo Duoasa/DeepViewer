@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="#安装与数据"><strong>0.5.0 发布候选（ARM64）</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/DeepViewer-0.5.0-arm64.dmg"><strong>下载 0.5.0（ARM64）</strong></a>
   ·
   <a href="#相比上一公开版本-033-的功能变化">本版更新</a>
   ·
@@ -45,17 +45,17 @@ Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> **DeepViewer 0.5.0 正在准备公开发布**，内置 DeepSeek Harness `0.2.0-rc.2`，**仅支持 Apple Silicon arm64**。本次目标是从源码全新生成 Developer ID 签名并经 Apple 公证的 DMG；最终 Build 号、签名/公证结果、校验清单和下载链接待证据确认。界面、真实账户及迁移会话/设置/附件仍保留独立的人工验收边界。
+> 当前正式版本为 **DeepViewer 0.5.0 / Build 90**，内置 DeepSeek Harness `0.2.0-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。界面、真实账户及迁移会话/设置/附件仍保留独立的人工验收边界。
 
 > [!TIP]
-> 安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一公开 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
+> [0.5.0 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一公开 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
 
 > [!NOTE]
 > 本 README 的全部截图均为 **0.3.3 / Build 75 历史参考**，本次没有替换截图，不代表 0.5.0 当前界面或视觉验收结果。
 
 ## 相比上一公开版本 0.3.3 的功能变化
 
-| 领域 | 0.5.0 候选版本的变化 |
+| 领域 | 0.5.0 的变化 |
 | --- | --- |
 | 原生桌面 | 从旧自建桌面壳和 DSH 0.1.5 覆盖层迁移到官方 Electron/DesktopHost 与固定 DSH `0.2.0-rc.2`，以 Scoder `0.7.0 / Build 43` 为源码基线。 |
 | Work、Chat 与会话图谱 | 保留依赖工作区的 Work 和无工作区的 Chat，增加内置 Synapse 会话图谱，用于查看会话关联与上下文。 |
@@ -66,7 +66,7 @@ Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。
 | 升级连续性 | 保留稳定版/开发版独立数据根目录，在新内核打开存储前快照旧 DeepViewer 数据，保留迁移与回滚备份；Scoder 和 Saidex 数据不作为迁移候选。 |
 | 网络 | 保留系统代理/PAC、显式代理、限定范围的 loopback/RPC 鉴权与内网访问授权边界。 |
 
-独立 Better Sidebar 和 reasoning 插件退出挂载，由本次迁移的原生功能与模型能力模块承接。Taskboard 保持移除，历史预览插件保持停用。当前验证边界见 [0.5.0 规格](docs/sdd/specs/DV-0033-scoder-native-rebase/spec.md)；[0.3.3 发布记录](docs/sdd/releases/v0.3.3.md)仅提供历史证据。
+独立 Better Sidebar 和 reasoning 插件退出挂载，由本次迁移的原生功能与模型能力模块承接。Taskboard 保持移除，历史预览插件保持停用。包体证据见 [0.5.0 发布记录](docs/sdd/releases/v0.5.0.md)，人工验收边界见[规格](docs/sdd/specs/DV-0033-scoder-native-rebase/spec.md)；[0.3.3 发布记录](docs/sdd/releases/v0.3.3.md)仅提供历史证据。
 
 ### Work、Chat 与过程披露
 
@@ -100,13 +100,15 @@ Work 按项目组织会话，Chat 可以脱离工作区保存对话。两种模�
 
 ## 安装与数据
 
-1. 待 0.5.0 发布后，从 [GitHub Releases](https://github.com/Duoasa/DeepViewer/releases) 下载预期文件 `DeepViewer-0.5.0-arm64.dmg`，并用 `SHA256SUMS.txt` 校验。候选版本的最终资产与下载链接待证据确认。
+1. 下载 [DeepViewer-0.5.0-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/DeepViewer-0.5.0-arm64.dmg)，并用 [0.5.0 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) 中的 [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/SHA256SUMS.txt) 校验。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开应用并配置模型提供方或订阅账户。无需全局安装 Node.js 或 Harness。
 
 本地服务仅监听随机 loopback 端口。安装版数据固定存放于 `~/Library/Application Support/DeepViewer`，开发版固定存放于 `~/Library/Application Support/DeepViewer Dev`。覆盖安装应用不会替换这些目录；首次迁移会先复制、校验并保留备份。重大升级前仍建议自行备份。
 
-打包流程从明确允许的代码、固定 Runtime、资源和许可证生成独立包体。正式验收要求检查最终包中的开发机路径、私有数据和越界链接，并核验签名、公证与校验清单。0.5.0 候选包的最终证据仍待确认。
+最终 0.5.0 Build 90 包已通过私有数据/路径/链接净化审计、签名和公证检查、DMG 完整性校验。bounded smoke 共 118 项通过；实际签名 app 在全新隔离 HOME 下通过 Host、原生依赖、DOCX/XLSX/PPTX 转换和 skill CLI 检查，详见[发布记录](docs/sdd/releases/v0.5.0.md)。
+
+真实用户环境扫描受保护的 Office 字体目录可能等待，字体权限仍需人工验收。本次仅发布安装包，不发布自动更新 feed。
 
 ## 开源引用与 DeepViewer 修改
 

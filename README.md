@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="#install-and-data"><strong>0.5.0 release candidate (ARM64)</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/DeepViewer-0.5.0-arm64.dmg"><strong>Download 0.5.0 (ARM64)</strong></a>
   ·
   <a href="#what-changed-since-the-previous-public-release-033">What's new</a>
   ·
@@ -46,17 +46,17 @@ DeepViewer's identity and independent data directories.
 > DeepViewer is a community project. It is not affiliated with or endorsed by DeepSeek.
 
 > [!IMPORTANT]
-> **DeepViewer 0.5.0 is being prepared for public release**, based on DeepSeek Harness `0.2.0-rc.2`, for **Apple Silicon arm64 only**. A freshly built Developer ID signed and Apple-notarized DMG is the release target; its final build number, signing/notarization results, checksums, and download link are pending confirmation. Visual acceptance, real-account flows, and migrated sessions/settings/attachments remain separate manual checks.
+> The current release is **DeepViewer 0.5.0 / Build 90**, based on DeepSeek Harness `0.2.0-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. Visual acceptance, real-account flows, and migrated sessions/settings/attachments remain separate manual checks.
 
 > [!TIP]
-> Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous public [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
+> The [0.5.0 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous public [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
 
 > [!NOTE]
 > All screenshots in this README are historical **0.3.3 / Build 75** references. They have not been replaced or used as evidence of the 0.5.0 interface or visual acceptance.
 
 ## What changed since the previous public release (0.3.3)
 
-| Area | Changes in the 0.5.0 candidate |
+| Area | Changes in 0.5.0 |
 | --- | --- |
 | Native desktop | Move from the previous custom shell and DSH 0.1.5 overlays to the official Electron/DesktopHost and pinned DSH `0.2.0-rc.2`, using Scoder `0.7.0 / Build 43` as the source baseline. |
 | Work, Chat and session map | Retain workspace-backed Work and workspace-free Chat, and add the built-in Synapse session map for exploring session context. |
@@ -67,7 +67,7 @@ DeepViewer's identity and independent data directories.
 | Upgrade continuity | Preserve separate stable/development data roots, snapshot the old DeepViewer kernel data before opening the new stores, and retain migration/rollback backups. Scoder and Saidex data are excluded from migration candidates. |
 | Networking | Retain system proxy/PAC support, explicit proxy settings, scoped loopback/RPC authentication, and private-network permission boundaries. |
 
-The standalone Better Sidebar and reasoning plugins are retired from activation; their replacement is part of this migration. Taskboard remains removed, and the historical preview plugin remains disabled. See the [0.5.0 specification](docs/sdd/specs/DV-0033-scoder-native-rebase/spec.md) for the current verification boundary and the [0.3.3 release record](docs/sdd/releases/v0.3.3.md) for historical evidence.
+The standalone Better Sidebar and reasoning plugins are retired from activation; their replacement is part of this migration. Taskboard remains removed, and the historical preview plugin remains disabled. See the [0.5.0 release record](docs/sdd/releases/v0.5.0.md) for package evidence, the [specification](docs/sdd/specs/DV-0033-scoder-native-rebase/spec.md) for the manual verification boundary, and the [0.3.3 release record](docs/sdd/releases/v0.3.3.md) for historical evidence.
 
 ### Work, Chat, and process disclosure
 
@@ -101,13 +101,15 @@ Settings follow the desktop appearance, and the About page shows the app build a
 
 ## Install and data
 
-1. Once 0.5.0 is published, download the expected `DeepViewer-0.5.0-arm64.dmg` and verify it against `SHA256SUMS.txt` from [GitHub Releases](https://github.com/Duoasa/DeepViewer/releases). The candidate's final assets and download link are pending confirmation.
+1. Download [DeepViewer-0.5.0-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/DeepViewer-0.5.0-arm64.dmg) and verify it against [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/SHA256SUMS.txt) from the [0.5.0 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open the app and configure a provider or subscription. No global Node.js or Harness installation is needed.
 
 DeepViewer binds its local service to a random loopback port. Installed app data lives in `~/Library/Application Support/DeepViewer`; development app data lives in `~/Library/Application Support/DeepViewer Dev`. Replacing the application does not replace these directories. Legacy data is copied and verified before first-use cutover; migration backups are retained. Keep your own backup before a major upgrade.
 
-The packaging workflow materializes an allowlist of application code, pinned runtime packages, assets, and licenses. Release acceptance requires auditing the final package for developer-machine paths, private data, and escaping links, as well as verifying its signature, notarization, and checksums. The 0.5.0 candidate's final package evidence is pending.
+The final 0.5.0 Build 90 package passed private-data/path/link audits, signature and notarization checks, and DMG integrity verification. The bounded smoke suite passed 118 tests; the actual signed app passed Host, native dependency, DOCX/XLSX/PPTX conversion, and skill CLI checks in a fresh isolated HOME. Details are in the [release record](docs/sdd/releases/v0.5.0.md).
+
+Office conversion may wait while scanning protected font directories in a real user profile; font permissions remain a manual check. This installer release does not publish the automatic-update feed.
 
 ## Open-source foundations and DeepViewer modifications
 
