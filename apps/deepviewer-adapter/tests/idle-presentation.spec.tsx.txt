@@ -1,0 +1,32 @@
+// Appended to the native skeleton suite so its genuine owner/store/input
+// fixtures exercise the presentation seam, without launching the desktop app.
+describe('DeepViewer released idle posture', () => {
+  it.each(['sessionless', 'blank'])('keeps the %s idle hero outside the resident composer', mode => {
+    const b = mount(sessionSnapshotOf({ blank: true }), undefined, undefined, {
+      sessionId: mode === 'sessionless' ? undefined : SID,
+    })
+    const host = b.view.container.querySelector('[data-conversation-scroll]')
+    const hero = b.view.container.querySelector('[data-deepviewer-hero]')
+    const seat = b.view.container.querySelector('[data-composer-seat]')
+    const input = b.view.getByRole('textbox')
+    expect(host).not.toBeNull()
+    expect(hero).not.toBeNull()
+    expect(seat).not.toBeNull()
+    expect(hero?.parentElement).toBe(host)
+    expect(seat?.parentElement).toBe(host)
+    expect(seat?.contains(hero)).toBe(false)
+    expect(seat?.contains(input)).toBe(true)
+    expect(host?.querySelectorAll('[data-deepviewer-hero]')).toHaveLength(1)
+    if (!hero || !seat) throw new Error('Released idle posture is missing')
+    expect(hero.compareDocumentPosition(seat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    if (mode === 'blank') {
+      act(() => { b.wiring.setDraft('keep the resident draft') })
+      b.session.set(sessionSnapshotOf({ blank: false }))
+      b.rerender()
+      expect(b.view.container.querySelector('[data-deepviewer-hero]')).toBeNull()
+      expect(b.view.container.querySelector('[data-composer-seat]')).toBe(seat)
+      expect(b.view.getByRole('textbox')).toBe(input)
+      expect(b.wiring.snapshot.draft).toBe('keep the resident draft')
+    }
+  })
+})

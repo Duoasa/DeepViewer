@@ -1,11 +1,10 @@
 import { configureRuntimeNetwork } from './network/runtime-network.ts'
-import { app, nativeImage, nativeTheme, session, dialog } from 'electron'
+import { app, session, dialog } from 'electron'
 import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { configureDevelopmentProfile, resolveInstalledUserDataPath, developmentUserDataOverride } from './profile/development-profile.js'
 import { migrateDeepViewerProfile, migrateDeepViewerFileNames } from './profile/profile-migration.js'
 import { prepareUserData } from './profile/user-data-migration.js'
-import { followDockTheme } from './profile/dock-theme.js'
 import { prepareDesktopProfile } from '../migrations/desktop-profile.ts'
 import { prepareWebState } from '../migrations/web-state.ts'
 import { prepareKernelSnapshot } from '../migrations/kernel-snapshot.ts'
@@ -62,10 +61,7 @@ export function initializeDeepViewer(): boolean {
     return Object.fromEntries(Object.entries(spec.env).filter(([key]) => key.startsWith('DEEPVIEWER_') || ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy'].includes(key)))
   })
   ;(globalThis as typeof globalThis & { __DEEPVIEWER_HOST_ENVIRONMENT__?: Promise<NodeJS.ProcessEnv> }).__DEEPVIEWER_HOST_ENVIRONMENT__ = hostEnvironment
-  void app.whenReady().then(() => {
-    if (!app.dock) return
-    const dispose = followDockTheme({ theme: nativeTheme, resourcesPath: app.isPackaged ? process.resourcesPath : join(appRoot, '.desktop', 'native-icon'), loadImage: nativeImage.createFromPath, setIcon: image => app.dock?.setIcon(image), log: message => console.info('[DeepViewer icon]', message), onError: message => console.error('[DeepViewer icon]', message) })
-    app.once('will-quit', dispose)
-  })
+  // macOS selects the compiled bundle icon and its system appearance. A
+  // runtime PNG override would replace that catalog with full-bleed artwork.
   return true
 }

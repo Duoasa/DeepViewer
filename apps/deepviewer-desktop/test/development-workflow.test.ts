@@ -90,7 +90,7 @@ describe('DeepViewer development workflow (DV-0038)', () => {
   })
 
   it('pins DeepViewer identity and RC2 without reviving retired preview plugins', () => {
-    expect(appManifest.version).toBe('0.5.0')
+    expect(appManifest.version).toBe('0.5.1')
     expect(Number.isSafeInteger(appManifest.buildNumber)).toBe(true)
     expect(appManifest.buildNumber).toBeGreaterThan(0)
     expect(appManifest.productName).toBe('DeepViewer')

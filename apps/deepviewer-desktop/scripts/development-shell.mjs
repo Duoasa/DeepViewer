@@ -41,18 +41,17 @@ export async function prepareDevelopmentShell(electronExecutable, appRoot) {
   await cp(sourceBundle, bundle, { recursive: true, verbatimSymlinks: true, mode: constants.COPYFILE_FICLONE })
   const resources = join(bundle, 'Contents', 'Resources')
   await copyFile(icon.icns, join(resources, 'DeepViewer.icns'))
-  await cp(icon.dockThemes, join(resources, 'DeepViewerDockThemes'), { recursive: true })
+  await copyFile(icon.catalog, join(resources, 'Assets.car'))
   const plist = join(bundle, 'Contents', 'Info.plist')
   for (const [key, value] of Object.entries({
     CFBundleName: 'DeepViewer Dev', CFBundleDisplayName: 'DeepViewer Dev',
     CFBundleIdentifier: 'com.deepviewer.desktop.dev',
-    CFBundleIconFile: 'DeepViewer.icns', CFBundleShortVersionString: manifest.version,
+    CFBundleIconFile: 'DeepViewer.icns', CFBundleIconName: icon.name,
+    CFBundleShortVersionString: manifest.version,
     CFBundleVersion: String(manifest.buildNumber),
   })) {
     await execute('/usr/bin/plutil', ['-replace', key, '-string', value, plist])
   }
-  // The inherited Electron bundle may declare a layered icon; use our ICNS.
-  await execute('/usr/bin/plutil', ['-remove', 'CFBundleIconName', plist]).catch(() => {})
   // Copied artwork and the Electron carrier can retain Finder/resource-fork
   // metadata. Remove it only from this generated bundle before ad-hoc signing.
   await execute('/usr/bin/xattr', ['-cr', bundle])

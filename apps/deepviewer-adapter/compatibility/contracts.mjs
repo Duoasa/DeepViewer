@@ -54,7 +54,19 @@ export const contracts = [
   {
     id: 'hero-title-style-anchor', file: 'packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx',
     before: '<span className={css.titleGroup}>', after: '<span className={css.titleGroup} data-deepviewer-hero-title="">',
-    reason: 'Apply the installed welcome font and suppress the upstream product badge.',
+    reason: 'Restore released welcome typography and suppress the upstream product badge.',
+  },
+  {
+    id: 'hero-independent-of-composer', file: 'packages/client/ui-conversation/src/client/skeleton/ConversationContent.tsx',
+    before: '      {hero && <HeroShell t={t} renderSlot={renderSlot} />}\n      {hero && heroWorkspaceRow}',
+    after: '      {hero && heroWorkspaceRow}',
+    reason: 'Restore the released idle area above the bottom composer without remounting its native input or replacing its slots.',
+  },
+  {
+    id: 'hero-scroll-body-seat', file: 'packages/client/ui-conversation/src/client/skeleton/ConversationContent.tsx',
+    before: '      <div className={css.scrollBody} data-conversation-scroll="">\n        {sessionId === undefined ? null : <Views />}',
+    after: '      <div className={css.scrollBody} data-conversation-scroll="">\n        {hero && <HeroShell t={t} renderSlot={renderSlot} />}\n        {sessionId === undefined ? null : <Views />}',
+    reason: 'Let the idle mark and headline flex-center separately while the resident composer occupies the viewport floor.',
   },
   {
     id: 'stats-header-slot', file: 'packages/client/ui-chat/src/client/apply.ts',

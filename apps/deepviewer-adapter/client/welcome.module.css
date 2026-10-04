@@ -1,18 +1,63 @@
 .brandLogo {
   display: block;
-  width: 106px;
-  height: 112px;
+  width: auto;
+  height: 48px;
   flex: none;
+  overflow: visible;
   color: var(--dsw-alias-label-primary);
-  background-color: currentColor;
-  mask: url('/assets/deepviewer/deepviewer-loading-logo.svg') center / contain no-repeat;
+  opacity: 0.5;
   user-select: none;
 }
-:global([data-deepviewer-hero]) { padding: 0 20px 30px; }
-:global([data-deepviewer-headline]) { flex-direction: column; align-items: center; gap: 20px; }
+
+.brandCursor {
+  animation: deepviewer-hero-cursor-blink 1s steps(1, jump-end) infinite;
+}
+
+/* v0.3.3 welcome geometry: the mark/title fill the space above the resident
+   bottom composer. Its 40px prelude is the workspace row plus its card gap. */
+:global([data-deepviewer-hero]) {
+  position: relative;
+  inset: auto;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 40px 24px 0;
+  pointer-events: none;
+}
+:global([data-deepviewer-hero] > div) { gap: 0; }
+:global([data-deepviewer-headline]) { flex-direction: column; align-items: center; gap: 40px; }
 :global([data-deepviewer-headline] > span:first-child) { width: auto; height: auto; }
-:global([data-deepviewer-hero-title]) { font-family: var(--deepviewer-font-smiley); font-weight: 400; font-size: clamp(24px, 3vw, 30px); font-synthesis: none; }
+:global([data-deepviewer-hero-title]) {
+  color: var(--dsw-alias-label-primary);
+  font-family: var(--dsw-font-family);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+  opacity: 0.5;
+  text-align: center;
+}
 :global([data-deepviewer-hero-title] > span:nth-child(2)) { display: none; }
+:global(body [data-conversation-content][data-content-phase='hero'] > [data-conversation-scroll]) {
+  position: relative;
+  justify-content: flex-start;
+}
+:global([data-conversation-content][data-content-phase='hero'] > [data-conversation-scroll] > [data-deepviewer-composer-seat]) {
+  margin-top: auto;
+}
+
+@keyframes deepviewer-hero-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brandCursor { animation: none; }
+}
 .brandName { font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
 .brandMark { display: block; width: 24px; height: 24px; border-radius: 6px; }
 .about { display: flex; align-items: center; gap: 16px; padding: 12px 0; }

@@ -17,21 +17,18 @@ describe('DeepViewer app identity', () => {
     expect(setTitle).toHaveBeenCalledWith(DEEPVIEWER_APP_NAME)
   })
 
-  it('ships the original ICNS and stages product Dock resources for the native shell', () => {
+  it('declares the compiled native catalog and its legacy ICNS for every bundle', () => {
     const packageScript = readFileSync(new URL('../scripts/package-native.mjs', import.meta.url), 'utf8')
     const staging = readFileSync(new URL('../scripts/prepare-native-runtime.mjs', import.meta.url), 'utf8')
     const bootstrap = readFileSync(new URL('../../deepviewer-adapter/desktop/bootstrap.ts', import.meta.url), 'utf8')
 
     expect(packageScript).toContain("icon:join(appRoot,'.desktop/native-icon/DeepViewer.icns')")
-    expect(packageScript).not.toContain('Assets.car')
-    expect(packageScript).not.toContain('CFBundleIconName')
-    expect(staging).toContain("join(stage,'resources/DeepViewerDockThemes')")
-    expect(bootstrap).toContain('followDockTheme({')
-    expect(bootstrap).toContain("join(appRoot, '.desktop', 'native-icon')")
-    const icns = readFileSync(new URL('../assets/DeepViewer.icns', import.meta.url))
-    expect(icns.subarray(0, 4).toString()).toBe('icns')
-    expect(createHash('sha256').update(icns).digest('hex'))
-      .toBe('e70e7aae72a23e71621d8c31bea14db18a21408ae1b811ebdd803e01a6fc8f5b')
+    expect(packageScript).toContain("CFBundleIconName:'DeepViewer'")
+    expect(staging).toContain("join(stage,'resources/Assets.car')")
+    expect(bootstrap).not.toMatch(/\.setIcon\s*\(/u)
+    const development = readFileSync(new URL('../scripts/development-shell.mjs', import.meta.url), 'utf8')
+    expect(development).toContain("join(resources, 'Assets.car')")
+    expect(development).toContain('CFBundleIconName: icon.name')
   })
 
   it('preserves the original PNG artwork for in-app surfaces', () => {
