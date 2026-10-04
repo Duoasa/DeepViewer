@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/DeepViewer-0.5.0-arm64.dmg"><strong>下载 0.5.0（ARM64）</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/DeepViewer-0.5.1-arm64.dmg"><strong>下载 0.5.1（ARM64）</strong></a>
   ·
-  <a href="#相比上一公开版本-033-的功能变化">本版更新</a>
+  <a href="#051-修复">本版更新</a>
   ·
   <a href="#安装与数据">隐私与数据</a>
   ·
@@ -35,7 +35,7 @@ DeepViewer 是建立在
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 之上的独立开源桌面
 Agent 工作台。它通过原生 Electron/DesktopHost 将固定版本的 Runtime 封装进 macOS
 应用，提供 Work / Chat 空间、文件交付、侧栏工作台和会话图谱。0.5.0 源码承接
-Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。
+Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。0.5.1 在此基础上恢复旧版新会话待机动画，并修复 macOS 原生图标适配。
 
 <p align="center">
   <img src="Resources/screenshots/image-delivery.png" width="100%" alt="DeepViewer 0.3.3 将生成图片作为附件交付并在侧栏预览">
@@ -45,15 +45,22 @@ Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> 当前正式版本为 **DeepViewer 0.5.0 / Build 90**，内置 DeepSeek Harness `0.2.0-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。界面、真实账户及迁移会话/设置/附件仍保留独立的人工验收边界。
+> 当前正式版本为 **DeepViewer 0.5.1 / Build 91**，内置 DeepSeek Harness `0.2.0-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。界面、真实账户及迁移会话/设置/附件仍保留独立的人工验收边界。
 
 > [!TIP]
-> [0.5.0 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一公开 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
+> [0.5.1 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一版本 [0.5.0](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0)、历史 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
 
 > [!NOTE]
-> 本 README 的全部截图均为 **0.3.3 / Build 75 历史参考**，本次没有替换截图，不代表 0.5.0 当前界面或视觉验收结果。
+> 本 README 的全部截图均为 **0.3.3 / Build 75 历史参考**，本次没有替换截图，不代表 0.5.1 当前界面或视觉验收结果。
 
-## 相比上一公开版本 0.3.3 的功能变化
+## 0.5.1 修复
+
+- 新会话恢复旧版鱼标的大小、淡色样式、光标闪烁、图文间距、文本样式和居中待机位置；保留底部常驻输入框与减少动态效果设置。
+- 移除铺满画布的 PNG Dock 覆盖，以原鲸鱼向量编译 macOS 原生图标，让系统生成外观、遮罩、透明边界及完整 ICNS，并统一 bundle 图标身份。
+
+构建与安装包证据见 [0.5.1 发布记录](docs/sdd/releases/v0.5.1.md)。实际新会话及 Dock 视觉仍需维护者人工验收。
+
+## 0.5.0 从 0.3.3 迁移的功能变化
 
 | 领域 | 0.5.0 的变化 |
 | --- | --- |
@@ -100,13 +107,13 @@ Work 按项目组织会话，Chat 可以脱离工作区保存对话。两种模�
 
 ## 安装与数据
 
-1. 下载 [DeepViewer-0.5.0-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/DeepViewer-0.5.0-arm64.dmg)，并用 [0.5.0 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0) 中的 [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.0/SHA256SUMS.txt) 校验。
+1. 下载 [DeepViewer-0.5.1-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/DeepViewer-0.5.1-arm64.dmg)，并用 [0.5.1 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1) 中的 [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/SHA256SUMS.txt) 校验。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开应用并配置模型提供方或订阅账户。无需全局安装 Node.js 或 Harness。
 
 本地服务仅监听随机 loopback 端口。安装版数据固定存放于 `~/Library/Application Support/DeepViewer`，开发版固定存放于 `~/Library/Application Support/DeepViewer Dev`。覆盖安装应用不会替换这些目录；首次迁移会先复制、校验并保留备份。重大升级前仍建议自行备份。
 
-最终 0.5.0 Build 90 包已通过私有数据/路径/链接净化审计、签名和公证检查、DMG 完整性校验。bounded smoke 共 118 项通过；实际签名 app 在全新隔离 HOME 下通过 Host、原生依赖、DOCX/XLSX/PPTX 转换和 skill CLI 检查，详见[发布记录](docs/sdd/releases/v0.5.0.md)。
+0.5.1 Build 91 安装包已全新构建，完成 Developer ID 签名和 Apple 公证。bounded smoke 共 121 项通过；包体净化、完整性和运行时验证证据见 [0.5.1 发布记录](docs/sdd/releases/v0.5.1.md)。
 
 真实用户环境扫描受保护的 Office 字体目录可能等待，字体权限仍需人工验收。本次仅发布安装包，不发布自动更新 feed。
 
@@ -125,7 +132,7 @@ Work 按项目组织会话，Chat 可以脱离工作区保存对话。两种模�
 
 ## 从源码构建
 
-需要 macOS arm64、Node.js 24+ 和 pnpm 11.19.0。bootstrap 获取固定的 Harness 源码并应用经过检查的适配契约，不依赖用户数据或预构建应用。
+需要 macOS arm64、Node.js 24+、pnpm 11.19.0，以及选为当前开发工具链的 Xcode 26 或更新版本。开发应用和安装包均需使用 Apple `actool` 编译原生 `.icon` 资源。bootstrap 获取固定的 Harness 源码并应用经过检查的适配契约，不依赖用户数据或预构建应用。
 
 ```sh
 git clone https://github.com/Duoasa/DeepViewer.git
@@ -140,7 +147,7 @@ pnpm desktop:dev
 
 基础验证使用 `pnpm typecheck` 和 `pnpm desktop:smoke`，原生集成及适配契约检查见 [CI 流程](.github/workflows/ci.yml)。`pnpm desktop:preview` 制作本地预览包；`pnpm desktop:release` 准备签名 arm64 DMG/ZIP，需要设置 `DEEPVIEWER_SIGN_IDENTITY`、`DEEPVIEWER_TEAM_ID` 和 `DEEPVIEWER_NOTARY_PROFILE`，不会自动发布。签名/公证凭据留在本机，notary profile 保存在钥匙串。
 
-[0.3.3 源码快照说明](upstream/snapshots/v0.3.3/README.md)保留为 Build 75 的历史复现指南，不用于 0.5.0 构建。
+[0.3.3 源码快照说明](upstream/snapshots/v0.3.3/README.md)保留为 Build 75 的历史复现指南，不用于 0.5.0 及之后版本的构建。
 
 [SDD 文档](docs/sdd/README.md)记录架构、插件来源、需求和验证。DeepViewer 原创代码采用 [MIT License](LICENSE)；各上游许可证继续适用。
 
