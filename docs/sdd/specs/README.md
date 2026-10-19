@@ -47,9 +47,11 @@ DV-0022、DV-0025、DV-0028 和 DV-0030 是此前仅用于本地/内部固化的
 
 | [DV-0034](DV-0034-brand-visual-051/spec.md) | 新会话品牌动画与 macOS 图标修复、0.5.1 ARM64 发布 | Implementing | Duoasa | 2026-10-04 |
 
+| [DV-0035](DV-0035-dsh-021-rc2/spec.md) | DSH 0.2.1 RC 内核与适配层升级，保留前端 | Implementing | Duoasa | 2026-10-19 |
+
 ## 下一个编号
 
-`DV-0035`
+`DV-0036`
 
 ## 目录规则
 

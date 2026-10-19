@@ -75,9 +75,10 @@ it('DeepViewer map native blank session shows its view and docks the composer wh
   expect(shell.getByTestId('native-body').dataset.hero).toBe('true')
   const viewProps: any = { useSession: props.useSession, useConversation: props.useConversation, useConversationViews: (selector: any) => selector([{ id: 'chat' }, { id: 'deepviewer-map' }]),
     useInspectCall: (selector: any) => selector(undefined), useStore: (selector: any) => selector({ view: 'deepviewer-map', draft: '', viewRequest: null }),
-    useInput: (selector: any) => selector({ draft: '' }), inputActions: { setDraft: vi.fn() }, actions: { setDraft: vi.fn(), completeViewRequest: vi.fn() },
-    bindDraftMirror: () => () => {}, openView: vi.fn(), openSessionView: vi.fn(), renderSlot: (_key: string, _owner: any, options: any) => <div data-testid={options.only} /> }
+    useInput: (selector: any) => selector({ draft: '' }), inputActions: { setDraft: vi.fn(), persistDraft: vi.fn() }, actions: { setDraft: vi.fn(), completeViewRequest: vi.fn() },
+    bindDraftPersistence: () => () => {}, openView: vi.fn(), openSessionView: vi.fn(), renderSlot: (_key: string, _owner: any, options: any) => <div data-testid={options.only} /> }
   const area = render(<DefaultConversationViews {...viewProps} />)
+  expect(viewProps.inputActions.persistDraft).toHaveBeenCalledOnce()
   expect(area.queryByTestId('deepviewer-map')).not.toBeNull()
   area.rerender(<DefaultConversationViews {...viewProps} useStore={(selector: any) => selector({ view: 'chat', draft: '', viewRequest: null })} />)
   expect(area.queryByTestId('deepviewer-map')).toBeNull()

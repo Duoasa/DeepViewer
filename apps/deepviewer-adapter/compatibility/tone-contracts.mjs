@@ -48,13 +48,7 @@ export const toneContracts = [
     "after": "  errorSummary,\n  errorTone = 'error',\n  terminal,\n",
     "reason": "Recoverable filesystem observation guards are orange; execution errors remain errors."
   },
-  {
-    "id": "protection-tone-7",
-    "file": "packages/client/ui-tool/src/client/tool/components/ToolRow.tsx",
-    "before": "  // A failure keeps its first result line when available and otherwise turns\n  // the ordinary summary red. An interruption turns the tool-owned summary\n  // amber while retaining the business icon and hidden state announcement.\n",
-    "after": "  // A failure keeps its first result line when available and otherwise turns\n  // the ordinary summary red, or orange for file protection. An interruption turns the tool-owned summary\n  // amber while retaining the business icon and hidden state announcement.\n",
-    "reason": "Recoverable filesystem observation guards are orange; execution errors remain errors."
-  },
+
   {
     "id": "protection-tone-8",
     "file": "packages/client/ui-tool/src/client/tool/components/ToolRow.tsx",

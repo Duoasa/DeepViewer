@@ -1,1 +1,1 @@
-  renderSlot, bindDraftMirror, openSessionView, openView, useInspectCall,
+  renderSlot, bindDraftPersistence, openSessionView, openView, useInspectCall,

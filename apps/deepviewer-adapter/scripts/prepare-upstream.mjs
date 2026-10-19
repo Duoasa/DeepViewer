@@ -6,8 +6,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { contracts } from '../compatibility/contracts.mjs'
 
-export const harnessVersion = '0.2.0-rc.2'
-export const harnessCommit = '639ed015397290b3745d163aafe02ffee4aa3f84'
+export const harnessVersion = '0.2.1-rc.2'
+export const harnessCommit = '687f282e8625c6b8d11ff58211a90524be2e4317'
 export const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 export const upstreamRoot = resolve(projectRoot, 'upstream/deepseek-harness')
 
@@ -47,6 +47,10 @@ export function prepareUpstream(root = upstreamRoot) {
     readFileSync(new URL('../native-modules.patch.yml', import.meta.url), 'utf8'))
   writeFileSync(resolve(root, 'packages/web/web-fetch-http/src/desktop-network.ts'), readFileSync(new URL('../compatibility/files/desktop-network.ts', import.meta.url), 'utf8'))
   writeFileSync(resolve(root, 'packages/api/session-controller/src/chat-attachments.ts'), readFileSync(new URL('../compatibility/files/chat-attachments.ts', import.meta.url), 'utf8'))
+  writeFileSync(resolve(root, 'packages/api/session-controller/tests/deepviewer-session-reuse.host.spec.ts'),
+    readFileSync(resolve(root, 'packages/api/session-controller/tests/session-presets.host.spec.ts'), 'utf8') +
+    readFileSync(new URL('../compatibility/tests/chat-session-reuse.host.spec.ts.txt', import.meta.url), 'utf8'))
+  cpSync(new URL('../compatibility/tests/update-channel.spec.ts', import.meta.url), resolve(root, 'apps/desktop/tests/deepviewer-update-channel.spec.ts'))
   cpSync(new URL('../compatibility/tests/file-protection-tone.client.spec.tsx', import.meta.url), resolve(root, 'packages/client/ui-tool/tests/deepviewer-file-protection-tone.client.spec.tsx'))
   cpSync(new URL('../compatibility/tests/rpc-owner.host.spec.ts', import.meta.url), resolve(root, 'packages/client/connection/tests/deepviewer-rpc-owner.host.spec.ts'))
   cpSync(new URL('../compatibility/tests/client-artifact-metadata.host.spec.ts', import.meta.url), resolve(root, 'packages/client/hmr/tests/deepviewer-client-artifact-metadata.client.spec.ts'))

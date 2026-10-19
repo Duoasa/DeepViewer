@@ -34,13 +34,15 @@ export async function prepareNativeRuntime(outputStage = join(appRoot, '.desktop
  // synchronization may leave unrelated build artifacts and duplicate folders.
  const pnpmPayload = path => !path || ['bin','dist','package.json','LICENSE','README.md','CHANGELOG.md'].includes(path.split('/')[0]) && !path.endsWith('.map')
  const primarySource = join(appRoot,'.desktop/runtime')
- cpSync(primarySource,join(stage,'resources/runtime'),{recursive:true,filter:path=>{
+ // Keep interpreter aliases relative so a relocated payload cannot point back to the build tree.
+ cpSync(primarySource,join(stage,'resources/runtime'),{recursive:true,verbatimSymlinks:true,filter:path=>{
   const child=relative(primarySource,path).split('\\').join('/')
   const prefix='primary-runtime/dependencies/pnpm/'
   return !child.startsWith(prefix) || pnpmPayload(child.slice(prefix.length))
  }})
- const pnpmSource = join(root,'node_modules/pnpm')
- cpSync(pnpmSource,join(stage,'resources/runtime/pnpm'),{recursive:true,filter:path=>pnpmPayload(relative(pnpmSource,path).split('\\').join('/'))})
+ const primaryManifest=JSON.parse(readFileSync(join(stage,'resources/runtime/primary-runtime/runtime.json'),'utf8'))
+ if(primaryManifest.pnpm!==dev.release.pnpmVersion) throw new Error('Primary runtime pnpm does not match desktop release metadata')
+ writeFileSync(join(stage,'resources/runtime/versions.json'),JSON.stringify({schemaVersion:1,node:dev.release.nodeVersion,pnpm:primaryManifest.pnpm},null,2)+'\n')
  cpSync(join(upstream,'apps/desktop/scripts/node-bin'),join(stage,'resources/runtime/bin'),{recursive:true})
  cpSync(join(appRoot,'.desktop/native-icon/Assets.car'),join(stage,'resources/Assets.car'))
  cpSync(join(appRoot,'.desktop/native-icon/icon.png'),join(stage,'resources/icon.png'))

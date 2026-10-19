@@ -7,7 +7,13 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..'), fixture = mkdtempSync(join(tmpdir(), 'deepviewer-renderer-'))
 const electron = createRequire(join(appRoot, 'package.json'))('electron')
 writeFileSync(join(fixture, 'package.json'), JSON.stringify({ name: 'deepviewer-renderer-smoke', version: '0.7.0', main: 'main.cjs' }))
-const presentationSmoke = readFileSync(new URL('../../deepviewer-adapter/presentation/smoke-renderer.js.txt', import.meta.url), 'utf8')
+const presentationSource = readFileSync(new URL('../../deepviewer-adapter/presentation/smoke-renderer.js.txt', import.meta.url), 'utf8')
+// Default smoke observes boot and presentation only. The maintainer may opt in
+// to the separate interaction suite; ordinary builds never click the app UI.
+const presentationSmoke = process.argv.includes('--interaction') ? presentationSource
+  : presentationSource.slice(0, presentationSource.indexOf('  trigger.focus(); trigger.click();'))
+    + '\n  return { bootSidebarMaterial:true, bundledSmileyFont:true, runningTypography:true, sidebarModeOrder:true, interactions:false };\n})()'
+if (!presentationSource.includes('  trigger.focus(); trigger.click();')) throw new Error('Presentation smoke boundary changed')
 writeFileSync(join(fixture, 'main.cjs'), `
 const { app, BrowserWindow, dialog } = require('electron')
 const fs = require('node:fs'), path = require('node:path')
@@ -28,7 +34,7 @@ app.on('web-contents-created', (_, contents) => {
   for (let i = 0; i < 360 && !finished; i++) {
    try { const state = await contents.executeJavaScript('({boot:!!document.querySelector("[data-dsh-boot]"), deepviewer:document.body.innerText.includes("DeepViewer"), workChat:document.body.innerText.includes("Work") && document.body.innerText.includes("Chat"), hero:!!document.querySelector("[data-deepviewer-hero]"), failed:document.querySelector("[data-dsh-boot]")?.innerText.includes("Failed"), text:document.body.innerText.slice(0,1500)})')
     if (state.failed) return finish({}, state.text)
-    if (!state.boot && state.deepviewer && state.workChat) { window.setSize(1400,800); await new Promise(resolve => setTimeout(resolve,100)); const presentation = await contents.executeJavaScript(${JSON.stringify(presentationSmoke)}).catch(error => { throw new Error('Presentation smoke: ' + error.message) }); window.setSize(320, 300); const size = window.getSize(); if (size[0] < 900 || size[1] < 640) return finish({}, 'Window shrank below the safe minimum'); return finish({nativeRenderer:true, minimumWindowSize:[900,640], brand:true, workChat:true, hero:state.hero, ...presentation}) }
+    if (!state.boot && state.deepviewer && state.workChat) { window.setSize(1400,800); await new Promise(resolve => setTimeout(resolve,100)); const presentation = await contents.executeJavaScript(${JSON.stringify(presentationSmoke)}).catch(error => { throw new Error('Presentation smoke: ' + (error.stack ?? error.message)) }); window.setSize(320, 300); const size = window.getSize(); if (size[0] < 900 || size[1] < 640) return finish({}, 'Window shrank below the safe minimum'); return finish({nativeRenderer:true, minimumWindowSize:[900,640], brand:true, workChat:true, hero:state.hero, ...presentation}) }
    } catch (error) { if (contents.isDestroyed()) return; if (String(error).includes('Presentation smoke:')) return finish({},String(error)) }
    await new Promise(resolve => setTimeout(resolve,250))
   }

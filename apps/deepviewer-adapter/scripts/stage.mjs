@@ -11,7 +11,7 @@ export function stageAdapter(upstream) {
   mkdirSync(join(target, 'src'), { recursive: true })
   cpSync(join(source, 'client'), join(target, 'src', 'client'), { recursive: true })
   const product = JSON.parse(readFileSync(join(source, '../deepviewer-desktop/package.json'), 'utf8'))
-  writeFileSync(join(target, 'src/client/build-info.ts'), `export const buildInfo = ${JSON.stringify({ version: product.version, build: String(product.buildNumber), kernel: '0.2.0-rc.2' })}\n`)
+  writeFileSync(join(target, 'src/client/build-info.ts'), `export const buildInfo = ${JSON.stringify({ version: product.version, build: String(product.buildNumber), kernel: '0.2.1-rc.2' })}\n`)
   cpSync(join(source, 'workflows'), join(target, 'src', 'workflows'), { recursive: true })
   cpSync(join(source, 'index.ts'), join(target, 'src', 'index.ts'))
   cpSync(join(source, 'assets'), join(target, 'assets'), { recursive: true })
@@ -51,8 +51,8 @@ export function stageAdapter(upstream) {
   if (hostCheck.status !== 0) throw new Error('DeepViewer adapter host typecheck failed')
   cpSync(join(source, 'workflows/vendor/BETTER-SIDEBAR-LICENSE'), join(target, 'BETTER-SIDEBAR-LICENSE'))
   const config = join(target, 'tsdown.config.mjs')
-  writeFileSync(config, `import { clientBundle } from ${JSON.stringify(join(upstream, 'packages/client/tsdown.client.ts'))}\nexport default clientBundle('@deepviewer/adapter', ['src/index.ts', 'src/workflows/chat-guard.ts'])\n`)
-  const built = spawnSync(join(upstream, 'node_modules/.bin/tsdown'), ['--config', config], { cwd: target, stdio: 'inherit', env: { ...process.env, DSH_EXTERNAL_WORKSPACE_MANIFEST: join(target, 'package.json') } })
+  writeFileSync(config, `import { clientBundle } from ${JSON.stringify(join(upstream, 'packages/client/tsdown.client.ts'))}\nexport default clientBundle(import.meta.dirname, ['src/index.ts', 'src/workflows/chat-guard.ts'])\n`)
+  const built = spawnSync(join(upstream, 'node_modules/.bin/tsdown'), ['--config', config], { cwd: target, stdio: 'inherit' })
   if (built.status !== 0 || !existsSync(join(target, 'lib/client.js'))) throw new Error('DeepViewer adapter bundle failed')
   return target
 }

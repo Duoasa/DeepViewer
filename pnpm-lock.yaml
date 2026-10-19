@@ -72,8 +72,8 @@ importers:
         specifier: 24.10.1
         version: 24.10.1
       electron:
-        specifier: 44.0.0
-        version: 44.0.0
+        specifier: 44.7.0
+        version: 44.7.0
       pnpm:
         specifier: 11.19.0
         version: 11.19.0
@@ -410,8 +410,8 @@ packages:
       '@deepseek-ai/dsh-tools': ^0.1.0-rc.5
       '@deepseek-ai/schemastery': ^3.18.1
 
-  electron@44.0.0:
-    resolution: {integrity: sha512-FkTqPrFPZYljdPI5b7KORGsJTd6FgUQDefl5MrU3Xz9R87pAj9JLreIjDqcRN8hJIkFHIou0o8kKzvcpT9qiRQ==}
+  electron@44.7.0:
+    resolution: {integrity: sha512-aUq9/zLAAFYc+a9gy6cd0C3Y/N/RmovLCD8TV8LhIzNhuND6HEgsu96jJz9cbAxvckSPv+Trf2PKEjktoZgFkw==}
     engines: {node: '>= 22.12.0'}
     hasBin: true
 
@@ -1195,7 +1195,7 @@ snapshots:
 
   dsh-plugin-subscriptions@0.3.1: {}
 
-  electron@44.0.0:
+  electron@44.7.0:
     dependencies:
       '@electron-internal/extract-zip': 1.0.5
       '@electron/get': 5.1.0

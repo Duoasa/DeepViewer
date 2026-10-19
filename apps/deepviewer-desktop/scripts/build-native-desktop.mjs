@@ -28,7 +28,7 @@ const electron = createRequire(join(appRoot, 'package.json'))('electron')
 const nodeVersion = spawnSync(electron, ['-p', 'process.versions.node'], { encoding: 'utf8', env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' } }).stdout.trim()
 const projectDir = join(appRoot, '.desktop/native-runtime')
 const version = JSON.parse(readFileSync(join(upstream, 'apps/cli/package.json'), 'utf8')).version
-const pnpmVersion = JSON.parse(readFileSync(join(root, 'node_modules/pnpm/package.json'), 'utf8')).version
+const pnpmVersion = JSON.parse(readFileSync(join(upstream, 'node_modules/pnpm/package.json'), 'utf8')).version
 prepareDevelopmentProject({ projectDir, cliDir: nativeCli, hostDir: join(upstream, 'apps/desktop-host'), dependencyDir: join(upstream, 'node_modules/.pnpm/node_modules'), release: { schemaVersion: 1, version, hostProtocolVersion: 4, nodeVersion, pnpmVersion }, target: 'mac-arm64' })
 const descriptorPath = join(projectDir, 'desktop-runtime.json'), descriptor = JSON.parse(readFileSync(descriptorPath, 'utf8'))
 for (const name of ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabilities', 'dsh-plugin-subscriptions']) {
@@ -37,7 +37,7 @@ for (const name of ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabil
 }
 writeFileSync(descriptorPath, JSON.stringify(descriptor, null, 2)+'\n')
 for (const name of ['electron-updater', 'semver', 'ws', '@deepseek-ai/cordis', '@deepseek-ai/dsh-api-gateway', 'pnpm']) {
-  const link = join(appRoot, 'node_modules', name), directory = name === 'pnpm' ? join(root, 'node_modules/pnpm') : dirname(desktopRequire.resolve(`${name}/package.json`))
+  const link = join(appRoot, 'node_modules', name), directory = name === 'pnpm' ? join(upstream, 'node_modules/pnpm') : dirname(desktopRequire.resolve(`${name}/package.json`))
   mkdirSync(dirname(link), { recursive: true }); rmSync(link, { recursive: true, force: true }); symlinkSync(directory, link)
 }
 run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.main.config.ts'])
