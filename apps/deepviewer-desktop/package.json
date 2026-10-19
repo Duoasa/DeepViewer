@@ -1,9 +1,9 @@
 {
   "name": "@deepviewer/desktop",
   "productName": "DeepViewer",
-  "version": "0.5.1",
-  "buildNumber": 91,
-  "previewRelease": "0.5.1-preview.1",
+  "version": "0.7.1",
+  "buildNumber": 92,
+  "previewRelease": "0.7.1-preview.1",
   "private": true,
   "description": "DeepViewer agent workspace for DeepSeek Harness",
   "license": "MIT",
