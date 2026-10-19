@@ -51,9 +51,9 @@ export function buildModelCapabilitiesPlugin(upstream = resolve(project, 'upstre
   if (checked.status !== 0) throw new Error('Model capabilities RC2 typecheck failed')
   // Use the pinned DSH bundler for native staging; no registry or temporary toolchain dependency.
   const config = join(target, 'tsdown.config.mjs')
-  writeFileSync(config, `import { clientBundle } from ${JSON.stringify(join(upstream, 'packages/client/tsdown.client.ts'))}\nexport default clientBundle('${modelCapabilitiesPluginName}', ['src/index.mjs'])\n`)
+  writeFileSync(config, `import { clientBundle } from ${JSON.stringify(join(upstream, 'packages/client/tsdown.client.ts'))}\nexport default clientBundle(import.meta.dirname, ['src/index.mjs'])\n`)
   const result = spawnSync(join(upstream, 'node_modules/.bin/tsdown'), ['--config', config], {
-    cwd: target, stdio: 'inherit', env: { ...process.env, DSH_EXTERNAL_WORKSPACE_MANIFEST: join(target, 'package.json') },
+    cwd: target, stdio: 'inherit',
   })
   if (result.status !== 0 || outputs.some(file => !existsSync(join(target, file)))) throw new Error('Model capabilities native build failed')
   writeFileSync(stamp, digest)

@@ -28,10 +28,10 @@ export function initializeDeepViewer(): boolean {
   process.env.DSH_TELEMETRY_MODE = 'DISABLED'
   process.env.DEEPVIEWER_DESKTOP = '1'
   process.env.DSH_DESKTOP_OPEN_DEVTOOLS ??= '0'
-  process.env.DEEPVIEWER_HOST_PORT = '0'
+  // Feed names are sealed by the product manifest; stable policy remains native.
+  process.env.DEEPVIEWER_UPDATE_CHANNEL = product.deepviewerUpdateChannel === 'preview' ? 'preview' : 'latest'
   process.env.DEEPVIEWER_BUILD_NUMBER = String(product.buildNumber)
   process.env.DEEPVIEWER_PROJECTS_ROOT = join(app.getPath('documents'), 'DeepViewer', 'Projects')
-  process.env.DEEPVIEWER_UPDATE_CHANNEL ??= product.deepviewerUpdateChannel ?? (development ? 'preview' : 'latest')
   if (!app.isPackaged) {
     process.env.DSH_DESKTOP_DSH_DIR = runtime
     process.env.DSH_DESKTOP_PNPM_ENTRY = join(appRoot, 'node_modules', 'pnpm', 'bin', 'pnpm.mjs')

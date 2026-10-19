@@ -62,10 +62,10 @@ export async function packagePreparedNative(stage,{output,signed,channel='latest
   }
   writeDesktopRuntime(join(stage,'app/dsh'),descriptor.release,descriptor.sharedPackages.map(item=>item.name),{platform:'darwin',arch:'arm64'})
  }
- product.version=version;product.deepviewerUpdateChannel=channel;product.deepviewerLocalPreview=!signed;writeFileSync(join(stage,'app/package.json'),JSON.stringify(product,null,2)+'\n');writeFileSync(join(stage,'app/lib/package.json'),JSON.stringify(product)+'\n')
+ product.version=version;product.deepviewerUpdateChannel=channel;product.dshDesktopUpdateChannel=channel==='latest'?'latest':'nightly';product.deepviewerLocalPreview=!signed;writeFileSync(join(stage,'app/package.json'),JSON.stringify(product,null,2)+'\n');writeFileSync(join(stage,'app/lib/package.json'),JSON.stringify(product)+'\n')
  const feed=updateFeed(channel)
  const artifacts=await build({projectDir:join(stage,'app'),targets:Platform.MAC.createTarget(['zip','dmg'],Arch.arm64),publish:'never',config:{
-  appId:signed?'com.deepviewer.desktop':'com.deepviewer.desktop.preview',productName:signed?'DeepViewer':'DeepViewer Preview',buildVersion:String(product.buildNumber),electronVersion:product.devDependencies?.electron ?? '44.0.0',
+  appId:signed?'com.deepviewer.desktop':'com.deepviewer.desktop.preview',productName:signed?'DeepViewer':'DeepViewer Preview',buildVersion:String(product.buildNumber),electronVersion:current.devDependencies.electron,
   artifactName:`DeepViewer-${version}-arm64${signed?'':'-unsigned'}.\${ext}`,directories:{output},asar:true,
   electronFuses:{runAsNode:true},
   // File closure already materialized and audited; the builder must not resolve from the source workspace.

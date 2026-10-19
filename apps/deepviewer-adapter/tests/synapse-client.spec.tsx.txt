@@ -47,7 +47,7 @@ function fixture() {
     workspaces: { list: source({ items: [{ workspaceId: 'workspace', sessionIds: ['parent', 'child'], title: 'Fixture', path: '/fixture' }] }) },
     uiWorkspace: { openSession }, uiConversation: { binding: (binding: any) => ({ target: () => chats.get(binding.sessionId)! }) },
     conversation: { input: { for: (scope: any) => drafts.get(scope.fixtureId)! } },
-    theme: { getTheme: () => ({ fontSize, active: { colorScheme: 'dark' } }) },
+    theme: { getTheme: () => ({ fontSizes: { text: fontSize, code: 14, terminal: 14 }, active: { colorScheme: 'dark' } }) },
     on: (name: string, listener: () => void) => { const listeners = handlers.get(name) ?? new Set(); handlers.set(name, listeners); listeners.add(listener); return () => { listeners.delete(listener) } },
     get: () => ({ rpc: { call: vi.fn(async () => ({ ok: true, value: { workspaces: [] } })) } }),
   }

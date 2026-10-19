@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { subscriptionMessages } from './subscriptions-v4-messages.mjs'
 
 export const SUBSCRIPTIONS_UI_ADAPTER_ID = 'deepviewer-remaining-usage-dsh020-v1'
-export const SUBSCRIPTIONS_DSH_PEER_VERSION = '0.2.0-rc.2'
+export const SUBSCRIPTIONS_DSH_PEER_VERSION = '0.2.1-rc.2'
 
 const subscriptionsPluginName = 'dsh-plugin-subscriptions'
 const subscriptionsPluginVersion = '0.3.1'

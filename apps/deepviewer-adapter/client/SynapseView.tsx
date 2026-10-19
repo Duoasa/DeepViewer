@@ -30,7 +30,7 @@ function presentation(ctx: Context) {
   const token = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
   return {
     locale: ctx.locale.getLocale().active.startsWith('zh') ? 'zh-CN' : 'en-US',
-    fontSize: theme.fontSize,
+    fontSize: theme.fontSizes.text,
     fontFamily: style.fontFamily || '-apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif',
     dark,
     tokens: {

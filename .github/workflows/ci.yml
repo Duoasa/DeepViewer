@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: deepseek-ai/deepseek-harness
-          ref: 639ed015397290b3745d163aafe02ffee4aa3f84
+          ref: 687f282e8625c6b8d11ff58211a90524be2e4317
           path: upstream/deepseek-harness
           persist-credentials: false
 

@@ -31,7 +31,7 @@ try {
   writeFileSync(join(home, 'settings.yaml'), dump({ 'llm-pi-ai': { providers: { fixture: { api: 'openai-completions', baseURL: `http://127.0.0.1:${modelServer.address().port}/v1`, apiKeyEnv: 'SMOKE_KEY', models: [{ id: 'fixture', name: 'Fixture model', contextWindow: 128000, maxTokens: 1024 }] } } } }), { mode: 0o600 })
   await new DesktopProjectManager(paths, { dsh: runtime }).applyRelease()
   const patch = load(readFileSync(join(paths.profile, 'cordis.patch.yml'), 'utf8')); writeFileSync(join(paths.profile, 'cordis.patch.yml'), dump([...(patch ?? []), { id: 'webserver', config: { host: '127.0.0.1', port: 0 } }]))
-  const environment = { ...process.env, DSH_HOME: home, DEEPVIEWER_HOST_PORT: '0', DSH_TELEMETRY_MODE: 'DISABLED', HTTP_PROXY: 'http://127.0.0.1:1', HTTPS_PROXY: 'http://127.0.0.1:1' }
+  const environment = { ...process.env, DSH_HOME: home, DSH_TELEMETRY_MODE: 'DISABLED', HTTP_PROXY: 'http://127.0.0.1:1', HTTPS_PROXY: 'http://127.0.0.1:1' }
   for (const key of Object.keys(environment)) if (/KEY|TOKEN|SECRET|PASSWORD/u.test(key)) delete environment[key]
   const createHost = () => new DesktopHostProcess(process.execPath, runtime, paths.profile, undefined, environment, undefined, process.env.DSH_DESKTOP_PRIMARY_RUNTIME_DIR ?? join(appRoot, '.desktop/runtime/primary-runtime'), { pnpm: join(appRoot, 'node_modules/pnpm/bin/pnpm.mjs'), nodeBin: join(appRoot, 'scripts/node-bin') })
   host = createHost()
@@ -64,6 +64,14 @@ try {
   const work = await rpc('session/create', { request: { sessionId: 'smoke-work', cwd: workspace } })
   const chat = await rpc('session/create', { request: { sessionId: 'smoke-chat', agentPreset: 'deepviewer-chat' } })
   await rpc('session/create', { request: { sessionId: 'bad-chat', agentPreset: 'deepviewer-chat', cwd: workspace } }, '/api/', false)
+  // RC 0.2.1 reuses only blank sessions, including cwd-free Chat.
+  for (const request of [
+    { sessionId: work.sessionId, cwd: workspace },
+    { sessionId: chat.sessionId, agentPreset: 'deepviewer-chat' },
+  ]) assert.equal((await rpc('session/create', { request })).sessionId, request.sessionId)
+  await rpc('session/create', { request: { sessionId: chat.sessionId, cwd: workspace } }, '/api/', false)
+  await rpc('session/create', { request: { sessionId: work.sessionId, agentPreset: 'deepviewer-chat' } }, '/api/', false)
+  const blankChat = await rpc('session/create', { request: { sessionId: 'smoke-blank-chat', agentPreset: 'deepviewer-chat' } })
   await rpc('session/rename', { request: { sessionId: work.sessionId, title: 'DeepViewer Work cold fixture' } })
   await rpc('session/rename', { request: { sessionId: chat.sessionId, title: 'DeepViewer Chat cold fixture' } })
   for (const session of [work, chat]) {
@@ -71,6 +79,10 @@ try {
     await rpc('session/prompt', { request: { requestId: crypto.randomUUID(), sessionId: session.sessionId, mode: 'queue', content: [{ type: 'text', text: 'deepviewer-cold-search-fixture' }] } })
   }
   for (let i = 0; await host.updateTasks('inspect'); i++) { assert.ok(i < 100, 'Fixture model did not settle'); await new Promise(resolve => setTimeout(resolve,100)) }
+  for (const request of [
+    { sessionId: work.sessionId, cwd: workspace },
+    { sessionId: chat.sessionId, agentPreset: 'deepviewer-chat' },
+  ]) assert.notEqual((await rpc('session/create', { request })).sessionId, request.sessionId)
   const file = await rpc('editor.read', { sessionId: work.sessionId, path: 'file.txt' }, '/deepviewer-workspace/')
   await rpc('editor.save', { sessionId: work.sessionId, path: 'file.txt', text: 'saved', version: file.version }, '/deepviewer-workspace/')
   assert.equal(readFileSync(join(workspace, 'file.txt'), 'utf8'), 'saved')
@@ -85,6 +97,8 @@ try {
   assert.ok(coldWork); assert.ok(coldChat); assert.equal(coldChat.cwd, undefined); assert.equal(coldChat.projections.values.agentPreset, 'deepviewer-chat')
   assert.deepEqual((await rpc('session/search', { request: { query: 'deepviewer-cold-search-fixture', mode: 'chat' } })).items.map(item => item.sessionId), [chat.sessionId])
   assert.deepEqual((await rpc('session/search', { request: { query: 'deepviewer-cold-search-fixture', mode: 'work' } })).items.map(item => item.sessionId), [work.sessionId])
+  assert.equal((await rpc('session/create', { request: { sessionId: blankChat.sessionId, agentPreset: 'deepviewer-chat' } })).sessionId, blankChat.sessionId)
+  assert.notEqual((await rpc('session/create', { request: { sessionId: chat.sessionId, agentPreset: 'deepviewer-chat' } })).sessionId, chat.sessionId)
   const projections = await rpc('session/projections', { request: { sessionId: chat.sessionId } })
   const history = await rpc('session/page', { request: { address: { kind: 'session', sessionId: chat.sessionId }, throughSeq: projections.asOfSeq } })
   assert.ok(JSON.stringify(history).includes('deepviewer-cold-search-fixture'))
@@ -126,5 +140,5 @@ try {
   for (const integration of integrations) assert.ok(!diagnosticHtml.includes(integration.name), `Diagnostic flag did not disable native module: ${integration.name}`)
   await rpc('session/create', { request: { sessionId: 'diagnostic-core', cwd: workspace } })
   await host.stop(true); host = undefined
-  console.info(JSON.stringify({ result: 'PASS', core: '0.2.0-rc.2', privateHost: true, integrationRPC: true, nativeSynapse: true, nativeModules: true, noManagedBundles: true, workChatIsolation: true, coldHistory: true, editorRPC: true, integrations: integrations.map(plugin => plugin.name), nativeRecovery: true, diagnosticPureCore: true, gracefulShutdown: true }))
+  console.info(JSON.stringify({ result: 'PASS', core: '0.2.1-rc.2', privateHost: true, integrationRPC: true, nativeSynapse: true, nativeModules: true, noManagedBundles: true, workChatIsolation: true, blankReuse: true, startedSessionPreserved: true, coldHistory: true, editorRPC: true, integrations: integrations.map(plugin => plugin.name), nativeRecovery: true, diagnosticPureCore: true, gracefulShutdown: true }))
 } finally { await host?.stop(); await new Promise(resolve => modelServer.close(resolve)); rmSync(fixture, { recursive: true, force: true }) }

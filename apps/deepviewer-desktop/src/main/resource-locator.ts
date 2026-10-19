@@ -19,7 +19,7 @@ export const PREVIEW_PLUGIN_NAME = '@deepviewer/dsh-plugin-preview'
 export const PREVIEW_PLUGIN_VERSION = '0.1.0'
 export const MODEL_CAPABILITIES_PLUGIN_NAME = '@deepviewer/dsh-plugin-model-capabilities'
 export const MODEL_CAPABILITIES_PLUGIN_VERSION = '1.0.2'
-const DSH_PLUGIN_PEER_VERSION = '0.2.0-rc.2'
+const DSH_PLUGIN_PEER_VERSION = '0.2.1-rc.2'
 const CORDIS_PLUGIN_PEER_VERSION = '4.0.4'
 const REQUIRED_SUBSCRIPTIONS_PEERS = [
   '@deepseek-ai/dsh-attachment',

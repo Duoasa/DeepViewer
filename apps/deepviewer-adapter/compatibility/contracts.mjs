@@ -5,6 +5,7 @@ import { brandingContracts } from './branding-contracts.mjs'
 import { nativeModuleContracts } from './native-module-contracts.mjs'
 /** Narrow extension gaps in the pinned upstream. Remove a contract when its seam is upstreamed. */
 export const contracts = [
+  {"id": "deepviewer-preview-update-feed", "file": "apps/desktop/src/update-coordinator.ts", "before": "    this.updater.channel = channel", "after": "    this.updater.channel = channel === 'nightly' && process.env.DEEPVIEWER_UPDATE_CHANNEL === 'preview' ? 'preview' : channel", "reason": "Keep the existing DeepViewer preview feed filename while native latest/nightly enforces prerelease policy."},
   {
     id: 'client-artifact-metadata-only-rebuild', file: 'packages/client/modules/src/index.ts',
     before: '    const bundle = readFileSync(record.meta.clientPath)\n    record.baseline = baseline\n    record.entry = graphRow(id, rev, record.meta)',
@@ -23,23 +24,6 @@ export const contracts = [
     id: 'desktop-product-name', file: 'apps/desktop/src/main.ts',
     before: "applicationName: 'DeepSeek Harness',", after: 'applicationName: app.name,',
     reason: 'The native About panel must use the product identity supplied before boot.',
-  },
-  {
-    id: 'private-host-port', file: 'apps/desktop-host/src/index.ts',
-    before: "args: ['--no-open', '--port', '19387'],",
-    after: "args: ['--no-open', '--port', process.env.DEEPVIEWER_HOST_PORT ?? '19387'],",
-    reason: 'Independent DeepViewer/DeepViewer Dev/official DSH processes must not share a fixed port.',
-  },
-  {
-    id: 'product-update-channel', file: 'apps/desktop/src/update-coordinator.ts',
-    before: "this.updater.channel = 'nightly'", after: "this.updater.channel = process.env.DEEPVIEWER_UPDATE_CHANNEL ?? 'nightly'",
-    reason: 'Separate DeepViewer stable/preview feeds from the official nightly channel.',
-  },
-  {
-    id: 'stable-prerelease-policy', file: 'apps/desktop/src/update-coordinator.ts',
-    before: 'this.updater.allowPrerelease = true',
-    after: "this.updater.allowPrerelease = process.env.DEEPVIEWER_UPDATE_CHANNEL !== 'latest'",
-    reason: 'A stable DeepViewer feed must not install prereleases.',
   },
   {
     id: 'hero-style-anchor', file: 'packages/client/ui-conversation/src/client/skeleton/EmptyHero.tsx',
@@ -69,11 +53,11 @@ export const contracts = [
     reason: 'Let the idle mark and headline flex-center separately while the resident composer occupies the viewport floor.',
   },
   {
-    id: 'stats-header-slot', file: 'packages/client/ui-chat/src/client/apply.ts',
-    before: "ctx.slots.inject('conversation.composer.dock', () =>\n    ctx.slots.register({\n      name: 'conversation.composer.dock', id: 'stats', order: 0, locale: NS,",
-    previousAfter: "ctx.slots.inject('conversation.session.header.utilities', () =>\n    ctx.slots.register({\n      name: 'conversation.session.header.utilities', id: 'stats', order: 0, locale: NS,",
-    after: "ctx.slots.inject('conversation.session.header.center', () =>\n    ctx.slots.register({\n      name: 'conversation.session.header.center', id: 'stats', order: 0, locale: NS,",
-    reason: 'Use the same native statistics component in the session header slot.',
+    "id": "stats-header-slot",
+    "file": "packages/client/ui-chat/src/client/apply.ts",
+    "before": "  ctx.slots.inject('conversation.composer.dock', function* () {\n    yield ctx.slots.register({\n      name: 'conversation.composer.dock', id: 'activity', order: 0, locale: NS, inject: statPillInject,\n    }, ActivityPill)\n    yield ctx.slots.register({\n      name: 'conversation.composer.dock', id: 'usage', order: 1, locale: NS, inject: statPillInject,\n    }, UsagePill)\n  })",
+    "after": "  ctx.slots.inject('conversation.session.header.center', function* () {\n    yield ctx.slots.register({\n      name: 'conversation.session.header.center', id: 'activity', order: 0, locale: NS, inject: statPillInject,\n    }, ActivityPill)\n    yield ctx.slots.register({\n      name: 'conversation.session.header.center', id: 'usage', order: 1, locale: NS, inject: statPillInject,\n    }, UsagePill)\n  })",
+    "reason": "Use the same native statistics component in the session header slot."
   },
   {"id": "deepviewer-copy-0", "file": "packages/client/ui-conversation/src/client/locales.ts", "before": "'hero.headline': '探索未至之境'", "after": "'hero.headline': '让我们做点什么'", "reason": "Product copy until native locale overrides are available."},
   {"id": "deepviewer-copy-1", "file": "packages/client/ui-conversation/src/client/locales.ts", "before": "'hero.headline': 'Into the Unknown'", "after": "'hero.headline': 'What shall we build?'", "reason": "Product copy until native locale overrides are available."},
@@ -81,12 +65,18 @@ export const contracts = [
   {"id": "deepviewer-copy-3", "file": "packages/client/ui-chat/src/client/locale.ts", "before": "'message.think': '思考'", "after": "'message.think': '深度求索中'", "reason": "Product copy until native locale overrides are available."},
   {"id": "deepviewer-thinking-en", "file": "packages/client/ui-chat/src/client/locale.ts", "before": "'message.stepProcess.thinking': 'Analyzing the request'", "after": "'message.stepProcess.thinking': 'Thinking'", "reason": "Use the DeepViewer thinking label."},
   {"id": "deepviewer-think-en", "file": "packages/client/ui-chat/src/client/locale.ts", "before": "'message.think': 'Think'", "after": "'message.think': 'Thinking'", "reason": "Use the DeepViewer thinking label."},
-  {"id": "external-plugin-build", "file": "packages/client/tsdown.client.ts", "before": "  for (const manifestPath of globSync('packages/*/*/package.json', { cwd: REPOSITORY_ROOT })) {", "after": "  const externalPath = process.env.DSH_EXTERNAL_WORKSPACE_MANIFEST\n  if (externalPath !== undefined) {\n    const manifest = JSON.parse(readFileSync(externalPath, 'utf8')) as WorkspaceManifest\n    if (manifest.name !== id) throw new Error(`External manifest identity mismatch: ${id}`)\n    manifestCache.set(id, manifest)\n    return manifest\n  }\n  for (const manifestPath of globSync('packages/*/*/package.json', { cwd: REPOSITORY_ROOT })) {", "reason": "Apply the native module-table bundler to separately owned DeepViewer plugins without forging upstream workspace membership."},
+
   {"id": "delivery-types", "file": "packages/deliverables/tool-present/src/index.ts", "before": "export const name = 'tool-present'", "after": "declare module '@deepseek-ai/cordis' {\n  interface Events {\n    'deliverables/prepare'(exec: ToolExecution, files: PresentedFile[], next: () => Promise<PresentedFile[]>): Promise<PresentedFile[]>\n  }\n}\nexport const name = 'tool-present'", "reason": "Keep the optional delivery-policy middleware on the Host face; browser-safe types never import Host services."},
   {"id": "delivery-source-alias", "file": "packages/deliverables/tool-present/src/types.ts", "before": "  description?: string\n}", "after": "  description?: string\n  /** Internal original source aliases, never native open targets. */\n  sourcePaths?: string[]\n}", "reason": "Optional producer aliases preserve generation provenance while only workspace path is openable."},
   {"id": "delivery-normalize", "file": "packages/deliverables/tool-present/src/index.ts", "before": "      for (const file of args.files) {", "after": "      const prepared = await ctx.waterfall('deliverables/prepare', exec, args.files, async () => args.files)\n      for (const file of prepared) {", "reason": "DeepViewer copies external generated outputs into the workspace before the native file checks/cards."},
   {"id": "warning-css", "file": "packages/client/ui-tool/src/client/tool/components/ToolRow.module.css", "before": "  clip: rect(0 0 0 0);\n  white-space: nowrap;\n}", "after": "  clip: rect(0 0 0 0);\n  white-space: nowrap;\n}\n.errorSummary[data-tone=\"warning\"],\n.ioText[data-error][data-tone=\"warning\"] {\n  color: var(--dsw-alias-state-warn-primary);\n}", "reason": "File read guards are orange even while hovered."},
-  {"id": "warning-memo", "file": "packages/client/ui-tool/src/client/tool/components/ToolRow.tsx", "before": "[summaryLinkKeyDown, linkHref, openFile, state, suffix, summaryText]", "after": "[summaryLinkKeyDown, linkHref, openFile, state, errorTone, suffix, summaryText]", "reason": "Recompute the summary when its protection tone changes."},
+  {
+    "id": "warning-memo",
+    "file": "packages/client/ui-tool/src/client/tool/components/ToolRow.tsx",
+    "before": "[summaryLinkKeyDown, linkHref, openFile, state, suffix, totals, summaryText, exitLabel]",
+    "after": "[summaryLinkKeyDown, linkHref, openFile, state, errorTone, suffix, totals, summaryText, exitLabel]",
+    "reason": "Recompute the summary when its protection tone changes."
+  },
   {"id": "deepviewer-host-network-ready", "file": "apps/desktop/src/main.ts", "before": "hostEnvironment = await loginShell", "after": "hostEnvironment = { ...await loginShell, ...await (globalThis as typeof globalThis & { __DEEPVIEWER_HOST_ENVIRONMENT__?: Promise<NodeJS.ProcessEnv> }).__DEEPVIEWER_HOST_ENVIRONMENT__ }", "reason": "Await product PAC/private-network initialization before constructing the official Host."},
   {"id": "desktop-authorized-web-fetch-import", "file": "packages/web/web-fetch-http/src/provider.ts", "before": "import { WebError } from '@deepseek-ai/dsh-web'", "after": "import { WebError } from '@deepseek-ai/dsh-web'\nimport { requestDesktop } from './desktop-network.ts'", "reason": "The desktop owns bounded per-run local-network approval and address pinning."},
   {"id": "desktop-authorized-web-fetch", "file": "packages/web/web-fetch-http/src/provider.ts", "before": "      const route = proxyRouteFor(url)", "after": "      const desktop = await requestDesktop(url, signal, process.env.DEEPVIEWER_WEB_BRIDGE)\n      if (desktop) return desktop\n      const route = proxyRouteFor(url)", "reason": "Use the authorized desktop bridge when present; preserve standalone native transport otherwise."},

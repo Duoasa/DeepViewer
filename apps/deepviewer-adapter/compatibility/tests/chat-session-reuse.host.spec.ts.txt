@@ -1,0 +1,34 @@
+
+describe('DeepViewer workspace-free Chat on RC 0.2.1 creation semantics', () => {
+  it('creates and reuses a live blank Chat without assigning the Host cwd', async () => {
+    const { ctx, remote, cwd } = await harness({ presets: ['standard', 'deepviewer-chat'] })
+    const sessionId = SessionId('deepviewer-live-chat')
+    const request = { sessionId, agentPreset: 'deepviewer-chat' }
+    expect(await remote.create(request)).toMatchObject({ ok: true, value: { sessionId } })
+    expect(ctx.sessions.get(sessionId)?.header.cwd).toBeUndefined()
+    expect(await remote.create(request)).toMatchObject({ ok: true, value: { sessionId } })
+    expect(await remote.create({ sessionId, cwd })).toMatchObject({ ok: false })
+    expect(await remote.create({ ...request, cwd })).toMatchObject({ ok: false, error: { code: 'gateway/bad-request' } })
+  })
+  it('rejects converting a workspace-bound Work session into Chat', async () => {
+    const { remote, cwd } = await harness({ presets: ['standard', 'deepviewer-chat'] })
+    const sessionId = SessionId('deepviewer-work')
+    expect(await remote.create({ sessionId, cwd })).toMatchObject({ ok: true })
+    expect(await remote.create({ sessionId, agentPreset: 'deepviewer-chat' })).toMatchObject({ ok: false })
+  })
+  it.each([false, true])('preserves a cold Chat when started=%s', async (started) => {
+    const sessionId = SessionId('deepviewer-cold-chat')
+    const header: SessionHeader = { version: SESSION_FORMAT_VERSION, id: sessionId, createdAt: 1,
+      isSeeded: false, agentPreset: 'deepviewer-chat' }
+    const events = [modelSelection(0), ...(started ? completedTurn(1) : [])]
+    const { ctx, remote, resumed } = await harness({ presets: ['standard', 'deepviewer-chat'],
+      stored: new Map([[sessionId, { header, events }]]) })
+    const result = await remote.create({ sessionId, agentPreset: 'deepviewer-chat' })
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error('Chat create failed')
+    expect(result.value.sessionId === sessionId).toBe(!started)
+    expect(resumed).toEqual(started ? [] : [sessionId])
+    expect(ctx.sessions.get(result.value.sessionId)?.header.cwd).toBeUndefined()
+    expect(result.value.agentPreset).toBe('deepviewer-chat')
+  })
+})

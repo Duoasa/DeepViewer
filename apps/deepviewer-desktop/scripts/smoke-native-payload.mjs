@@ -1,6 +1,6 @@
 /** Exercise the production closure in a temporary ASAR; no app, DMG or user profile is created. */
 import { createRequire } from 'node:module'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,6 +25,10 @@ try {
     unpack: `${join(stage, 'app')}/**/{*.node,*.dylib,*.dll,*.so,*.so.*,*.exe,spawn-helper,rg}`,
     unpackDir: `{${unpackDirectories.join(',')}}`,
   })
+  // Reproduce Resources/app.asar + Resources/runtime: the RC CLI resolves its
+  // package manager relative to the archive, independently of the Host argument.
+  const relocatedRuntime = join(fixture, 'runtime')
+  cpSync(join(stage, 'resources/runtime'), relocatedRuntime, { recursive: true, verbatimSymlinks: true })
   // The upstream smoke checks inventory, actual PTY/ripgrep/Koffi/sharp loading,
   // isolated Host composition and DOCX/XLSX/PPTX conversion, with shipped interpreters.
   const environment = { ...process.env }, isolated = { ...environment }
@@ -36,8 +40,8 @@ try {
     mkdirSync(directory, { recursive: true, mode: 0o700 }); isolated[key] = directory
   }
   delete isolated.FONTCONFIG_PATH; delete isolated.FONTCONFIG_FILE
-  process.env = { ...isolated, DSH_TELEMETRY_MODE: 'DISABLED', DEEPVIEWER_HOST_PORT: '0' }
-  try { await smokePreparedRuntime(join(archive, 'dsh'), require('electron'), join(stage, 'resources/runtime'), descriptor) }
+  process.env = { ...isolated, DSH_TELEMETRY_MODE: 'DISABLED' }
+  try { await smokePreparedRuntime(join(archive, 'dsh'), require('electron'), relocatedRuntime, descriptor) }
   finally { process.env = environment }
   console.info(JSON.stringify({ result: 'PASS', productionASAR: true, inventory: true, nativePayloads: true, officeConversion: true, userProfile: false }))
 } finally { rmSync(fixture, { recursive: true, force: true }) }

@@ -4,6 +4,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
+import { PartialArguments } from '@deepseek-ai/dsh-util-values'
 import type { ToolResultNode } from '@deepseek-ai/dsh-client-ui-chat/client'
 import { useDisclosure } from '@deepseek-ai/dsh-client-ui-chat/src/client/chat/use-disclosure.ts'
 import { makeTranslate } from '@deepseek-ai/dsh-client-test-runtime'
@@ -16,6 +17,7 @@ const t = makeTranslate(zh, commonZh)
 const notice = 'Read the file before editing.\nThe protection remains active.'
 const failed = (name: string, code: string): ToolResultNode => ({
   kind: 'tool-result', seq: 10, time: 2000, callId: 'guard', callTime: 1000,
+  name, args: PartialArguments.fromText('{"file_path":"src/example.ts"}'),
   call: { name, argsRaw: '{"file_path":"src/example.ts"}' },
   content: [{ type: 'text', text: notice }], isError: true, subCalls: [],
   error: { name: 'FsError', code },

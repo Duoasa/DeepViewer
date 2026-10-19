@@ -45,6 +45,6 @@
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "4.0.4"
+    "@deepseek-ai/cordis": "4.0.5"
   }
 }

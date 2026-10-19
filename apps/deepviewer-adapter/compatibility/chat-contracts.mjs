@@ -1,7 +1,19 @@
 export const chatContracts = [
   { id: 'chat-history-projection-parameter', file: 'packages/api/session-controller/src/history.ts', before: '    withProjections: boolean,', after: '    _withProjections: boolean,', reason: 'History always observes the preset needed to authorize workspace-free Chat.' },
-  { id: 'chat-create-cwd-match', file: 'packages/api/session-controller/src/agent.ts', before: 'if (agent.session.header.cwd !== cwd) {', after: "if (agent.session.header.cwd !== (presetId === 'deepviewer-chat' ? undefined : cwd)) {", reason: 'Workspace-free Chat creation must validate its absent cwd instead of the Host default directory.' },
-  { id: 'chat-adopt-cwd-match', file: 'packages/api/session-controller/src/agent.ts', before: 'if (observation.header.cwd !== cwd) {', after: "if (observation.header.cwd !== (presetId === 'deepviewer-chat' ? undefined : cwd)) {", reason: 'Explicit-id Chat adoption cannot silently bind a workspace.' },
+  {
+    "id": "chat-create-cwd-match",
+    "file": "packages/api/session-controller/src/agent.ts",
+    "before": "if (live.session.header.cwd !== request.cwd) {",
+    "after": "if (live.session.header.cwd !== (request.agentPreset === 'deepviewer-chat' ? undefined : request.cwd)) {",
+    "reason": "Workspace-free Chat creation must validate its absent cwd instead of the Host default directory."
+  },
+  {
+    "id": "chat-adopt-cwd-match",
+    "file": "packages/api/session-controller/src/agent.ts",
+    "before": "if (observed.header.cwd !== request.cwd) {",
+    "after": "if (observed.header.cwd !== (request.agentPreset === 'deepviewer-chat' ? undefined : request.cwd)) {",
+    "reason": "Explicit-id Chat adoption cannot silently bind a workspace."
+  },
   { id: 'chat-resume-cwd-free', file: 'packages/api/session-controller/src/agent.ts', before: 'if (observation.header.id !== sessionId || observation.header.cwd === undefined) {', after: "if (observation.header.id !== sessionId || (observation.header.cwd === undefined && this.presetForObservation(observation) !== 'deepviewer-chat')) {", reason: 'A cold Chat Agent is valid without a workspace; unknown workspace-free sessions stay rejected.' },
   { id: 'chat-inspect-projections', file: 'packages/api/session-controller/src/agent.ts', before: "      projectionMode: 'none',", after: "      projectionMode: 'all',", reason: 'Inspect must prove a workspace-free session is Chat from its persisted native preset projection.' },
   { id: 'chat-inspect-cwd-free', file: 'packages/api/session-controller/src/agent.ts', before: 'if (observation.header.cwd === undefined) {', after: "if (observation.header.cwd === undefined && observation.projections?.values.agentPreset !== 'deepviewer-chat') {", reason: 'Read cold Chat attachments/history while preserving ordinary Session authorization.' },
@@ -17,8 +29,8 @@ export const chatContracts = [
   {
     "id": "chat-commands.ts-1",
     "file": "packages/api/session-controller/src/commands.ts",
-    "before": "   * @returns the Session identity and resolved preset when configured.\n   */\n  async create(request: SessionCreateRequest): Promise<SessionCreateValue> {\n    if (request.workspaceId !== undefined && request.cwd !== undefined) {\n      throw new RemoteError('gateway/bad-request', 'session.create accepts workspaceId or cwd, not both', {})\n    }\n    const sessionId = request.sessionId ?? brandString<SessionId>(`session-${randomUUID()}`)\n    let workspace: Workspace | undefined\n    if (request.workspaceId !== undefined) {\n      workspace = this.ctx.workspaceRegistry.get(request.workspaceId)\n",
-    "after": "   * @returns the Session identity and resolved preset when configured.\n   */\n  async create(request: SessionCreateRequest): Promise<SessionCreateValue> {\n    if (request.workspaceId !== undefined && request.cwd !== undefined) {\n      throw new RemoteError('gateway/bad-request', 'session.create accepts workspaceId or cwd, not both', {})\n    }\n    if (request.agentPreset === 'deepviewer-chat' && (request.workspaceId !== undefined || request.cwd !== undefined)) {\n      throw new RemoteError('gateway/bad-request', 'Chat sessions do not accept a workspace or working directory', {})\n    }\n    const sessionId = request.sessionId ?? brandString<SessionId>(`session-${randomUUID()}`)\n    let workspace: Workspace | undefined\n    if (request.workspaceId !== undefined) {\n      workspace = this.ctx.workspaceRegistry.get(request.workspaceId)\n",
+    "before": "      throw new RemoteError('gateway/bad-request', 'session.create accepts workspaceId or cwd, not both', {})\n    }",
+    "after": "      throw new RemoteError('gateway/bad-request', 'session.create accepts workspaceId or cwd, not both', {})\n    }\n    if (request.agentPreset === 'deepviewer-chat' && (request.workspaceId !== undefined || request.cwd !== undefined)) {\n      throw new RemoteError('gateway/bad-request', 'Chat sessions do not accept a workspace or working directory', {})\n    }",
     "reason": "Preserve workspace-free Chat and cold mode-filtered history at the Session API boundary."
   },
   {
@@ -38,8 +50,8 @@ export const chatContracts = [
   {
     "id": "chat-index.ts-0",
     "file": "packages/api/session-controller/src/index.ts",
-    "before": "   * @param signal - cancellation for list and search reads.\n   * @returns authorized bounded Session search results.\n   */\n  @Remote('search')\n  search(request: SessionSearchRequest, signal: AbortSignal): Promise<SessionSearchValue> {\n    return this.listState.search(request.query, signal)\n  }\n\n  /**\n   * Create or idempotently adopt one ordinary Session.\n   * @param request - requested identity, location, and Agent preset.\n",
-    "after": "   * @param signal - cancellation for list and search reads.\n   * @returns authorized bounded Session search results.\n   */\n  @Remote('search')\n  search(request: SessionSearchRequest, signal: AbortSignal): Promise<SessionSearchValue> {\n    return this.listState.search(request.query, signal, request.mode)\n  }\n\n  /**\n   * Create or idempotently adopt one ordinary Session.\n   * @param request - requested identity, location, and Agent preset.\n",
+    "before": "this.listState.search(request.query, signal)",
+    "after": "this.listState.search(request.query, signal, request.mode)",
     "reason": "Preserve workspace-free Chat and cold mode-filtered history at the Session API boundary."
   },
   {
@@ -59,22 +71,22 @@ export const chatContracts = [
   {
     "id": "chat-list.ts-2",
     "file": "packages/api/session-controller/src/list.ts",
-    "before": "      if (record.header.cwd === undefined) continue\n      cold.push(record.header)",
-    "after": "      cold.push(record.header)",
+    "before": "} else if (record.header.cwd !== undefined) {\n        cold.push(record)",
+    "after": "} else {\n        cold.push(record)",
     "reason": "Preserve workspace-free Chat and cold mode-filtered history at the Session API boundary."
   },
   {
     "id": "chat-list.ts-3",
     "file": "packages/api/session-controller/src/list.ts",
-    "before": "    for (const header of cold) items.push(this.summarizeCold(header))",
-    "after": "    for (const header of cold) {\n      const summary = await this.summarizeCold(header, signal)\n      // Work is workspace-bound; Chat remains visible while detached and cwd-free.\n      if (header.cwd !== undefined || summary.projections?.values.agentPreset === 'deepviewer-chat') items.push(summary)\n    }",
+    "before": "      items.push(this.summarizeCold(record))",
+    "after": "      const summary = await this.summarizeCold(record, signal)\n      // Keep workspace-free Chat history visible without activating an Agent.\n      if (record.header.cwd !== undefined || summary.projections?.values.agentPreset === 'deepviewer-chat') items.push(summary)",
     "reason": "Preserve workspace-free Chat and cold mode-filtered history at the Session API boundary."
   },
   {
     "id": "chat-list.ts-4",
     "file": "packages/api/session-controller/src/list.ts",
-    "before": "  private summarizeCold(header: SessionHeader): SessionSummary {\n    const projections = this.projectionsFor(header, undefined)",
-    "after": "  private async summarizeCold(header: SessionHeader, signal?: AbortSignal): Promise<SessionSummary> {\n    const projections = await this.coldProjections(header, signal)",
+    "before": "  private summarizeCold({ header, formatStatus }: SessionRecord): SessionSummary {\n    const projections = this.projectionsFor(header, undefined)",
+    "after": "  private async summarizeCold({ header, formatStatus }: SessionRecord, signal?: AbortSignal): Promise<SessionSummary> {\n    const projections = await this.coldProjections(header, signal)",
     "reason": "Preserve workspace-free Chat and cold mode-filtered history at the Session API boundary."
   },
   {
@@ -95,42 +107,14 @@ export const chatContracts = [
     "id": "deepviewer-mode-12",
     "file": "packages/api/session-controller/src/agent.ts",
     "before": "    try {\n      await mkdir(cwd, { recursive: true })",
-    "after": "    try {\n      if (presetId !== 'deepviewer-chat') await mkdir(cwd, { recursive: true })",
+    "after": "    try {\n      if (composition.agentPreset !== 'deepviewer-chat') await mkdir(cwd, { recursive: true })",
     "reason": "DeepViewer mode policy uses native controllers and stores."
   },
   {
     "id": "deepviewer-mode-13",
     "file": "packages/api/session-controller/src/agent.ts",
     "before": "      meta: {\n        cwd,",
-    "after": "      meta: {\n        ...(presetId === 'deepviewer-chat' ? {} : { cwd }),",
-    "reason": "DeepViewer mode policy uses native controllers and stores."
-  },
-  {
-    "id": "deepviewer-mode-14",
-    "file": "packages/api/session-controller/src/client/contract/sessions.ts",
-    "before": "  create(opts?: {\n    workspaceId?: WorkspaceId",
-    "after": "  create(opts?: {\n    agentPreset?: string\n    workspaceId?: WorkspaceId",
-    "reason": "DeepViewer mode policy uses native controllers and stores."
-  },
-  {
-    "id": "deepviewer-mode-15",
-    "file": "packages/api/session-controller/src/client/sessions/service.ts",
-    "before": "async create(opts: { workspaceId?: WorkspaceId; cwd?: string; sessionId?: SessionId }",
-    "after": "async create(opts: { workspaceId?: WorkspaceId; cwd?: string; sessionId?: SessionId; agentPreset?: string }",
-    "reason": "DeepViewer mode policy uses native controllers and stores."
-  },
-  {
-    "id": "deepviewer-mode-16",
-    "file": "packages/api/session-controller/src/client/sessions/manager.ts",
-    "before": "    opts: {\n      workspaceId?: WorkspaceId",
-    "after": "    opts: {\n      agentPreset?: string\n      workspaceId?: WorkspaceId",
-    "reason": "DeepViewer mode policy uses native controllers and stores."
-  },
-  {
-    "id": "deepviewer-mode-17",
-    "file": "packages/api/session-controller/src/client/sessions/manager.ts",
-    "before": "const shared = opts.sessionId === undefined ? {} : { sessionId: opts.sessionId }",
-    "after": "const shared = { ...(opts.sessionId === undefined ? {} : { sessionId: opts.sessionId }), ...(opts.agentPreset === undefined ? {} : { agentPreset: opts.agentPreset }) }",
+    "after": "      meta: {\n        ...(composition.agentPreset === 'deepviewer-chat' ? {} : { cwd }),",
     "reason": "DeepViewer mode policy uses native controllers and stores."
   },
   {
@@ -234,8 +218,8 @@ export const chatContracts = [
   {
     "id": "deepviewer-mode-32",
     "file": "packages/client/ui-workspace/src/client/navigation.ts",
-    "before": "  startSession(workspaceId?: WorkspaceId): void {\n    const workspace",
-    "after": "  startSession(workspaceId?: WorkspaceId): void {\n    const currentId = this.mainReference?.sessionId\n    if (workspaceId === undefined && currentId !== undefined && this.sessions.list.getSnapshot().byId[currentId]?.projectionValues?.agentPreset === 'deepviewer-chat') {\n      void this.sessions.create({ agentPreset: 'deepviewer-chat' }).then(id => this.openSession(id)).catch((error: unknown) => console.warn('Chat creation failed:', error))\n      return\n    }\n    const workspace",
+    "before": "    const workspace = this.workspaces.list.getSnapshot()\n    const sessions = this.sessions.list.getSnapshot()\n    const current = this.mainReference?.sessionId",
+    "after": "    const currentId = this.mainReference?.sessionId\n    if (workspaceId === undefined && currentId !== undefined && this.sessions.list.getSnapshot().byId[currentId]?.projectionValues?.agentPreset === 'deepviewer-chat') {\n      void this.sessions.create({ agentPreset: 'deepviewer-chat' }).then(id => {\n        if (initializeDraft && draftOptions !== undefined) {\n          const binding = this.sessions.binding(id)\n          if (binding === undefined) this.draftPreparationFailed()\n          this.prepareDraft(binding, draftOptions)\n        }\n        this.openSession(id)\n      }).catch((error: unknown) => console.warn('Chat creation failed:', error))\n      return\n    }\n    const workspace = this.workspaces.list.getSnapshot()\n    const sessions = this.sessions.list.getSnapshot()\n    const current = this.mainReference?.sessionId",
     "reason": "DeepViewer mode policy uses native controllers and stores."
   }
 ,
