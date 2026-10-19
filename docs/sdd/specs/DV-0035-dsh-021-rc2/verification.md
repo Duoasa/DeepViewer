@@ -16,7 +16,7 @@ Date: 2026-10-19
 | AC-003 | Pass（自动部分） | `pnpm desktop:smoke`：121；`pnpm --filter @deepviewer/desktop smoke:ui-regression`：202；`node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs`：3；`pnpm --filter @deepviewer/desktop smoke:synapse`：Host、Client、native seams、独立 canvas fixture 通过；`node apps/deepviewer-desktop/scripts/smoke-native-host.mjs`：空会话复用、已开始会话另建、Work/Chat 隔离、重启冷历史/搜索、文件边界与恢复通过 |
 | AC-004 | Pass（自动部分） | 下表 PC-001 至 PC-008；隔离 Host、更新通道、生产 runtime/ASAR 审计通过 |
 | AC-005 | Partial Pass / Pending Manual | 维护者于 2026-10-19 确认升级开发版“界面没问题”；真实账户及未明确覆盖的完整交互仍待验收，规格保持 Implementing |
-| AC-006 | Preparing | 0.7.1 / Build 92 发布验证见 [版本记录](../../releases/v0.7.1.md)，发布后同步证据 |
+| AC-006 | Pass | 全新 0.7.1 / Build 92 签名公证 DMG、实际包 payload、挂载与净化通过；PR #11 和 main CI 39240356694 success；v0.7.1 Latest，公开资产大小/digest 与完整下载 SHA-256 匹配。证据见 [版本记录](../../releases/v0.7.1.md) |
 
 附加验证：
 
