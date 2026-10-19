@@ -3,7 +3,7 @@
 Status: Implementing
 Date: 2026-10-19
 
-基线为 DeepViewer 0.5.1 Build 91；固定 DSH 0.2.1-rc.2 / `687f282e8625c6b8d11ff58211a90524be2e4317`、Cordis 4.0.5、Electron 44.7.0。产品版本与 Build 未变。本轮追加授权推送 GitHub 并合并 main，不制作或发布安装包。
+基线为 DeepViewer 0.5.1 Build 91；固定 DSH 0.2.1-rc.2 / `687f282e8625c6b8d11ff58211a90524be2e4317`、Cordis 4.0.5、Electron 44.7.0。升级阶段产品版本与 Build 未变，已通过 PR #10 合并 main（6fada4f；主线 CI 39233976404 success）。维护者随后确认“界面没问题”并授权 0.7.1 / Build 92 arm64 签名公证安装包、GitHub Release 和 README 更新。
 
 ## 基础证据
 
@@ -15,7 +15,8 @@ Date: 2026-10-19
 | AC-002 | Pass | `pnpm typecheck`；`node apps/deepviewer-desktop/scripts/build-native-desktop.mjs --core-only`：9/9 内核构建门禁，adapter/model-capabilities 类型与客户端构建通过；`node apps/deepviewer-desktop/scripts/build-native-desktop.mjs --skip-core-build`：桌面构建通过 |
 | AC-003 | Pass（自动部分） | `pnpm desktop:smoke`：121；`pnpm --filter @deepviewer/desktop smoke:ui-regression`：202；`node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs`：3；`pnpm --filter @deepviewer/desktop smoke:synapse`：Host、Client、native seams、独立 canvas fixture 通过；`node apps/deepviewer-desktop/scripts/smoke-native-host.mjs`：空会话复用、已开始会话另建、Work/Chat 隔离、重启冷历史/搜索、文件边界与恢复通过 |
 | AC-004 | Pass（自动部分） | 下表 PC-001 至 PC-008；隔离 Host、更新通道、生产 runtime/ASAR 审计通过 |
-| AC-005 | Pending Manual | 实际视觉、交互与真实账户未由维护者验收；规格保持 Implementing |
+| AC-005 | Partial Pass / Pending Manual | 维护者于 2026-10-19 确认升级开发版“界面没问题”；真实账户及未明确覆盖的完整交互仍待验收，规格保持 Implementing |
+| AC-006 | Preparing | 0.7.1 / Build 92 发布验证见 [版本记录](../../releases/v0.7.1.md)，发布后同步证据 |
 
 附加验证：
 
@@ -39,7 +40,7 @@ Date: 2026-10-19
 
 原生构建从固定 DSH workspace 链接 peers；不使用独立候选包的历史 npm-shrinkwrap 安装内核。独立插件发行不在本轮范围。
 
-| 检查 | DVP-0001 subscriptions 0.3.1 | DVP-0006 model-capabilities 1.0.2 | DVP-0007 adapter 0.5.1 |
+| 检查 | DVP-0001 subscriptions 0.3.1 | DVP-0006 model-capabilities 1.0.2 | DVP-0007 adapter 0.7.1 |
 | --- | --- | --- | --- |
 | PC-001 | Pass：根 frozen lock、固定 0.3.1 源包及许可 | Pass：项目固定源码/许可，原生构建使用上游 frozen lock | Pass：项目源码、UPSTREAM/LICENSE 与依赖许可 staging |
 | PC-002 | Pass：staged peer 0.2.1-rc.2 | Pass：DSH peers 0.2.1-rc.2、Cordis 4.0.5，类型与 Host 解析 | Pass：Cordis 4.0.5、固定 workspace 解析 |
@@ -49,11 +50,11 @@ Date: 2026-10-19
 | PC-006 | Pass（自动边界）：存储/脱敏测试及未授权 RPC 拒绝；真实 OAuth 见 PC-009 | Pass：凭据引用、私有扫描文件、日志脱敏及未授权拒绝 | Pass：回环鉴权、目录边界、网络桥接测试；测试均用临时 profile |
 | PC-007 | Pass：原生恢复与全模块关闭纯核心启动 | Pass：原生恢复与全模块关闭纯核心启动 | Pass：`DEEPVIEWER_DISABLE_BUILTINS=1` 纯核心会话创建 |
 | PC-008 | Pass：固定源码生成闭包、manifest/许可、原生 ASAR 与路径净化 | Pass：同左 | Pass：同左；签名/公证不在范围 |
-| PC-009 | Pending Manual：真实登录/用量/调用/登出 | Pending Manual：真实模型 API 验收 | Pending Manual：维护者真实交互验收 |
+| PC-009 | Pending Manual：真实登录/用量/调用/登出 | Pending Manual：真实模型 API 验收 | 界面 Pass（维护者确认）；其余真实交互 Pending Manual |
 
 ## 边界与未完成验收
 
 - 升级在独立 checkout 实施，原目录、旧上游改动及真实用户 profile 未迁移。
 - 旧的完整 renderer 脚本默认包含界面点击；本轮曾运行到空 DOM 引用失败，未计为通过。已将默认切成只读启动，完整交互仅 `--interaction` 显式运行；该旧流程需维护者复核，不能替代人工验收。
 - 稳定包使用原生 `latest` 策略；预览包使用原生 `nightly` 的预发布策略，仅将 feed 文件名映射回已有 `preview`。未配置官方 mandatory-update 服务。
-- 不生成 DMG，不签名/公证，不触发真实账户、公开更新或安装测试。
+- 初始升级阶段不生成安装包；追加发布阶段允许全新签名公证 DMG。真实账户与自动更新安装 qualification 不在本次授权的验证范围。

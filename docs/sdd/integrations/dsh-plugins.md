@@ -25,7 +25,7 @@ Active 模块由应用构建与原生组合负责，仍按 PC 检查，不列为
 | `DVP-0004` | [`dsh-better-sidebar`](https://github.com/omdsh-dev/DSH-better-sidebar) | `0.19.1` | `Removed` | DSH `0.1.5-rc.2` | 旧挂载退休，使用 DSH 原生右侧工作台；保留派生代码许可证 | [DV-0033](../specs/DV-0033-scoder-native-rebase/spec.md) |
 | `DVP-0005` | [`dsh-codex-taskboard`](https://github.com/chuspeeism/dashi-taskboard) | Taskboard `1.1.24` / bridge `1.0.0`, commit `1528a8eb31466829ca5a9fd436f4dfd285694a74` | `Removed` | DSH `0.1.5-rc.2` | 不再参与构建或内核升级检查 | [DV-0026](../specs/DV-0026-native-taskboard/spec.md) |
 | `DVP-0006` | `@deepviewer/dsh-plugin-model-capabilities` | `1.0.2` | `Active` | DSH `0.2.1-rc.2` | 应用内置；模型扫描/兼容修复/配置恢复与 v2 报告迁移自动检查通过，真实 API Pending Manual | [DV-0035](../specs/DV-0035-dsh-021-rc2/verification.md) |
-| `DVP-0007` | `@deepviewer/adapter` | `0.5.1` | `Active` | DSH `0.2.1-rc.2` | 应用内置；167 项可校验契约与原生/Synapse 自动回归通过，视觉交互 Pending Manual | [DV-0035](../specs/DV-0035-dsh-021-rc2/verification.md) |
+| `DVP-0007` | `@deepviewer/adapter` | `0.7.1` | `Active` | DSH `0.2.1-rc.2` | 应用内置；167 项可校验契约与原生/Synapse 自动回归通过，维护者已确认升级界面正常；其余交互 Pending Manual | [DV-0035](../specs/DV-0035-dsh-021-rc2/verification.md) |
 
 ### 当前原生组合与恢复边界
 

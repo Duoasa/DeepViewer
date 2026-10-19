@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/DeepViewer-0.5.1-arm64.dmg"><strong>Download 0.5.1 (ARM64)</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/DeepViewer-0.7.1-arm64.dmg"><strong>Download 0.7.1 (ARM64)</strong></a>
   ·
-  <a href="#whats-new-in-051">What's new</a>
+  <a href="#whats-new-in-071">What's new</a>
   ·
   <a href="#install-and-data">Privacy &amp; data</a>
   ·
@@ -36,7 +36,7 @@ DeepViewer is an independent, open-source desktop agent workspace built on
 the pinned runtime into a macOS application with the native Electron
 DesktopHost, Work and Chat spaces, file delivery, a sidebar workbench, and a
 session map. The 0.5.0 source derives from Scoder 0.7.0 Build 43, restored to
-DeepViewer's identity and independent data directories. Version 0.5.1 restores the earlier new-session animation and fixes the native macOS icon.
+DeepViewer's identity and independent data directories. Version 0.7.1 upgrades the kernel and compatibility adapter while preserving the DeepViewer interface, including the idle animation and native icon restored in 0.5.1.
 
 <p align="center">
   <img src="Resources/screenshots/image-delivery.png" width="100%" alt="DeepViewer 0.3.3 delivering a generated image with an attachment card and sidebar preview">
@@ -46,20 +46,21 @@ DeepViewer's identity and independent data directories. Version 0.5.1 restores t
 > DeepViewer is a community project. It is not affiliated with or endorsed by DeepSeek.
 
 > [!IMPORTANT]
-> The current release is **DeepViewer 0.5.1 / Build 91**, based on DeepSeek Harness `0.2.0-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. Visual acceptance, real-account flows, and migrated sessions/settings/attachments remain separate manual checks.
+> The current release is **DeepViewer 0.7.1 / Build 92**, based on DeepSeek Harness `0.2.1-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. The maintainer has accepted the upgraded development interface; real-account flows, other interactions, and migrated sessions/settings/attachments retain separate manual checks.
 
 > [!TIP]
-> The [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous [0.5.0 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.0), historical [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
+> The [0.7.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1), historical [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
 
 > [!NOTE]
-> All screenshots in this README are historical **0.3.3 / Build 75** references. They have not been replaced or used as evidence of the 0.5.1 interface or visual acceptance.
+> All screenshots in this README are historical **0.3.3 / Build 75** references. They have not been replaced or used as evidence of the 0.7.1 interface or visual acceptance.
 
-## What's new in 0.5.1
+## What's new in 0.7.1
 
-- Restore the previous release's new-session whale mark, cursor blink, spacing, text style, and centered idle layout while keeping the bottom composer resident and respecting reduced motion.
-- Replace the full-bleed PNG Dock override with a native macOS icon compiled from the original whale vector. System-generated appearances, masks, transparent margins, and the legacy ICNS share one bundle identity.
+- Upgrade DeepSeek Harness from `0.2.0-rc.2` to `0.2.1-rc.2` and Electron to `44.7.0`.
+- Update the compatibility adapter to native session, draft persistence, plugin build, and update-channel interfaces. Preserve Work/Chat isolation, session history and search, Synapse, and the existing DeepViewer layout, fonts, icon, and idle animation.
+- Fix bundled Python symlinks and pnpm layout so the packaged runtime works after relocation. Native dependencies, plugin installation, and Office conversion are covered by isolated runtime smoke checks.
 
-See the [0.5.1 release record](docs/sdd/releases/v0.5.1.md) for build and package evidence. Actual new-session and Dock visual acceptance remains a manual check.
+See the [0.7.1 release record](docs/sdd/releases/v0.7.1.md) for package verification and remaining manual checks. The maintainer accepted the upgraded development interface. Real-account and full interaction acceptance remain separate.
 
 ## The 0.5.0 migration from 0.3.3
 
@@ -108,13 +109,13 @@ Settings follow the desktop appearance, and the About page shows the app build a
 
 ## Install and data
 
-1. Download [DeepViewer-0.5.1-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/DeepViewer-0.5.1-arm64.dmg) and verify it against [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.5.1/SHA256SUMS.txt) from the [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1).
+1. Download [DeepViewer-0.7.1-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/DeepViewer-0.7.1-arm64.dmg) and verify it against [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/SHA256SUMS.txt) from the [0.7.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open the app and configure a provider or subscription. No global Node.js or Harness installation is needed.
 
 DeepViewer binds its local service to a random loopback port. Installed app data lives in `~/Library/Application Support/DeepViewer`; development app data lives in `~/Library/Application Support/DeepViewer Dev`. Replacing the application does not replace these directories. Legacy data is copied and verified before first-use cutover; migration backups are retained. Keep your own backup before a major upgrade.
 
-The 0.5.1 Build 91 installer is freshly built, Developer ID signed, and Apple-notarized. The bounded smoke suite passed 121 tests; package audit, integrity, and runtime evidence are recorded in the [0.5.1 release record](docs/sdd/releases/v0.5.1.md).
+The 0.7.1 Build 92 installer is freshly built, Developer ID signed, and Apple-notarized. The bounded smoke suite passed 121 tests; package audit, integrity, and runtime evidence are recorded in the [0.7.1 release record](docs/sdd/releases/v0.7.1.md).
 
 Office conversion may wait while scanning protected font directories in a real user profile; font permissions remain a manual check. This installer release does not publish the automatic-update feed.
 
@@ -122,9 +123,9 @@ Office conversion may wait while scanning protected font directories in a real u
 
 | Component | Source and license | What DeepViewer changes |
 | --- | --- | --- |
-| Core agent and native shell | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), MIT, pinned to `639ed015397290b3745d163aafe02ffee4aa3f84` (`0.2.0-rc.2`) | Official Electron/DesktopHost with the [DeepViewer adapter](apps/deepviewer-adapter) and checked compatibility contracts. The agent loop remains upstream-owned. |
+| Core agent and native shell | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), MIT, pinned to `687f282e8625c6b8d11ff58211a90524be2e4317` (`0.2.1-rc.2`) | Official Electron/DesktopHost with the [DeepViewer adapter](apps/deepviewer-adapter) and checked compatibility contracts. The agent loop remains upstream-owned. |
 | Desktop source baseline | [Duoasa/scoder](https://github.com/Duoasa/scoder), `0.7.0 / Build 43`, pinned to `e277adc6ce512655095e6f65c63bdc72d24bae95`; original notices retained | Restore DeepViewer branding, package/update identities and data isolation, retain native features, and fix metadata-driven renderer replacement. Scoder's release history and user data are not imported. |
-| Subscriptions and image tools | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions), MIT, `0.3.1` | Built-in DSH 0.2.0 compatibility module, scoped RPC/loopback checks, remaining-usage display, and image-generation status styling. |
+| Subscriptions and image tools | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions), MIT, `0.3.1` | Built-in DSH 0.2.1 compatibility module, scoped RPC/loopback checks, remaining-usage display, and image-generation status styling. |
 | Sidebar provenance | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar), MIT | The standalone plugin is retired; Harness native panels take over the workbench. Attribution is retained for reused workflow code. |
 | Model capabilities | [DeepViewer model-capabilities module](apps/dsh-plugin-model-capabilities), MIT, `1.0.2` | Provider/model scanning and reasoning/multimodal configuration, replacing the old `dsh-plugin-reasoning` activation while preserving supported settings. |
 | Session map | [Vendored Synapse source](apps/deepviewer-adapter/workflows/vendor/synapse), with its original license and source record | Built-in session-map integration within the DeepViewer adapter. |
@@ -146,7 +147,7 @@ pnpm desktop:dev
 
 `pnpm desktop:dev` builds and opens DeepViewer Dev using its separate profile. Use `pnpm desktop:dev:restart` to restart that project's development runner, or `pnpm desktop:build` to build without launching. Development builds increment the local build number.
 
-Basic verification uses `pnpm typecheck` and `pnpm desktop:smoke`; native integration and adapter-contract checks are defined in the [CI workflow](.github/workflows/ci.yml). `pnpm desktop:preview` prepares a local preview. `pnpm desktop:release` prepares signed arm64 DMG/ZIP artifacts and requires `DEEPVIEWER_SIGN_IDENTITY`, `DEEPVIEWER_TEAM_ID`, and `DEEPVIEWER_NOTARY_PROFILE`; it does not publish them. Signing/notary credentials remain local, with the notary profile in the Keychain.
+Basic verification uses `pnpm typecheck` and `pnpm desktop:smoke`; native integration and adapter-contract checks are defined in the [CI workflow](.github/workflows/ci.yml). `pnpm desktop:preview` prepares a local preview. `pnpm desktop:release` prepares signed arm64 DMG/ZIP artifacts and requires `DEEPVIEWER_SIGN_IDENTITY`, `DEEPVIEWER_TEAM_ID`, and `DEEPVIEWER_NOTARY_PROFILE`, and `CSC_KEYCHAIN`; it does not publish them. Signing/notary credentials remain local, with the notary profile in the Keychain.
 
 The [0.3.3 snapshot instructions](upstream/snapshots/v0.3.3/README.md) remain a historical reproduction guide for Build 75, not the build procedure for 0.5.0 or later.
 
