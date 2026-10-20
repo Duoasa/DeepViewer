@@ -27,6 +27,7 @@ export function initializeDeepViewer(): boolean {
   prepareKernelSnapshot(process.env.DSH_HOME)
   process.env.DSH_TELEMETRY_MODE = 'DISABLED'
   process.env.DEEPVIEWER_DESKTOP = '1'
+  process.env.DEEPVIEWER_FIGMA_DEVELOPMENT = development ? '1' : '0'
   process.env.DSH_DESKTOP_OPEN_DEVTOOLS ??= '0'
   // Feed names are sealed by the product manifest; stable policy remains native.
   process.env.DEEPVIEWER_UPDATE_CHANNEL = product.deepviewerUpdateChannel === 'preview' ? 'preview' : 'latest'
@@ -40,8 +41,10 @@ export function initializeDeepViewer(): boolean {
   const disabledIntegrations = []
   if (['DEEPVIEWER_DISABLE_SUBSCRIPTIONS_PLUGIN', 'DEEPVIEWER_DISABLE_SUBSCRIPTIONS', 'DEEPVIEWER_DISABLE_SUBSCRIPTIONS'].some(key => process.env[key] === '1')) disabledIntegrations.push('dsh-plugin-subscriptions')
   if (['DEEPVIEWER_DISABLE_MODEL_CAPABILITIES_PLUGIN', 'DEEPVIEWER_DISABLE_MODEL_CAPABILITIES', 'DEEPVIEWER_DISABLE_REASONING', 'DEEPVIEWER_DISABLE_REASONING'].some(key => process.env[key] === '1')) disabledIntegrations.push('@deepviewer/dsh-plugin-model-capabilities')
+  if (process.env.DEEPVIEWER_DISABLE_FIGMA === '1') disabledIntegrations.push('dsh-to-figma')
   prepareDesktopProfile(process.env.DSH_HOME, runtime, [
     { name: '@deepviewer/adapter', version: product.version, directory: join(runtime, 'node_modules', '@deepviewer', 'adapter') },
+    { name: 'dsh-to-figma', version: '0.2.1', directory: join(runtime, 'node_modules', 'dsh-to-figma') },
     { name: 'dsh-plugin-subscriptions', version: '0.3.1', directory: join(runtime, 'node_modules', 'dsh-plugin-subscriptions') },
     { name: '@deepviewer/dsh-plugin-model-capabilities', version: '1.0.2', directory: join(runtime, 'node_modules', '@deepviewer', 'dsh-plugin-model-capabilities') },
   ], disabledIntegrations)

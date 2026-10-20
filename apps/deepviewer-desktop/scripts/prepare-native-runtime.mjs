@@ -1,3 +1,4 @@
+import { nativeModuleNames } from '../../deepviewer-adapter/scripts/stage-native-modules.mjs'
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -13,7 +14,7 @@ export async function prepareNativeRuntime(outputStage = join(appRoot, '.desktop
  const {writeDesktopRuntime,verifyDesktopRuntime}=await import(join(upstream,'apps/desktop/src/runtime-tree.ts'))
  const stage=resolve(outputStage);rmSync(stage,{recursive:true,force:true});mkdirSync(stage,{recursive:true})
  const runtime=join(stage,'app/dsh'), devRuntime=join(appRoot,'.desktop/native-runtime')
- const names=['@deepseek-ai/dsh','@deepseek-ai/dsh-desktop-host','@deepviewer/adapter','@deepviewer/dsh-plugin-model-capabilities','dsh-plugin-subscriptions']
+ const names=['@deepseek-ai/dsh','@deepseek-ai/dsh-desktop-host',...nativeModuleNames]
  const graph=productionGraph(names.map(name=>locatePackage(name,devRuntime)))
  const inventory=materializeClosure(graph,runtime,desktopRuntimeFileExclusion,readFileSync(join(upstream,'LICENSE'),'utf8'))
  const dev=JSON.parse(readFileSync(join(devRuntime,'desktop-runtime.json'),'utf8'))

@@ -134,3 +134,18 @@ describe('independent desktop migration', () => {
   expect(legacyOrigins('INFO runtime ready origin=http://127.0.0.1:19876\nINFO runtime ready origin=https://example.com\n')).toEqual(['http://127.0.0.1:19876'])
  })
 })
+
+it('backs up an existing Figma activation and preserves explicit port/backend/disabled settings across native conversion', () => {
+ const f=fixture(); prepareDesktopProfile(f.home,f.runtime,f.integrations)
+ const target=join(f.home,'profiles/desktop'), marker=join(f.home,'.deepviewer-desktop-migration.json')
+ const journal=JSON.parse(readFileSync(marker,'utf8')); delete journal.figmaNativeVersion; writeFileSync(marker,JSON.stringify(journal)); rmSync(join(f.home,'migration-backups/figma-native-v1'),{recursive:true})
+ const original='- insert:\n  - id: figma-old\n    name: dsh-to-figma\n    disabled: true\n    config:\n      backend: local\n      bridgePort: 31999\n'
+ writeFileSync(join(target,'cordis.patch.yml'),original)
+ writeFileSync(join(target,'package.json'),JSON.stringify({dependencies:{'dsh-to-figma':'0.2.1'},dsh:{profile:{bundles:['dsh-to-figma']}}}))
+ prepareDesktopProfile(f.home,f.runtime,f.integrations)
+ expect(load(readFileSync(join(target,'cordis.patch.yml'),'utf8'))).toEqual([{id:'deepviewer-figma',disabled:true,config:{backend:'local',bridgePort:31999}}])
+ expect(readFileSync(join(target,'package.json'),'utf8')).not.toContain('dsh-to-figma')
+ expect(readFileSync(join(f.home,'migration-backups/figma-native-v1/cordis.patch.yml'),'utf8')).toBe(original)
+ prepareDesktopProfile(f.home,f.runtime,f.integrations)
+ expect(readFileSync(join(f.home,'migration-backups/figma-native-v1/cordis.patch.yml'),'utf8')).toBe(original)
+})

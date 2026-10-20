@@ -5,7 +5,7 @@
 <h1 align="center">DeepViewer</h1>
 
 <p align="center">
-  基于 DeepSeek Harness 的可视、可控、可定制桌面 Agent 工作台。
+  针对设计师优化的专用 Agent 工作台。
 </p>
 
 <p align="center">
@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/DeepViewer-0.7.1-arm64.dmg"><strong>下载 0.7.1（ARM64）</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/DeepViewer-0.7.3-arm64.dmg"><strong>下载 0.7.3（ARM64）</strong></a>
   ·
-  <a href="#071-更新">本版更新</a>
+  <a href="#073-更新">本版更新</a>
   ·
   <a href="#安装与数据">隐私与数据</a>
   ·
@@ -31,11 +31,10 @@
   <a href="README.md">English</a> · <strong>简体中文</strong>
 </p>
 
-DeepViewer 是建立在
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 之上的独立开源桌面
-Agent 工作台。它通过原生 Electron/DesktopHost 将固定版本的 Runtime 封装进 macOS
-应用，提供 Work / Chat 空间、文件交付、侧栏工作台和会话图谱。0.5.0 源码承接
-Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。0.7.1 升级内核与兼容适配层，保留 DeepViewer 前端，以及 0.5.1 恢复的待机动画与原生图标。
+DeepViewer 是针对设计师优化的开源专用 Agent 工作台，基于
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)。从设计探索、
+参考图重建，到 Figma 可编辑图层、素材处理和可运行原型，在同一个桌面工作区中完成。
+0.7.3 原生集成 DSH-to-Figma，保留现有 DeepViewer 界面、Work/Chat、文件交付、侧栏工作台和会话图谱。
 
 <p align="center">
   <img src="Resources/screenshots/image-delivery.png" width="100%" alt="DeepViewer 0.3.3 将生成图片作为附件交付并在侧栏预览">
@@ -45,21 +44,45 @@ Scoder 0.7.0 Build 43，恢复 DeepViewer 品牌和独立的数据目录。0.7.1
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> 当前正式版本为 **DeepViewer 0.7.1 / Build 92**，内置 DeepSeek Harness `0.2.1-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。维护者已确认升级开发版界面正常；真实账户、其余交互及迁移会话/设置/附件仍保留独立的人工验收边界。
+> 当前正式版本为 **DeepViewer 0.7.3 / Build 93**，内置 DeepSeek Harness `0.2.1-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。维护者已确认升级开发版界面正常；真实账户、其余交互及迁移会话/设置/附件仍保留独立的人工验收边界。
 
 > [!TIP]
-> [0.7.1 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一版本 [0.5.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1)、历史 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
+> [0.7.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一版本 [0.5.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1)、历史 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
 
 > [!NOTE]
-> 本 README 的全部截图均为 **0.3.3 / Build 75 历史参考**，本次没有替换截图，不代表 0.7.1 当前界面或视觉验收结果。
+> 下方 DeepViewer 界面截图为 **0.3.3 / Build 75 历史参考**；Figma 图片来自 DSH-to-Figma 上游产品示例，均不作为本次集成的视觉验收证据。
 
-## 0.7.1 更新
+## 0.7.3 更新
 
-- DeepSeek Harness 从 `0.2.0-rc.2` 升级到 `0.2.1-rc.2`，Electron 升级到 `44.7.0`。
-- 适配新版原生会话、草稿持久化、插件构建与更新通道接口；保留 Work/Chat 隔离、历史与搜索、Synapse，以及 DeepViewer 现有布局、字体、图标和待机动画。
-- 修复包内 Python 符号链接和 pnpm 布局，确保搬迁安装包后运行时仍可用；原生依赖、插件安装和 Office 转换已有隔离运行时验证。
+- 原生内置 **DSH-to-Figma 0.2.1** 工具与 Figma 工作流技能，无需另外安装 DSH 插件包。
+- 明确面向设计师：从参考图和设计上下文，走向可编辑图层、素材和可运行原型。
+- 本机私有配对、安装版与开发版独立连接端口，保留已有插件设置。现有前端和 DSH `0.2.1-rc.2` 内核保持不变。
 
-安装包证据和人工验收边界见 [0.7.1 发布记录](docs/sdd/releases/v0.7.1.md)。维护者已确认升级开发版界面正常，真实账户与完整交互仍单独验收。
+安装包验证与人工验收边界见 [0.7.3 发布记录](docs/sdd/releases/v0.7.3.md)。DeepViewer 中真实 Figma 配对、编辑与导出仍待维护者验收。
+
+## 原生 DSH-to-Figma
+
+[DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) 将 Agent 接入 Figma 原生
+Plugin API，可读取设计上下文，创建和编辑画板、文本、自动布局、组件与变量，获取截图并导出素材。
+生成的设计保留为 Figma 可编辑图层。
+
+![DSH-to-Figma 产品示例：将参考截图重建为 Figma 原生可编辑图层](vendor/dsh-to-figma/assets/examples/screenshot-to-ui-figma.png)
+
+*图片来自 DSH-to-Figma v0.2.1（MIT）产品示例：参考图重建、原生图层和 1440 × 900 画板。
+这是上游实例，不是本次 DeepViewer 集成的验收截图。*
+
+1. 打开带本地工作区的 **Work** 会话，告诉 Agent：“帮我设置 Figma，给出配套插件的 manifest 路径。”Agent 会调用 `figma_setup`。
+2. 在 Figma Desktop 中选择 **Plugins → Development → Import plugin from manifest**，导入生成的 `manifest.json`，在目标 Design 文件中运行 **DSH to Figma · Local**，保持插件窗口打开。
+3. 让 DeepViewer 检查连接（`figma_status`）并描述想要的修改。只有一个连接文件时自动选用，多个文件时需要明确选择。
+
+配对文件保存在当前应用数据目录的 `harness-home/figma`，其中含本机凭证，请勿分享或移动该文件夹。
+安装版使用本机回环端口 **3065**，开发版使用 **3066**，与独立 DSH 默认的 **3055** 分开；
+已有显式端口和后端设置优先。端口冲突时保留诊断工具，不阻断 Agent 启动；可关闭冲突实例，
+或在 desktop profile patch 的 `deepviewer-figma` 行设置其他 `bridgePort` 后重启。
+`DEEPVIEWER_DISABLE_FIGMA=1` 可停用模块；停用选择会保存在 profile 中，恢复时移除对应的 `disabled: true` 覆盖。
+
+画布操作要求 Work 工作区与已连接的配套插件。本地模式不提供云端专属生成能力；官方 Figma
+桌面/远程 MCP 属于独立后端，受其可用性和权限约束。
 
 ## 0.5.0 从 0.3.3 迁移的功能变化
 
@@ -108,13 +131,13 @@ Work 按项目组织会话，Chat 可以脱离工作区保存对话。两种模�
 
 ## 安装与数据
 
-1. 下载 [DeepViewer-0.7.1-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/DeepViewer-0.7.1-arm64.dmg)，并用 [0.7.1 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1) 中的 [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/SHA256SUMS.txt) 校验。
+1. 下载 [DeepViewer-0.7.3-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/DeepViewer-0.7.3-arm64.dmg)，并用 [0.7.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) 中的 [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt) 校验。
 2. 打开 DMG，将 `DeepViewer.app` 复制到“应用程序”。
 3. 打开应用并配置模型提供方或订阅账户。无需全局安装 Node.js 或 Harness。
 
 本地服务仅监听随机 loopback 端口。安装版数据固定存放于 `~/Library/Application Support/DeepViewer`，开发版固定存放于 `~/Library/Application Support/DeepViewer Dev`。覆盖安装应用不会替换这些目录；首次迁移会先复制、校验并保留备份。重大升级前仍建议自行备份。
 
-0.7.1 Build 92 安装包已全新构建，完成 Developer ID 签名和 Apple 公证。bounded smoke 共 121 项通过；包体净化、完整性和运行时验证证据见 [0.7.1 发布记录](docs/sdd/releases/v0.7.1.md)。
+0.7.3 Build 93 安装包已全新构建，完成 Developer ID 签名和 Apple 公证。bounded smoke 共 122 项通过；包体净化、完整性和运行时验证证据见 [0.7.3 发布记录](docs/sdd/releases/v0.7.3.md)。
 
 真实用户环境扫描受保护的 Office 字体目录可能等待，字体权限仍需人工验收。本次仅发布安装包，不发布自动更新 feed。
 
@@ -153,3 +176,5 @@ pnpm desktop:dev
 [SDD 文档](docs/sdd/README.md)记录架构、插件来源、需求和验证。DeepViewer 原创代码采用 [MIT License](LICENSE)；各上游许可证继续适用。
 
 问题反馈请到 [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues)，不要附带凭据、私有文件或未脱敏日志。
+
+DSH-to-Figma 0.2.1 (MIT): [source](https://github.com/Duoasa/DSH-to-Figma), [pinned revision and file hashes](vendor/dsh-to-figma/UPSTREAM.json).

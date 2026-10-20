@@ -1,11 +1,11 @@
 {
   "name": "@deepviewer/desktop",
   "productName": "DeepViewer",
-  "version": "0.7.1",
-  "buildNumber": 92,
-  "previewRelease": "0.7.1-preview.1",
+  "version": "0.7.3",
+  "buildNumber": 93,
+  "previewRelease": "0.7.3-preview.1",
   "private": true,
-  "description": "DeepViewer agent workspace for DeepSeek Harness",
+  "description": "DeepViewer — a dedicated agent workspace optimized for designers",
   "license": "MIT",
   "type": "module",
   "main": "lib/main.js",
@@ -61,7 +61,8 @@
     "dsh-plugin-subscriptions": "0.3.1",
     "ipaddr.js": "2.5.0",
     "socks": "2.8.7",
-    "js-yaml": "4.1.1"
+    "js-yaml": "4.1.1",
+    "@modelcontextprotocol/client": "2.0.0"
   },
   "dshDesktopUpdateChannel": "latest"
 }

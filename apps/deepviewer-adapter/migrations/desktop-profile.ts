@@ -5,7 +5,7 @@ import { load, dump } from 'js-yaml'
 
 const SCHEMA = 1
 const retired = new Set(['dsh-better-sidebar', 'dsh-plugin-reasoning', '@deepviewer/dsh-plugin-reasoning', '@deepseek-ai/dsh-plugin-reasoning', 'dsh-plugin-preview', '@deepviewer/dsh-plugin-preview', 'deepviewer-taskboard', 'dsh-codex-taskboard', 'better-sidebar', 'ui-better-sidebar'])
-const nativeRows: Record<string, string> = { '@deepviewer/adapter': 'deepviewer-adapter', 'dsh-plugin-subscriptions': 'llm-subscriptions', '@deepviewer/dsh-plugin-model-capabilities': 'model-capabilities' }
+const nativeRows: Record<string, string> = { 'dsh-to-figma': 'deepviewer-figma', '@deepviewer/adapter': 'deepviewer-adapter', 'dsh-plugin-subscriptions': 'llm-subscriptions', '@deepviewer/dsh-plugin-model-capabilities': 'model-capabilities' }
 const legacyReasoning = new Set(['dsh-plugin-reasoning', '@deepviewer/dsh-plugin-reasoning', '@deepseek-ai/dsh-plugin-reasoning', 'deepviewer-model-reasoning'])
 interface Manifest { name?: string; version?: string; dependencies?: Record<string, string>; devDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>; dsh?: { profile?: { bundles?: string[] } } }
 export interface Integration { name: string; version: string; directory: string }
@@ -65,6 +65,15 @@ export function prepareDesktopProfile(home: string, runtime: string, integration
   for (const plugin of integrations) {
     if (!existsSync(join(plugin.directory, 'package.json'))) throw new Error(`Missing integration: ${plugin.name}`)
   }
+  const figmaBackup = join(home, 'migration-backups', 'figma-native-v1')
+  if (!journal.figmaNativeVersion && !existsSync(join(figmaBackup, 'index.json'))) {
+    mkdirSync(figmaBackup, { recursive: true, mode: 0o700 })
+    const saved = []
+    for (const file of ['package.json', 'cordis.patch.yml', 'pnpm-lock.yaml']) {
+      if (existsSync(join(target, file))) { backupFile(join(target, file), join(figmaBackup, file)); saved.push(file) }
+    }
+    atomic(join(figmaBackup, 'index.json'), JSON.stringify({ files: saved }))
+  }
   const files = ['package.json', 'cordis.patch.yml', 'pnpm-workspace.yaml', 'pnpm-lock.yaml']
   const nativeBackup = join(home, 'migration-backups', 'builtins-v1')
   if (journal.nativeModulesVersion !== 1 && !existsSync(join(nativeBackup, 'index.json'))) {
@@ -94,7 +103,7 @@ export function prepareDesktopProfile(home: string, runtime: string, integration
     for (const plugin of integrations) {
       const selected = previous.dsh?.profile?.bundles ?? []
       const replacesReasoning = plugin.name === '@deepviewer/dsh-plugin-model-capabilities' && selected.some(name => legacyReasoning.has(name))
-      if (!selected.includes(plugin.name) && !replacesReasoning) disabled.add(plugin.name)
+      if (plugin.name !== 'dsh-to-figma' && !selected.includes(plugin.name) && !replacesReasoning) disabled.add(plugin.name)
     }
   }
   const template = json(join(runtime, 'package.json'))
@@ -133,7 +142,7 @@ export function prepareDesktopProfile(home: string, runtime: string, integration
     try { if (lstatSync(link).isSymbolicLink() && resolve(dirname(link), readlinkSync(link)) === owned) unlinkSync(link) } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error }
   }
   // A failed conversion leaves its own completion unset, allowing a backed-up retry.
-  atomic(marker, `${JSON.stringify({ ...journal, schemaVersion: SCHEMA, nativeModulesVersion: 1, completedAt: journal.completedAt ?? new Date().toISOString(), sourceProfile: existsSync(source) ? 'web' : null, ownedLinks })}\n`)
+  atomic(marker, `${JSON.stringify({ ...journal, schemaVersion: SCHEMA, nativeModulesVersion: 1, figmaNativeVersion: 1, completedAt: journal.completedAt ?? new Date().toISOString(), sourceProfile: existsSync(source) ? 'web' : null, ownedLinks })}\n`)
 }
 
 /** Explicit metadata rollback. Preserve a second backup of current state; never downgrade or delete Session/credential data. */

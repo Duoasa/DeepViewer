@@ -5,7 +5,7 @@
 <h1 align="center">DeepViewer</h1>
 
 <p align="center">
-  A visual, controllable, and customizable desktop workspace for DeepSeek Harness.
+  A dedicated agent workspace optimized for designers.
 </p>
 
 <p align="center">
@@ -18,9 +18,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/DeepViewer-0.7.1-arm64.dmg"><strong>Download 0.7.1 (ARM64)</strong></a>
+  <a href="https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/DeepViewer-0.7.3-arm64.dmg"><strong>Download 0.7.3 (ARM64)</strong></a>
   ·
-  <a href="#whats-new-in-071">What's new</a>
+  <a href="#whats-new-in-073">What's new</a>
   ·
   <a href="#install-and-data">Privacy &amp; data</a>
   ·
@@ -31,12 +31,12 @@
   <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-DeepViewer is an independent, open-source desktop agent workspace built on
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It bundles
-the pinned runtime into a macOS application with the native Electron
-DesktopHost, Work and Chat spaces, file delivery, a sidebar workbench, and a
-session map. The 0.5.0 source derives from Scoder 0.7.0 Build 43, restored to
-DeepViewer's identity and independent data directories. Version 0.7.1 upgrades the kernel and compatibility adapter while preserving the DeepViewer interface, including the idle animation and native icon restored in 0.5.1.
+DeepViewer is an independent, open-source agent workspace optimized for designers,
+built on [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
+Explore ideas, turn references into editable Figma layers, work with assets and
+build runnable prototypes in one desktop workspace. Version 0.7.3 natively
+integrates DSH-to-Figma while preserving the existing DeepViewer interface,
+Work/Chat spaces, file delivery, sidebar workbench and session map.
 
 <p align="center">
   <img src="Resources/screenshots/image-delivery.png" width="100%" alt="DeepViewer 0.3.3 delivering a generated image with an attachment card and sidebar preview">
@@ -46,21 +46,52 @@ DeepViewer's identity and independent data directories. Version 0.7.1 upgrades t
 > DeepViewer is a community project. It is not affiliated with or endorsed by DeepSeek.
 
 > [!IMPORTANT]
-> The current release is **DeepViewer 0.7.1 / Build 92**, based on DeepSeek Harness `0.2.1-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. The maintainer has accepted the upgraded development interface; real-account flows, other interactions, and migrated sessions/settings/attachments retain separate manual checks.
+> The current release is **DeepViewer 0.7.3 / Build 93**, based on DeepSeek Harness `0.2.1-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. The maintainer has accepted the upgraded development interface; real-account flows, other interactions, and migrated sessions/settings/attachments retain separate manual checks.
 
 > [!TIP]
-> The [0.7.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1), historical [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
+> The [0.7.3 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1), historical [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
 
 > [!NOTE]
-> All screenshots in this README are historical **0.3.3 / Build 75** references. They have not been replaced or used as evidence of the 0.7.1 interface or visual acceptance.
+> DeepViewer interface screenshots are historical **0.3.3 / Build 75** references. The Figma image is an upstream DSH-to-Figma product example. Neither establishes visual acceptance of this integration.
 
-## What's new in 0.7.1
+## What's new in 0.7.3
 
-- Upgrade DeepSeek Harness from `0.2.0-rc.2` to `0.2.1-rc.2` and Electron to `44.7.0`.
-- Update the compatibility adapter to native session, draft persistence, plugin build, and update-channel interfaces. Preserve Work/Chat isolation, session history and search, Synapse, and the existing DeepViewer layout, fonts, icon, and idle animation.
-- Fix bundled Python symlinks and pnpm layout so the packaged runtime works after relocation. Native dependencies, plugin installation, and Office conversion are covered by isolated runtime smoke checks.
+- Native **DSH-to-Figma 0.2.1** tools and bundled Figma workflow skill, ready without a separate DSH package installation.
+- Designer-focused positioning: move from references and design context to editable layers, assets and runnable prototypes.
+- Private local pairing, separate installed/development bridge ports and preserved plugin settings. The existing frontend and DSH `0.2.1-rc.2` kernel remain.
 
-See the [0.7.1 release record](docs/sdd/releases/v0.7.1.md) for package verification and remaining manual checks. The maintainer accepted the upgraded development interface. Real-account and full interaction acceptance remain separate.
+See the [0.7.3 release record](docs/sdd/releases/v0.7.3.md) for package verification. Real Figma pairing, editing and export in DeepViewer remain pending maintainer acceptance.
+
+## Native DSH-to-Figma
+
+[DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) connects the agent to Figma's
+native Plugin API. Read design context, create and edit frames, text, auto layout,
+components and variables, capture screenshots and export assets. Generated designs
+remain editable in Figma.
+
+![DSH-to-Figma product example: a screenshot reconstructed as editable native Figma layers](vendor/dsh-to-figma/assets/examples/screenshot-to-ui-figma.png)
+
+*Product example from DSH-to-Figma v0.2.1 (MIT): reference-to-UI reconstruction,
+with native layers and a 1440 × 900 frame. This is an upstream example, not a new
+DeepViewer acceptance screenshot.*
+
+1. Open a **Work** session with a local workspace. Ask: “Set up Figma and show me the companion manifest path.” The agent calls `figma_setup`.
+2. In Figma Desktop, choose **Plugins → Development → Import plugin from manifest**, select the generated `manifest.json`, then run **DSH to Figma · Local** in the target Design file. Keep its window open.
+3. Ask DeepViewer to check the connection (`figma_status`) and describe the intended edit. One connected file is selected automatically; multiple files require an explicit choice.
+
+The paired companion stays in the current app profile's `harness-home/figma` folder.
+It contains a local credential: keep it private and keep the folder in place.
+Installed DeepViewer uses loopback port **3065**, development uses **3066**,
+separate from standalone DSH's **3055**. Existing explicit plugin settings take
+precedence. A port conflict keeps diagnostics available without stopping the
+agent; close the conflicting instance or change `bridgePort` on the
+`deepviewer-figma` row in the desktop profile patch and restart.
+`DEEPVIEWER_DISABLE_FIGMA=1` disables the module and preserves that selection;
+remove its `disabled: true` profile override to re-enable it.
+
+Canvas operations require a Work workspace and a connected companion. Local mode
+does not provide cloud-only generation. Official Figma desktop/remote MCP is a
+separate backend, subject to its own availability and permissions.
 
 ## The 0.5.0 migration from 0.3.3
 
@@ -109,13 +140,13 @@ Settings follow the desktop appearance, and the About page shows the app build a
 
 ## Install and data
 
-1. Download [DeepViewer-0.7.1-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/DeepViewer-0.7.1-arm64.dmg) and verify it against [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.1/SHA256SUMS.txt) from the [0.7.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1).
+1. Download [DeepViewer-0.7.3-arm64.dmg](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/DeepViewer-0.7.3-arm64.dmg) and verify it against [SHA256SUMS.txt](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt) from the [0.7.3 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3).
 2. Open the DMG and copy `DeepViewer.app` to Applications.
 3. Open the app and configure a provider or subscription. No global Node.js or Harness installation is needed.
 
 DeepViewer binds its local service to a random loopback port. Installed app data lives in `~/Library/Application Support/DeepViewer`; development app data lives in `~/Library/Application Support/DeepViewer Dev`. Replacing the application does not replace these directories. Legacy data is copied and verified before first-use cutover; migration backups are retained. Keep your own backup before a major upgrade.
 
-The 0.7.1 Build 92 installer is freshly built, Developer ID signed, and Apple-notarized. The bounded smoke suite passed 121 tests; package audit, integrity, and runtime evidence are recorded in the [0.7.1 release record](docs/sdd/releases/v0.7.1.md).
+The 0.7.3 Build 93 installer is freshly built, Developer ID signed, and Apple-notarized. The bounded smoke suite passed 122 tests; package audit, integrity, and runtime evidence are recorded in the [0.7.3 release record](docs/sdd/releases/v0.7.3.md).
 
 Office conversion may wait while scanning protected font directories in a real user profile; font permissions remain a manual check. This installer release does not publish the automatic-update feed.
 
@@ -126,6 +157,7 @@ Office conversion may wait while scanning protected font directories in a real u
 | Core agent and native shell | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), MIT, pinned to `687f282e8625c6b8d11ff58211a90524be2e4317` (`0.2.1-rc.2`) | Official Electron/DesktopHost with the [DeepViewer adapter](apps/deepviewer-adapter) and checked compatibility contracts. The agent loop remains upstream-owned. |
 | Desktop source baseline | [Duoasa/scoder](https://github.com/Duoasa/scoder), `0.7.0 / Build 43`, pinned to `e277adc6ce512655095e6f65c63bdc72d24bae95`; original notices retained | Restore DeepViewer branding, package/update identities and data isolation, retain native features, and fix metadata-driven renderer replacement. Scoder's release history and user data are not imported. |
 | Subscriptions and image tools | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions), MIT, `0.3.1` | Built-in DSH 0.2.1 compatibility module, scoped RPC/loopback checks, remaining-usage display, and image-generation status styling. |
+| Native Figma tools | [Duoasa/DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma), MIT, `0.2.1` | Native Host module, private companion and separate bridge defaults. [Pinned source and file hashes](vendor/dsh-to-figma/UPSTREAM.json). |
 | Sidebar provenance | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar), MIT | The standalone plugin is retired; Harness native panels take over the workbench. Attribution is retained for reused workflow code. |
 | Model capabilities | [DeepViewer model-capabilities module](apps/dsh-plugin-model-capabilities), MIT, `1.0.2` | Provider/model scanning and reasoning/multimodal configuration, replacing the old `dsh-plugin-reasoning` activation while preserving supported settings. |
 | Session map | [Vendored Synapse source](apps/deepviewer-adapter/workflows/vendor/synapse), with its original license and source record | Built-in session-map integration within the DeepViewer adapter. |

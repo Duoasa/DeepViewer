@@ -24,13 +24,14 @@ const modelServer = createServer((request, response) => {
 await new Promise(resolve => modelServer.listen(0, '127.0.0.1', resolve))
 try {
   process.env.DSH_HOME = home
-  const integrations = ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabilities', 'dsh-plugin-subscriptions'].map(name => { const directory = join(runtime, 'node_modules', name); return { name, directory, version: JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8')).version } })
+  const integrations = ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabilities', 'dsh-plugin-subscriptions', 'dsh-to-figma'].map(name => { const directory = join(runtime, 'node_modules', name); return { name, directory, version: JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8')).version } })
   prepareDesktopProfile(home, runtime, integrations)
+  const portProbe = createServer(); await new Promise(resolve => portProbe.listen(0, '127.0.0.1', resolve)); const figmaPort = portProbe.address().port; await new Promise(resolve => portProbe.close(resolve))
   const paths = resolveDesktopPaths(home)
   writeFileSync(join(home, '.credentials.yaml'), JSON.stringify({ version: 1, refs: { SMOKE_KEY: 'fixture-only' } }), { mode: 0o600 })
   writeFileSync(join(home, 'settings.yaml'), dump({ 'llm-pi-ai': { providers: { fixture: { api: 'openai-completions', baseURL: `http://127.0.0.1:${modelServer.address().port}/v1`, apiKeyEnv: 'SMOKE_KEY', models: [{ id: 'fixture', name: 'Fixture model', contextWindow: 128000, maxTokens: 1024 }] } } } }), { mode: 0o600 })
   await new DesktopProjectManager(paths, { dsh: runtime }).applyRelease()
-  const patch = load(readFileSync(join(paths.profile, 'cordis.patch.yml'), 'utf8')); writeFileSync(join(paths.profile, 'cordis.patch.yml'), dump([...(patch ?? []), { id: 'webserver', config: { host: '127.0.0.1', port: 0 } }]))
+  const patch = load(readFileSync(join(paths.profile, 'cordis.patch.yml'), 'utf8')); writeFileSync(join(paths.profile, 'cordis.patch.yml'), dump([...(patch ?? []), { id: 'webserver', config: { host: '127.0.0.1', port: 0 } }, { id: 'deepviewer-figma', config: { bridgePort: figmaPort } }]))
   const environment = { ...process.env, DSH_HOME: home, DSH_TELEMETRY_MODE: 'DISABLED', HTTP_PROXY: 'http://127.0.0.1:1', HTTPS_PROXY: 'http://127.0.0.1:1' }
   for (const key of Object.keys(environment)) if (/KEY|TOKEN|SECRET|PASSWORD/u.test(key)) delete environment[key]
   const createHost = () => new DesktopHostProcess(process.execPath, runtime, paths.profile, undefined, environment, undefined, process.env.DSH_DESKTOP_PRIMARY_RUNTIME_DIR ?? join(appRoot, '.desktop/runtime/primary-runtime'), { pnpm: join(appRoot, 'node_modules/pnpm/bin/pnpm.mjs'), nodeBin: join(appRoot, 'scripts/node-bin') })
@@ -38,6 +39,9 @@ try {
   const ready = await host.start()
   assert.equal(new URL(ready.url).hostname, '127.0.0.1')
   assert.ok(ready.injections?.length)
+  const figmaState = JSON.parse(readFileSync(join(home, 'figma/bridge.json'), 'utf8')); assert.equal(figmaState.port, figmaPort)
+  assert.equal((await fetch(`http://127.0.0.1:${figmaPort}/`)).status, 401)
+  assert.equal(JSON.parse(readFileSync(figmaState.companion, 'utf8')).networkAccess.devAllowedDomains[0], `http://localhost:${figmaPort}`)
   const unauthenticated = await fetch(new URL('/api', ready.url), { redirect: 'manual' })
   assert.equal(unauthenticated.status, 401)
   const authenticated = await fetch(ready.url, { redirect: 'manual' })
@@ -45,7 +49,7 @@ try {
   const document = await fetch(new URL('/', ready.url), { headers: { cookie: cookies } })
   assert.equal(document.status, 200)
   const html = await document.text(); assert.ok(html.includes('__DSH_BOOT__'))
-  for (const integration of integrations) assert.ok(html.includes(integration.name), `Missing active integration: ${integration.name}`); assert.ok(!html.includes('dsh-better-sidebar'))
+  for (const integration of integrations.filter(item => item.name !== 'dsh-to-figma')) assert.ok(html.includes(integration.name), `Missing active integration: ${integration.name}`); assert.ok(!html.includes('dsh-better-sidebar'))
   let origin = new URL(ready.url).origin, cookie = cookies
   async function rpc(method, args, channel = '/api/', expected = true) {
     const response = await fetch(origin + channel + method, { method: 'POST', headers: { 'content-type': 'application/json', Origin: origin, Cookie: cookie }, body: JSON.stringify({ type: 'client-request', rpcId: crypto.randomUUID(), method, payload: channel === '/api/' ? { args } : args }), signal: AbortSignal.timeout(15000) })
@@ -123,6 +127,7 @@ try {
   prepareDesktopProfile(home, runtime, integrations)
   const recoveredManifest = JSON.parse(readFileSync(join(paths.profile,'package.json'),'utf8'))
   for (const plugin of integrations) assert.ok(!recoveredManifest.dsh.profile.bundles.includes(plugin.name))
+  const conflict = createServer(); await new Promise(resolve => conflict.listen(figmaPort, '127.0.0.1', resolve))
   host = createHost(); const recovered = await host.start(); origin = new URL(recovered.url).origin
   const recoveryLogin = await fetch(recovered.url, { redirect: 'manual' }); cookie = recoveryLogin.headers.getSetCookie().map(value => value.split(';')[0]).join('; ')
   await rpc('status', {}, '/subscriptions-auth/')
@@ -131,13 +136,15 @@ try {
   for (const integration of integrations) assert.ok(!recoveryBundles.some(bundle => bundle.name === integration.name))
   await rpc('session/create', { request: { sessionId: 'recovered-core', cwd: workspace } })
   await host.stop(true); host = undefined
+  await new Promise(resolve => conflict.close(resolve))
   // The diagnostic flag wins over a stale explicit enable override and opens pure native core.
-  writeFileSync(join(paths.profile,'cordis.patch.yml'),dump([{id:'model-capabilities',disabled:false}]))
+  writeFileSync(join(paths.profile,'cordis.patch.yml'),dump([{id:'model-capabilities',disabled:false},{id:'deepviewer-figma',disabled:false,config:{bridgePort:figmaPort}}]))
   environment.DEEPVIEWER_DISABLE_BUILTINS = '1'
   host = createHost(); const diagnostic = await host.start(); origin = new URL(diagnostic.url).origin
   const diagnosticLogin = await fetch(diagnostic.url,{redirect:'manual'}); cookie = diagnosticLogin.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ')
   const diagnosticHtml = await (await fetch(new URL('/',diagnostic.url),{headers:{cookie}})).text()
   for (const integration of integrations) assert.ok(!diagnosticHtml.includes(integration.name), `Diagnostic flag did not disable native module: ${integration.name}`)
+  await assert.rejects(fetch(`http://127.0.0.1:${figmaPort}/`, {signal: AbortSignal.timeout(1000)}))
   await rpc('session/create', { request: { sessionId: 'diagnostic-core', cwd: workspace } })
   await host.stop(true); host = undefined
   console.info(JSON.stringify({ result: 'PASS', core: '0.2.1-rc.2', privateHost: true, integrationRPC: true, nativeSynapse: true, nativeModules: true, noManagedBundles: true, workChatIsolation: true, blankReuse: true, startedSessionPreserved: true, coldHistory: true, editorRPC: true, integrations: integrations.map(plugin => plugin.name), nativeRecovery: true, diagnosticPureCore: true, gracefulShutdown: true }))

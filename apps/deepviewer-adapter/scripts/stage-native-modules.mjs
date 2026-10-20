@@ -1,14 +1,14 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-export const nativeModuleNames = ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabilities', 'dsh-plugin-subscriptions']
+export const nativeModuleNames = ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabilities', 'dsh-plugin-subscriptions', 'dsh-to-figma']
 /** Retain standalone source packaging, but ship integrated modules without installable bundle metadata. */
 export function stageNativeModules(upstream, cliTarget) {
   const versions = {}
   for (const name of nativeModuleNames) {
     const path = join(upstream, 'node_modules', name, 'package.json')
     const manifest = JSON.parse(readFileSync(path, 'utf8'))
-    if (manifest.name !== name || !manifest.dsh?.client) throw new Error(`Native module manifest mismatch: ${name}`)
+    if (manifest.name !== name || (!manifest.dsh?.client && !(name === 'dsh-to-figma' && manifest.main === 'index.mjs' && existsSync(join(dirname(path), manifest.main))))) throw new Error(`Native module manifest mismatch: ${name}`)
     delete manifest.dsh.bundle
     writeFileSync(path, JSON.stringify(manifest, null, 2) + '\n')
     versions[name] = manifest.version
