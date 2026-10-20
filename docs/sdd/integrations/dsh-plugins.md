@@ -15,7 +15,7 @@
 ## 当前登记
 
 DV-0035 在现有前端与原生外壳边界内升级至固定 DSH 0.2.1-rc.2 / `687f282e8625c6b8d11ff58211a90524be2e4317`。
-Active 模块由应用构建与原生组合负责，仍按 PC 检查，不列为用户安装插件。
+DV-0036 在同一内核上原生集成 Figma 并发布 0.7.3。Active 模块由应用构建与原生组合负责，仍按 PC 检查，不列为用户安装插件。最新完整 PC 证据见 [DV-0036](../specs/DV-0036-designer-figma-native/verification.md)。
 
 | ID | 插件/内置模块 | 固定版本 | 状态 | 最近验证内核 | 最近结论 | 证据 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -31,10 +31,10 @@ Active 模块由应用构建与原生组合负责，仍按 PC 检查，不列为
 
 ### 当前原生组合与恢复边界
 
-- `apps/deepviewer-adapter/native-modules.patch.yml` 定义 subscriptions、model-capabilities；adapter 本身由原生 bundle 挂载。
+- `apps/deepviewer-adapter/native-modules.patch.yml` 定义 subscriptions、model-capabilities、Figma；adapter 本身由原生 bundle 挂载。
 - `DEEPVIEWER_DISABLE_BUILTINS=1` 暂停全部内置模块并退回官方核心；单项 `DEEPVIEWER_DISABLE_SUBSCRIPTIONS=1` 与 `DEEPVIEWER_DISABLE_MODEL_CAPABILITIES=1` 可安全禁用，并保留已迁移的禁用选择。
 - 旧 `profiles/web`、kernel-v020 快照及模块配置备份保留；新 `profiles/desktop` 不继续挂载 reasoning、Better Sidebar 或旧 preview。用户 provider/model 设置与凭据引用原位保留。
-- Runtime 使用固定上游和应用模块重新构建；这次不生成公开安装资产，不代表签名、真实更新或账户验收完成。
+- Runtime 使用固定上游和应用模块重新构建；0.7.3 arm64 已签名、公证并公开，证据见 [发布记录](../releases/v0.7.3.md)。真实账户、真实 Figma 和完整交互验收仍单独保留。
 
 ### DVP-0001：订阅提供方
 

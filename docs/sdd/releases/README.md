@@ -8,7 +8,8 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
-| `v0.7.1` | Public signed installer / Latest / ARM64 | 2026-10-19 | DV-0035（Implementing；界面验收通过，账户及其余交互 Pending Manual） | [DeepViewer 0.7.1](v0.7.1.md) |
+| `v0.7.3` | Public signed installer / Latest / ARM64 | 2026-10-20 | DV-0036 (Implementing; real Figma Pending Manual) | [DeepViewer 0.7.3](v0.7.3.md) |
+| `v0.7.1` | Public signed installer / Previous Latest / ARM64 | 2026-10-19 | DV-0035（Implementing；界面验收通过，账户及其余交互 Pending Manual） | [DeepViewer 0.7.1](v0.7.1.md) |
 | `v0.5.1` | Public signed installer / Previous Latest / ARM64 | 2026-10-04 | DV-0034（Implementing；Pending Manual） | [DeepViewer 0.5.1](v0.5.1.md) |
 | `v0.5.0` | Public signed installer / Previous Latest / ARM64 | 2026-10-03 | DV-0033（Implementing；Pending Manual 保留） | [DeepViewer 0.5.0](v0.5.0.md) |
 | `v0.3.3` | Public release / ARM64 | 2026-09-23 | DV-0031, DV-0032 | [DeepViewer 0.3.3](v0.3.3.md) |

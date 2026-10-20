@@ -44,10 +44,10 @@ DeepViewer 是针对设计师优化的开源专用 Agent 工作台，基于
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> 当前正式版本为 **DeepViewer 0.7.3 / Build 93**，内置 DeepSeek Harness `0.2.1-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。维护者已确认升级开发版界面正常；真实账户、其余交互及迁移会话/设置/附件仍保留独立的人工验收边界。
+> 当前正式版本为 **DeepViewer 0.7.3 / Build 93**，内置 DeepSeek Harness `0.2.1-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。自动检查覆盖原生 Figma 工具和私有配套插件；DeepViewer 中真实 Figma 配对、编辑与导出，以及真实账户和完整交互仍需人工验收。
 
 > [!TIP]
-> [0.7.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一版本 [0.5.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1)、历史 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
+> [0.7.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一版本 [0.7.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1), [0.5.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1)、历史 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
 
 > [!NOTE]
 > 下方 DeepViewer 界面截图为 **0.3.3 / Build 75 历史参考**；Figma 图片来自 DSH-to-Figma 上游产品示例，均不作为本次集成的视觉验收证据。
@@ -177,4 +177,4 @@ pnpm desktop:dev
 
 问题反馈请到 [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues)，不要附带凭据、私有文件或未脱敏日志。
 
-DSH-to-Figma 0.2.1 (MIT): [source](https://github.com/Duoasa/DSH-to-Figma), [pinned revision and file hashes](vendor/dsh-to-figma/UPSTREAM.json).
+DSH-to-Figma 0.2.1（MIT）：[上游源码](https://github.com/Duoasa/DSH-to-Figma)，[固定提交与文件校验记录](vendor/dsh-to-figma/UPSTREAM.json)。

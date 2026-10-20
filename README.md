@@ -46,10 +46,10 @@ Work/Chat spaces, file delivery, sidebar workbench and session map.
 > DeepViewer is a community project. It is not affiliated with or endorsed by DeepSeek.
 
 > [!IMPORTANT]
-> The current release is **DeepViewer 0.7.3 / Build 93**, based on DeepSeek Harness `0.2.1-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. The maintainer has accepted the upgraded development interface; real-account flows, other interactions, and migrated sessions/settings/attachments retain separate manual checks.
+> The current release is **DeepViewer 0.7.3 / Build 93**, based on DeepSeek Harness `0.2.1-rc.2`, for **Apple Silicon arm64 only**. The freshly built DMG is Developer ID signed and Apple-notarized. Automated checks cover native Figma tools and the private companion; real Figma pairing/edit/export in DeepViewer, real-account flows and full interaction acceptance remain separate manual checks.
 
 > [!TIP]
-> The [0.7.3 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1), historical [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
+> The [0.7.3 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) provides a [SHA-256 checksum list](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt). Installed and development data use separate, version-independent directories; back up existing data before a major upgrade. The previous [0.7.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1), [0.5.1 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1), historical [0.3.3 / Build 75 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3), with its SHA-256 checksum, and [0.2.5 release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) remain available.
 
 > [!NOTE]
 > DeepViewer interface screenshots are historical **0.3.3 / Build 75** references. The Figma image is an upstream DSH-to-Figma product example. Neither establishes visual acceptance of this integration.
