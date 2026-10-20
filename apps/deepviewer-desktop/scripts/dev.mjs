@@ -177,6 +177,7 @@ async function runDevelopmentRunner() {
 
   const inputsChanged = createDevelopmentChangeDetector(appRoot)
   const externalInputs = [
+    { path: 'vendor/dsh-to-figma', directories: ['lib', 'companion', 'skills', 'locale'], files: ['package.json', 'index.mjs', 'cli.mjs', 'UPSTREAM.json'] },
     { path: 'apps/deepviewer-adapter', directories: ['client', 'desktop', 'migrations', 'workflows', 'compatibility', 'scripts', 'assets'], files: ['package.json', 'cordis.patch.yml', 'native-modules.patch.yml'] },
     { path: 'apps/dsh-plugin-model-capabilities', directories: ['src'], files: ['package.json', 'cordis.patch.yml', 'tsconfig.json', 'LICENSE', 'UPSTREAM.md'] },
   ].map(input => ({ ...input, changed: createDevelopmentChangeDetector(resolve(projectRoot, input.path), input) }))

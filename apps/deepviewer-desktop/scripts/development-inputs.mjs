@@ -12,6 +12,7 @@ const watchedFiles = new Set([
   'scripts/sync-deepviewer-branding.mjs',
   'scripts/sync-upstream-overrides.mjs',
   'scripts/stage-subscriptions.mjs',
+  'scripts/stage-figma.mjs',
   'scripts/adapt-subscriptions-plugin.mjs',
   'scripts/subscriptions-v4-messages.mjs',
   'scripts/prepare-subscriptions-client.mjs',

@@ -7,7 +7,8 @@ import { stageAdapter } from '../../deepviewer-adapter/scripts/stage.mjs'
 import { buildModelCapabilitiesPlugin } from './build-model-capabilities-plugin.mjs'
 import { stageSubscriptionsPlugin } from './stage-subscriptions.mjs'
 import { compileNativeAppIcon } from './native-app-icon.mjs'
-import { stageNativeModules } from '../../deepviewer-adapter/scripts/stage-native-modules.mjs'
+import { stageFigmaPlugin } from './stage-figma.mjs'
+import { nativeModuleNames, stageNativeModules } from '../../deepviewer-adapter/scripts/stage-native-modules.mjs'
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const root = resolve(appRoot, '../..'), upstream = join(root, 'upstream/deepseek-harness')
 const product = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
@@ -18,6 +19,7 @@ if (!process.argv.includes('--skip-core-build')) run('pnpm', ['run', 'build'], u
 const adapter = stageAdapter(upstream)
 buildModelCapabilitiesPlugin(upstream)
 stageSubscriptionsPlugin()
+stageFigmaPlugin()
 const nativeCli = stageNativeModules(upstream, join(appRoot, '.desktop/native-cli'))
 if (process.argv.includes('--core-only')) { console.info('DeepViewer core and adapter/plugin bundles prepared'); process.exit(0) }
 const { register } = await import(createRequire(join(upstream, 'package.json')).resolve('tsx/esm/api'))
@@ -31,7 +33,7 @@ const version = JSON.parse(readFileSync(join(upstream, 'apps/cli/package.json'),
 const pnpmVersion = JSON.parse(readFileSync(join(upstream, 'node_modules/pnpm/package.json'), 'utf8')).version
 prepareDevelopmentProject({ projectDir, cliDir: nativeCli, hostDir: join(upstream, 'apps/desktop-host'), dependencyDir: join(upstream, 'node_modules/.pnpm/node_modules'), release: { schemaVersion: 1, version, hostProtocolVersion: 4, nodeVersion, pnpmVersion }, target: 'mac-arm64' })
 const descriptorPath = join(projectDir, 'desktop-runtime.json'), descriptor = JSON.parse(readFileSync(descriptorPath, 'utf8'))
-for (const name of ['@deepviewer/adapter', '@deepviewer/dsh-plugin-model-capabilities', 'dsh-plugin-subscriptions']) {
+for (const name of nativeModuleNames) {
   const link = join(projectDir, 'node_modules', name); mkdirSync(dirname(link), { recursive: true }); rmSync(link, { recursive: true, force: true }); symlinkSync(join(upstream, 'node_modules', name), link)
   const manifest = JSON.parse(readFileSync(join(link, 'package.json'), 'utf8')); descriptor.sharedPackages.push({ name, version: manifest.version, path: `node_modules/${name}` })
 }
