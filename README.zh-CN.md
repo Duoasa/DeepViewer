@@ -44,7 +44,7 @@ DeepViewer 是针对设计师优化的开源专用 Agent 工作台，基于
 > DeepViewer 是独立社区项目，与 DeepSeek 没有从属或官方背书关系。
 
 > [!IMPORTANT]
-> 当前正式版本为 **DeepViewer 0.7.3 / Build 93**，内置 DeepSeek Harness `0.2.1-rc.2`，**仅支持 Apple Silicon arm64**。DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证。自动检查覆盖原生 Figma 工具和私有配套插件；DeepViewer 中真实 Figma 配对、编辑与导出，以及真实账户和完整交互仍需人工验收。
+> 已发布的安装包仍是 **DeepViewer 0.7.3 / Build 93**，**仅支持 Apple Silicon arm64**。该 DMG 已从源码全新构建，完成 Developer ID 签名和 Apple 公证，内置 DeepSeek Harness `0.2.1-rc.2`。当前源码目标版本为 **DeepViewer 0.8.0**（提交中的 Build 号仍为 93），内置 DeepSeek Harness `0.2.1-rc.5`（`dsh-v0.2.1-rc.5`）。0.8.0 尚未签名、公证或发布。自动检查覆盖原生 Figma 工具和私有配套插件；DeepViewer 中真实 Figma 配对、编辑与导出，以及真实账户和完整交互仍需人工验收。
 
 > [!TIP]
 > [0.7.3 Release](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.3) 提供 [SHA-256 校验清单](https://github.com/Duoasa/DeepViewer/releases/download/v0.7.3/SHA256SUMS.txt)。安装版和开发版使用相互独立、与版本号无关的数据目录；重大升级前请备份。上一版本 [0.7.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.7.1), [0.5.1](https://github.com/Duoasa/DeepViewer/releases/tag/v0.5.1)、历史 [0.3.3 / Build 75](https://github.com/Duoasa/DeepViewer/releases/tag/v0.3.3) 及其 SHA-256 清单、历史 [0.2.5 版本](https://github.com/Duoasa/DeepViewer/releases/tag/v0.2.5-preview.1) 仍可下载。
@@ -145,7 +145,7 @@ Work 按项目组织会话，Chat 可以脱离工作区保存对话。两种模�
 
 | 组件 | 来源与许可证 | DeepViewer 的修改 |
 | --- | --- | --- |
-| Agent 内核与原生壳 | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)，MIT，固定在 `687f282e8625c6b8d11ff58211a90524be2e4317`（`0.2.1-rc.2`） | 官方 Electron/DesktopHost 加 [DeepViewer adapter](apps/deepviewer-adapter) 与经过检查的兼容契约；Agent Loop 仍由上游维护。 |
+| Agent 内核与原生壳 | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)，MIT，固定在 `b830ec950faba0a46dda564be3e2d854afed94f1`（`0.2.1-rc.5`，标签 `dsh-v0.2.1-rc.5`） | 官方 Electron/DesktopHost 加 [DeepViewer adapter](apps/deepviewer-adapter) 与经过检查的兼容契约；Agent Loop 仍由上游维护。 |
 | 桌面源码基线 | [Duoasa/scoder](https://github.com/Duoasa/scoder)，`0.7.0 / Build 43`，固定在 `e277adc6ce512655095e6f65c63bdc72d24bae95`；保留原始版权说明 | 恢复 DeepViewer 品牌、包名/更新目标和数据隔离，保留原生功能，修复元数据变化引发的界面热卸载；不导入 Scoder 发布记录与用户数据。 |
 | 订阅与图片工具 | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions)，MIT，`0.3.1` | 内置 DSH 0.2.1 兼容模块，限定范围 RPC/loopback 检查、剩余额度显示及图片生成状态样式。 |
 | 侧栏来源 | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar)，MIT | 独立插件退出挂载，工作台由 Harness 原生面板承接；复用工作流代码保留来源与版权。 |

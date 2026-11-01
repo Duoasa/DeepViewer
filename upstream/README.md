@@ -5,19 +5,19 @@
 ## 当前分析基线
 
 - 仓库：<https://github.com/deepseek-ai/deepseek-harness>
-- 标签：`dsh-v0.2.0-rc.2`
-- 提交：`639ed015397290b3745d163aafe02ffee4aa3f84`
-- 上游版本：`0.2.0-rc.2`
+- 标签：`dsh-v0.2.1-rc.5`
+- 提交：`b830ec950faba0a46dda564be3e2d854afed94f1`
+- 上游版本：`0.2.1-rc.5`
 - 本地路径：`upstream/deepseek-harness/`
 
-这是 DV-0033 原生桌面开发构建使用的固定官方 checkout。DeepViewer 通过官方 DesktopHost 和应用适配层集成，
+这是当前原生桌面开发构建（DeepViewer 0.8.0，DV-0037）使用的固定官方 checkout。DeepViewer 通过官方 DesktopHost 和应用适配层集成，
 不把该目录提交为 fork、subtree 或 vendored 源码。
 
 ## 刷新上游副本
 
 ```sh
 git -C upstream/deepseek-harness fetch --tags origin
-git -C upstream/deepseek-harness checkout dsh-v0.2.0-rc.2
+git -C upstream/deepseek-harness checkout dsh-v0.2.1-rc.5
 ```
 
 初始化或校验固定适配接点：`node apps/deepviewer-desktop/scripts/bootstrap-native-upstream.mjs`。刷新后，应把新的提交 SHA 写回本文件，并重新检查 [`DV-0002`](../docs/sdd/specs/DV-0002-upstream-foundation/spec.md) 中依赖的架构假设。

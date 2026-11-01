@@ -1,9 +1,9 @@
 {
   "name": "@deepviewer/desktop",
   "productName": "DeepViewer",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "buildNumber": 93,
-  "previewRelease": "0.7.3-preview.1",
+  "previewRelease": "0.8.0-preview.1",
   "private": true,
   "description": "DeepViewer — a dedicated agent workspace optimized for designers",
   "license": "MIT",
