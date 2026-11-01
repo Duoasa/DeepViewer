@@ -8,7 +8,7 @@
 
 | 版本 | 类型 | 发布日期 | 关联规格 | 记录 |
 | --- | --- | --- | --- | --- |
-| `v0.8.0` | Not published | null | DV-0037 (Implementing; DSH-to-Figma 0.3.1 pending) | [DeepViewer 0.8.0](v0.8.0.md) |
+| `v0.8.0` | Not published | null | DV-0037 (Implementing; bundles DSH-to-Figma 0.3.1 prerelease) | [DeepViewer 0.8.0](v0.8.0.md) |
 | `v0.7.3` | Public signed installer / Latest / ARM64 | 2026-10-20 | DV-0036 (Implementing; real Figma Pending Manual) | [DeepViewer 0.7.3](v0.7.3.md) |
 | `v0.7.1` | Public signed installer / Previous Latest / ARM64 | 2026-10-19 | DV-0035（Implementing；界面验收通过，账户及其余交互 Pending Manual） | [DeepViewer 0.7.1](v0.7.1.md) |
 | `v0.5.1` | Public signed installer / Previous Latest / ARM64 | 2026-10-04 | DV-0034（Implementing；Pending Manual） | [DeepViewer 0.5.1](v0.5.1.md) |

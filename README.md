@@ -64,6 +64,8 @@ See the [0.7.3 release record](docs/sdd/releases/v0.7.3.md) for package verifica
 
 ## Native DSH-to-Figma
 
+This source bundles [DSH-to-Figma 0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1), a GitHub prerelease compatible with DSH 0.2.1-rc.4 and rc.5.
+
 [DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) connects the agent to Figma's
 native Plugin API. Read design context, create and edit frames, text, auto layout,
 components and variables, capture screenshots and export assets. Generated designs
@@ -76,14 +78,14 @@ with native layers and a 1440 × 900 frame. This is an upstream example, not a n
 DeepViewer acceptance screenshot.*
 
 1. Open a **Work** session with a local workspace. Ask: “Set up Figma and show me the companion manifest path.” The agent calls `figma_setup`.
-2. In Figma Desktop, choose **Plugins → Development → Import plugin from manifest**, select the generated `manifest.json`, then run **DSH to Figma · Local** in the target Design file. Keep its window open.
+2. In Figma Desktop, choose **Plugins → Development → Import plugin from manifest**, select the generated `manifest.json` under `DSH_HOME/figma`, then run **DSH to Figma · Local** in the target Design file. Keep its window open. Do not import the generic template; that template still names port 3055.
 3. Ask DeepViewer to check the connection (`figma_status`) and describe the intended edit. One connected file is selected automatically; multiple files require an explicit choice.
 
-The paired companion stays in the current app profile's `harness-home/figma` folder.
-It contains a local credential: keep it private and keep the folder in place.
-Installed DeepViewer uses loopback port **3065**, development uses **3066**,
-separate from standalone DSH's **3055**. Existing explicit plugin settings take
-precedence. A port conflict keeps diagnostics available without stopping the
+The generated companion and token live under `DSH_HOME/figma`, never in the application payload.
+The folder contains a local credential: keep it private and keep the folder in place.
+Installed DeepViewer uses loopback port **3065**. The dev build uses **3066**.
+Existing explicit configuration wins. **3055** is only the generic template default; DeepViewer does not use that port.
+A port conflict keeps diagnostics available without stopping the
 agent; close the conflicting instance or change `bridgePort` on the
 `deepviewer-figma` row in the desktop profile patch and restart.
 `DEEPVIEWER_DISABLE_FIGMA=1` disables the module and preserves that selection;
@@ -157,7 +159,7 @@ Office conversion may wait while scanning protected font directories in a real u
 | Core agent and native shell | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), MIT, pinned to `b830ec950faba0a46dda564be3e2d854afed94f1` (`0.2.1-rc.5`, tag `dsh-v0.2.1-rc.5`) | Official Electron/DesktopHost with the [DeepViewer adapter](apps/deepviewer-adapter) and checked compatibility contracts. The agent loop remains upstream-owned. |
 | Desktop source baseline | [Duoasa/scoder](https://github.com/Duoasa/scoder), `0.7.0 / Build 43`, pinned to `e277adc6ce512655095e6f65c63bdc72d24bae95`; original notices retained | Restore DeepViewer branding, package/update identities and data isolation, retain native features, and fix metadata-driven renderer replacement. Scoder's release history and user data are not imported. |
 | Subscriptions and image tools | [V1ki/dsh-plugin-subscriptions](https://github.com/V1ki/dsh-plugin-subscriptions), MIT, `0.3.1` | Built-in DSH 0.2.1 compatibility module, scoped RPC/loopback checks, remaining-usage display, and image-generation status styling. |
-| Native Figma tools | [Duoasa/DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma), MIT, `0.2.1` | Native Host module, private companion and separate bridge defaults. [Pinned source and file hashes](vendor/dsh-to-figma/UPSTREAM.json). |
+| Native Figma tools | [Duoasa/DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma), MIT, `0.3.1` ([GitHub prerelease v0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1)) | Native Host module, private companion and separate bridge defaults. [Pinned source and file hashes](vendor/dsh-to-figma/UPSTREAM.json). |
 | Sidebar provenance | [omdsh-dev/DSH-better-sidebar](https://github.com/omdsh-dev/DSH-better-sidebar), MIT | The standalone plugin is retired; Harness native panels take over the workbench. Attribution is retained for reused workflow code. |
 | Model capabilities | [DeepViewer model-capabilities module](apps/dsh-plugin-model-capabilities), MIT, `1.0.2` | Provider/model scanning and reasoning/multimodal configuration, replacing the old `dsh-plugin-reasoning` activation while preserving supported settings. |
 | Session map | [Vendored Synapse source](apps/deepviewer-adapter/workflows/vendor/synapse), with its original license and source record | Built-in session-map integration within the DeepViewer adapter. |

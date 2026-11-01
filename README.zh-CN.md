@@ -62,6 +62,8 @@ DeepViewer 是针对设计师优化的开源专用 Agent 工作台，基于
 
 ## 原生 DSH-to-Figma
 
+当前源码内置 [DSH-to-Figma 0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1)，这是兼容 DSH 0.2.1-rc.4 与 rc.5 的 GitHub 预发布。
+
 [DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) 将 Agent 接入 Figma 原生
 Plugin API，可读取设计上下文，创建和编辑画板、文本、自动布局、组件与变量，获取截图并导出素材。
 生成的设计保留为 Figma 可编辑图层。
@@ -72,12 +74,12 @@ Plugin API，可读取设计上下文，创建和编辑画板、文本、自动�
 这是上游实例，不是本次 DeepViewer 集成的验收截图。*
 
 1. 打开带本地工作区的 **Work** 会话，告诉 Agent：“帮我设置 Figma，给出配套插件的 manifest 路径。”Agent 会调用 `figma_setup`。
-2. 在 Figma Desktop 中选择 **Plugins → Development → Import plugin from manifest**，导入生成的 `manifest.json`，在目标 Design 文件中运行 **DSH to Figma · Local**，保持插件窗口打开。
+2. 在 Figma Desktop 中选择 **Plugins → Development → Import plugin from manifest**，导入 `DSH_HOME/figma` 下生成的 `manifest.json`，在目标 Design 文件中运行 **DSH to Figma · Local**，保持插件窗口打开。不要导入通用模板；该模板仍写着端口 3055。
 3. 让 DeepViewer 检查连接（`figma_status`）并描述想要的修改。只有一个连接文件时自动选用，多个文件时需要明确选择。
 
-配对文件保存在当前应用数据目录的 `harness-home/figma`，其中含本机凭证，请勿分享或移动该文件夹。
-安装版使用本机回环端口 **3065**，开发版使用 **3066**，与独立 DSH 默认的 **3055** 分开；
-已有显式端口和后端设置优先。端口冲突时保留诊断工具，不阻断 Agent 启动；可关闭冲突实例，
+生成的配套插件和配对凭证位于 `DSH_HOME/figma`，不在应用安装包内。其中含本机凭证，请勿分享或移动该文件夹。
+安装版使用本机回环端口 **3065**，开发版使用 **3066**。已有显式配置优先。**3055** 只是通用模板的默认端口，DeepViewer 不使用该端口。
+端口冲突时保留诊断工具，不阻断 Agent 启动；可关闭冲突实例，
 或在 desktop profile patch 的 `deepviewer-figma` 行设置其他 `bridgePort` 后重启。
 `DEEPVIEWER_DISABLE_FIGMA=1` 可停用模块；停用选择会保存在 profile 中，恢复时移除对应的 `disabled: true` 覆盖。
 
@@ -177,4 +179,4 @@ pnpm desktop:dev
 
 问题反馈请到 [GitHub Issues](https://github.com/Duoasa/DeepViewer/issues)，不要附带凭据、私有文件或未脱敏日志。
 
-DSH-to-Figma 0.2.1（MIT）：[上游源码](https://github.com/Duoasa/DSH-to-Figma)，[固定提交与文件校验记录](vendor/dsh-to-figma/UPSTREAM.json)。
+DSH-to-Figma 0.3.1（MIT，GitHub 预发布 [v0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1)）：[上游源码](https://github.com/Duoasa/DSH-to-Figma)，[固定提交与文件校验记录](vendor/dsh-to-figma/UPSTREAM.json)。
