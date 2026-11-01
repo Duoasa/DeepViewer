@@ -11,7 +11,7 @@ export function stageAdapter(upstream) {
   mkdirSync(join(target, 'src'), { recursive: true })
   cpSync(join(source, 'client'), join(target, 'src', 'client'), { recursive: true })
   const product = JSON.parse(readFileSync(join(source, '../deepviewer-desktop/package.json'), 'utf8'))
-  writeFileSync(join(target, 'src/client/build-info.ts'), `export const buildInfo = ${JSON.stringify({ version: product.version, build: String(product.buildNumber), kernel: '0.2.1-rc.2' })}\n`)
+  writeFileSync(join(target, 'src/client/build-info.ts'), `export const buildInfo = ${JSON.stringify({ version: product.version, build: String(product.buildNumber), kernel: '0.2.1-rc.5' })}\n`)
   cpSync(join(source, 'workflows'), join(target, 'src', 'workflows'), { recursive: true })
   cpSync(join(source, 'index.ts'), join(target, 'src', 'index.ts'))
   cpSync(join(source, 'assets'), join(target, 'assets'), { recursive: true })

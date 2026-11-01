@@ -44,7 +44,7 @@ export function initializeDeepViewer(): boolean {
   if (process.env.DEEPVIEWER_DISABLE_FIGMA === '1') disabledIntegrations.push('dsh-to-figma')
   prepareDesktopProfile(process.env.DSH_HOME, runtime, [
     { name: '@deepviewer/adapter', version: product.version, directory: join(runtime, 'node_modules', '@deepviewer', 'adapter') },
-    { name: 'dsh-to-figma', version: '0.2.1', directory: join(runtime, 'node_modules', 'dsh-to-figma') },
+    { name: 'dsh-to-figma', version: '0.3.1', directory: join(runtime, 'node_modules', 'dsh-to-figma') },
     { name: 'dsh-plugin-subscriptions', version: '0.3.1', directory: join(runtime, 'node_modules', 'dsh-plugin-subscriptions') },
     { name: '@deepviewer/dsh-plugin-model-capabilities', version: '1.0.2', directory: join(runtime, 'node_modules', '@deepviewer', 'dsh-plugin-model-capabilities') },
   ], disabledIntegrations)

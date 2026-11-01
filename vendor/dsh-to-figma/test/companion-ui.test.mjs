@@ -60,6 +60,16 @@ async function uiHarness(fetcher){
  return {ctx,elements,timers,messages,send,flush,boot:()=>send({type:'document',name:'Auto Canvas',editorType:'figma',connection:{token:'a'.repeat(64),port:3055,version:'test'}})}
 }
 const ok=value=>({ok:true,status:200,json:async()=>value})
+test('placeholder progress is visible with node names, bounded, and cleared when finished',async()=>{
+ const h=await uiHarness(async url=>url.endsWith('/connect')?ok({connectionId:'connected'}):ok({id:'job-progress',method:'use_figma',args:{code:'return 1'}}))
+ h.boot();await h.flush()
+ h.send({type:'progress',nodes:[{id:'1:1',name:'Test card'},{id:'1:2',name:'Button'},{id:'1:3',name:'X'.repeat(1000)}]})
+ assert.equal(vm.runInContext('document.body.dataset.notice',h.ctx),'true')
+ assert.match(h.elements.get('#status').textContent,/Test card.*Button.*3 项/)
+ assert.ok(h.elements.get('#status').textContent.length<150)
+ h.send({type:'progress',nodes:[]})
+ assert.equal(vm.runInContext('document.body.dataset.notice',h.ctx),'false')
+})
 test('paired companion auto-connects and retries idle startup failure without manual token entry',async()=>{
  let attempts=0
  const h=await uiHarness(async(url,options)=>{
@@ -71,7 +81,7 @@ test('paired companion auto-connects and retries idle startup failure without ma
  h.boot();await h.flush();assert.equal(attempts,1);assert.equal(h.timers.length,1)
  h.timers[0]();await h.flush();assert.equal(attempts,2);assert.equal(vm.runInContext('active',h.ctx),true)
  assert.equal(h.elements.get('#token')?.value??'','')
- assert.match(h.elements.get('#status').textContent,/Ready/)
+ assert.match(h.elements.get('#status').textContent,/可以回到 DSH/)
 })
 test('companion never reconnects or replays after losing an operation result',async()=>{
  let connects=0,results=0

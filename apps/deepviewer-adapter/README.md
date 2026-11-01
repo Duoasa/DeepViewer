@@ -1,6 +1,6 @@
 # DeepViewer native adapter
 
-DeepViewer 0.5.0 uses DSH 0.2.0-rc.2 (`639ed015397290b3745d163aafe02ffee4aa3f84`) and its Electron/private DesktopHost. The upstream checkout is disposable build input. Product adaptations live here; the old 0.1.5 whole-file overlays are not replayed.
+DeepViewer 0.8.0 uses DSH 0.2.1-rc.5 (`b830ec950faba0a46dda564be3e2d854afed94f1`, tag `dsh-v0.2.1-rc.5`) and its Electron/private DesktopHost. The upstream checkout is disposable build input. Product adaptations live here; the old 0.1.5 whole-file overlays are not replayed.
 
 | Directory | Ownership |
 | --- | --- |

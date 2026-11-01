@@ -5,6 +5,25 @@ import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..', 'upstream/deepseek-harness')
 const source = resolve(root, 'packages/client/ui-conversation/tests/skeleton.client.spec.tsx')
+const navigationCss = readFileSync(resolve(root, 'packages/client/ui-conversation/src/client/skeleton/ConversationRoot.module.css'), 'utf8')
+function flexDeclaration(selector) {
+  const withoutComments = navigationCss.replace(/\/\*[\s\S]*?\*\//g, ' ')
+  for (const match of withoutComments.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!match[1].split(',').map(value => value.trim()).includes(selector)) continue
+    const found = match[2].match(/(?:^|;)\s*flex\s*:\s*([^;]+)/)
+    return found ? found[1].trim().replace(/\s+/g, ' ') : undefined
+  }
+  return undefined
+}
+const tabsFlex = flexDeclaration('.navigationRow .tabs')
+const statisticsFlex = flexDeclaration('.headerCenter')
+if (tabsFlex !== '1 1 0' || statisticsFlex !== '0 1 auto') {
+  throw new Error(`Navigation flex must leave the remaining width to tabs: tabs=${tabsFlex}, statistics=${statisticsFlex}`)
+}
+// D-108: floor((clientWidth - 48) / 120) matches upstream's full-row count only
+// when the statistics content width is 0. Real statistics consume their own
+// width, so subtract that before applying the formula. A zero-width comparison
+// is an identity and is not asserted here.
 const fixture = resolve(root, 'packages/client/ui-conversation/tests/deepviewer-header-smoke.client.spec.tsx')
 const tests = `
 it('DeepViewer statistics share the view navigation row outside the tablist', () => {
@@ -12,7 +31,7 @@ it('DeepViewer statistics share the view navigation row outside the tablist', ()
   const tabs = b.view.getByRole('tablist')
   const stats = b.view.container.querySelector('[data-deepviewer-session-statistics]')
   expect(stats).not.toBeNull()
-  expect(stats?.parentElement).toBe(tabs.parentElement)
+  expect(stats?.parentElement).toBe(tabs.parentElement?.parentElement)
   expect(tabs.contains(stats)).toBe(false)
   expect(stats?.parentElement?.hasAttribute('data-deepviewer-navigation-row')).toBe(true)
   fireEvent.click(b.view.getByRole('tab', {name: 'Trajectory'}))

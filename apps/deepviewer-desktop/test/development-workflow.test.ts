@@ -89,15 +89,15 @@ describe('DeepViewer development workflow (DV-0038)', () => {
     expect(appManifest.scripts.release).not.toContain('github')
   })
 
-  it('pins DeepViewer identity and RC2 without reviving retired preview plugins', () => {
-    expect(appManifest.version).toBe('0.7.3')
+  it('pins DeepViewer identity and rc.5 without reviving retired preview plugins', () => {
+    expect(appManifest.version).toBe('0.8.0')
     expect(Number.isSafeInteger(appManifest.buildNumber)).toBe(true)
     expect(appManifest.buildNumber).toBeGreaterThan(0)
     expect(appManifest.productName).toBe('DeepViewer')
     expect(appManifest.scripts['build:dev']).toBe('node scripts/bump-build-number.mjs && node scripts/build-native-desktop.mjs')
     expect(appManifest.dependencies['dsh-plugin-subscriptions']).toBe('0.3.1')
-    expect(upstreamPreparation).toContain("harnessVersion = '0.2.1-rc.2'")
-    expect(upstreamPreparation).toContain('687f282e8625c6b8d11ff58211a90524be2e4317')
+    expect(upstreamPreparation).toContain("harnessVersion = '0.2.1-rc.5'")
+    expect(upstreamPreparation).toContain('b830ec950faba0a46dda564be3e2d854afed94f1')
     expect(nativeBuild).toContain('stageNativeModules')
     expect(nativeBuild).not.toContain('stageBetterSidebar')
     expect(nativeBuild).not.toContain('stagePreviewPlugin')

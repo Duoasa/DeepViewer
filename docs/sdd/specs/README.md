@@ -51,9 +51,11 @@ DV-0022、DV-0025、DV-0028 和 DV-0030 是此前仅用于本地/内部固化的
 
 | [DV-0036](DV-0036-designer-figma-native/spec.md) | Designer agent and native Figma integration | Implementing | Duoasa | 2026-10-20 |
 
+| [DV-0037](DV-0037-dsh-021-rc5/spec.md) | DSH 0.2.1-rc.5 内核适配，保留前端并接入 More 菜单 | Implementing | Duoasa | 2026-11-01 |
+
 ## 下一个编号
 
-`DV-0037`
+`DV-0038`
 
 ## 目录规则
 
