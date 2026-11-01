@@ -11,4 +11,5 @@ Status: Implementing
 
 - 隐藏 More 菜单或禁用 `entry-customization`：会丢掉固定/隐藏入口，而 DeepViewer 没有替代交互。
 - 在空白地图头继续做宽度截断：Synapse 测试要求同时看见 Chat 和 Map，并排除 Trajectory。
-- 放宽 Figma peer：偏离 0.2.1 来源一致性，且 0.3.1 尚未发布。
+- 放宽 Figma peer：0.3.1 已经声明 rc.5，不需要在 DeepViewer 侧放宽。
+- 把 `figmaNativeVersion` 升到 2：profile 里没有新的持久结构。旧 companion 的能力号靠用户重新导入，不靠再跑一遍 profile 备份。

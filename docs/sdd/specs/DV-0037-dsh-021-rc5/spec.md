@@ -14,7 +14,7 @@ Approval: 维护者直接要求把内核从 0.2.1-rc.2 升到 0.2.1-rc.5 并开 
 - DVP-0001 subscriptions `0.3.1`
 - DVP-0006 model-capabilities `1.0.2`
 - DVP-0007 adapter `0.7.3`
-- DVP-0008 DSH-to-Figma `0.2.1` / `ffc4d3a1c59d8c9e53261e4e9d8a5e8e6e174412`
+- DVP-0008 DSH-to-Figma `0.3.1` / tag `v0.3.1` / `baa6054e73490afeba775328a248bb5bc0da8586`
 
 DVP-0002 保持 Disabled。DVP-0003、DVP-0004、DVP-0005 保持 Removed。
 
@@ -32,7 +32,7 @@ DVP-0002 保持 Disabled。DVP-0003、DVP-0004、DVP-0005 保持 Removed。
 - AC-002: 补丁后的会话头文件可通过上游 typecheck 或 core build；统计行、More 截断和空白地图 tab 的自动检查通过。
 - AC-003: 侧栏样式守卫与上游 sidebar-styles / panel-list 检查通过。
 - AC-004: Active 模块的自动 PC 检查有记录。真实账户、真实 Figma 和未覆盖的界面交互保持 Pending Manual。
-- AC-005: Figma 0.2.1 对 rc.5 的 peer 不满足时，staging 失败被原样报告，检查未被放宽。
+- AC-005: 固定的 DSH-to-Figma 0.3.1 通过既有 semver peer 检查，staging 带上 `assets/companion/FEATHER-LICENSE`，本地工具能注册。不放宽检查。
 
 ## Decisions
 
@@ -44,7 +44,7 @@ DVP-0002 保持 Disabled。DVP-0003、DVP-0004、DVP-0005 保持 Removed。
 - D-106: `apps/deepviewer-desktop/upstream-overrides/chat-mode/patches.json` 只被 `sync-chat-mode.mjs` 引用，当前原生构建不调用它。本次不改。
 - D-107: rc.4 的 `conversation.chat.reasoning.body` `rawText` 变更不改 DeepViewer。已移除的 reasoning 插件和 model-capabilities 都不渲染该插槽。
 - D-108: 导航行是 flex，间距 16px。`.navigationRow .tabs` 使用 `flex: 1 1 0; width: auto; min-width: 0`，占据统计内容宽度之外的剩余宽度，供 `floor((clientWidth - 48) / 120)` 使用。`.headerCenter` 使用 `flex: 0 1 auto`，宽度等于统计内容，内容在该盒子内居中。不再把行宽对半拆开。800px 行且统计内容宽度为 0 时，tab 簇为 784px，可见预算是 6，与上游整行 800px 的 6 个相同；对半拆开时同一公式只有 2 个。
-- D-109: Figma 0.2.1 的 peer 范围不含 rc.5。等待 DSH-to-Figma 0.3.1。不放宽 `stage-figma.mjs`，也不把 `assets/companion` 加进白名单。`DEEPVIEWER_DISABLE_FIGMA` 只影响运行时加载，不跳过 staging。
+- D-109: 纳入已发布的 DSH-to-Figma 0.3.1（签名 tag `v0.3.1`，提交 `baa6054e73490afeba775328a248bb5bc0da8586`）。peer 范围包含 `0.2.1-rc.5`，staging 仍用 `semver.satisfies`，不放宽。白名单增加整个 `assets/companion`，因为 `prepareCompanion` 要读 `FEATHER-LICENSE`。不新增 `figma-native-v2`：配置仍是 `backend` 与 `bridgePort`，私有 companion 仍由桥接启动时写到 `DSH_HOME/figma`；已导入 Figma 的旧 companion 需要用户重新导入才能得到 featureVersion 3，插件自己会提示，profile 迁移改不了 Figma 桌面里的插件。上游 README 与生成的 README.txt 仍写默认端口 3055；DeepViewer 安装版是 3065、开发版是 3066，生成的 manifest 会改成实际端口。
 - D-110: rc.5 使用 `Promise.withResolvers`（Node 22 起）。当前没有路径把内核跑在 Node 20 上，因此不改 engines，也不新增 `.nvmrc`。Electron 44.7.0 内置 Node 24.21.0；primary-runtime 锁定 Node 24.21.0；`node-bin` 转调 Electron；根 `engines.node` 已是 `>=24.0.0`；内核与 model-capabilities 为 `^22.19.0 || >=24`；CI 使用 Node 24。`resolveHarnessLaunch` 会拒绝不满足该范围的 Electron Node。
 
 ## Non-goals

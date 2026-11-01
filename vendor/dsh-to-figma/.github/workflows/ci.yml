@@ -1,0 +1,30 @@
+name: Checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:all
+      - name: Generated companion must be committed
+        run: git diff --exit-code -- companion/code.js
+      - name: Bounded query benchmark and discovery equivalence
+        run: npm run benchmark -- --runs 3 --output /tmp/dsh-figma-benchmark.json
+      - run: npm run package:companion
+      - run: npm pack --ignore-scripts --pack-destination dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DSH-to-Figma-packages
+          path: |
+            dist/DSH-to-Figma-companion-*.zip
+            dist/dsh-to-figma-*.tgz
+          if-no-files-found: error

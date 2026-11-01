@@ -1,5 +1,5 @@
 /** Run upstream security/companion fixtures and native services against the shipped plugin. */
-import { cpSync, mkdtempSync, rmSync, symlinkSync, readdirSync, mkdirSync, readFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdtempSync, rmSync, symlinkSync, readdirSync, mkdirSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -10,6 +10,7 @@ const runtime = process.env.DEEPVIEWER_RUNTIME_OVERRIDE ?? join(root, 'upstream/
 const plugin = process.env.DEEPVIEWER_RUNTIME_OVERRIDE ? join(runtime, 'node_modules/dsh-to-figma') : join(root, 'upstream/deepseek-harness/node_modules/dsh-to-figma')
 const fixture = mkdtempSync(join(tmpdir(), 'deepviewer-figma-tests-'))
 try {
+  if (!existsSync(join(plugin, 'assets/companion/FEATHER-LICENSE'))) throw new Error('Staged Figma plugin is missing assets/companion/FEATHER-LICENSE')
   cpSync(join(root, 'vendor/dsh-to-figma'), fixture, { recursive: true })
   const manifest = JSON.parse(readFileSync(join(plugin, 'package.json'), 'utf8'))
   for (const name of Object.keys({...manifest.dependencies, ...manifest.peerDependencies})) { const link = join(fixture, 'node_modules', name); mkdirSync(dirname(link), {recursive:true}); symlinkSync(locatePackage(name, plugin), link, 'dir') }
