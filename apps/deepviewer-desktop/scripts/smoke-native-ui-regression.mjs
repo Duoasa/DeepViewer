@@ -38,5 +38,9 @@ try {
   writeFileSync(chat, source); generated.push(chat)
   // Unmodified upstream apply-wiring checks retain target-neutral roster introspection coverage.
   const wiring = resolve(upstream, 'packages/client/ui-conversation/tests/apply-wiring.client.spec.tsx')
-  execFileSync(process.execPath, [resolve(upstream, 'node_modules/vitest/vitest.mjs'), 'run', chat, skeleton, wiring], { cwd: upstream, stdio: 'inherit' })
+  // rc.5 More-menu coverage: style contracts (including the 2px panel gap) and panel-list behavior.
+  // DeepViewer replaces SidebarRoot.module.css in full and must keep .moreAnchor / .moreMenu.
+  const sidebarStyles = resolve(upstream, 'packages/client/ui-sidebar/tests/sidebar-styles.client.spec.ts')
+  const panelList = resolve(upstream, 'packages/client/ui-sidebar/tests/panel-list.client.spec.tsx')
+  execFileSync(process.execPath, [resolve(upstream, 'node_modules/vitest/vitest.mjs'), 'run', chat, skeleton, wiring, sidebarStyles, panelList], { cwd: upstream, stdio: 'inherit' })
 } finally { for (const file of generated) rmSync(file, { force: true }) }

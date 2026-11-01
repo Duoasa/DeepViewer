@@ -147,5 +147,5 @@ try {
   await assert.rejects(fetch(`http://127.0.0.1:${figmaPort}/`, {signal: AbortSignal.timeout(1000)}))
   await rpc('session/create', { request: { sessionId: 'diagnostic-core', cwd: workspace } })
   await host.stop(true); host = undefined
-  console.info(JSON.stringify({ result: 'PASS', core: '0.2.1-rc.2', privateHost: true, integrationRPC: true, nativeSynapse: true, nativeModules: true, noManagedBundles: true, workChatIsolation: true, blankReuse: true, startedSessionPreserved: true, coldHistory: true, editorRPC: true, integrations: integrations.map(plugin => plugin.name), nativeRecovery: true, diagnosticPureCore: true, gracefulShutdown: true }))
+  console.info(JSON.stringify({ result: 'PASS', core: '0.2.1-rc.5', privateHost: true, integrationRPC: true, nativeSynapse: true, nativeModules: true, noManagedBundles: true, workChatIsolation: true, blankReuse: true, startedSessionPreserved: true, coldHistory: true, editorRPC: true, integrations: integrations.map(plugin => plugin.name), nativeRecovery: true, diagnosticPureCore: true, gracefulShutdown: true }))
 } finally { await host?.stop(); await new Promise(resolve => modelServer.close(resolve)); rmSync(fixture, { recursive: true, force: true }) }

@@ -1,1 +1,25 @@
   const showTabs = !hideChrome && tabs.length > 1
+  const tabRow = useRef<HTMLDivElement>(null)
+  const [visibleViewLimit, setVisibleViewLimit] = useState(1)
+  // Observe only the available row width; individual tabs are not measured.
+  useLayoutEffect(() => {
+    const row = tabRow.current
+    if (row === null || !hasEntryActions) return
+    const updateLimit = (): void => {
+      setVisibleViewLimit(Math.max(1, Math.floor((row.clientWidth - 48) / 120)))
+    }
+    updateLimit()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(updateLimit)
+    observer.observe(row)
+    return () => { observer.disconnect() }
+  }, [showTabs, hasEntryActions])
+  const { visibleTabs, moreTabs } = useMemo(() => {
+    const preferred = [
+      ...tabs.filter(tab => tab.id === FIXED_VIEW_ID),
+      ...tabs.filter(tab => tab.id !== FIXED_VIEW_ID && !unpinned.includes(tab.id)),
+    ]
+    const visibleTabs = hasEntryActions ? preferred.slice(0, visibleViewLimit) : preferred
+    const visibleIds = new Set(visibleTabs.map(tab => tab.id))
+    return { visibleTabs, moreTabs: tabs.filter(tab => !visibleIds.has(tab.id)) }
+  }, [tabs, unpinned, hasEntryActions, visibleViewLimit])

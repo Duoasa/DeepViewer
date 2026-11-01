@@ -1,2 +1,32 @@
-  const visibleTabs = hideChrome ? tabs.filter(tab => tab.id === 'chat' || tab.id === 'deepviewer-map') : tabs
-  const showTabs = visibleTabs.length > 1
+  const showTabs = hideChrome
+    ? tabs.filter(tab => tab.id === 'chat' || tab.id === 'deepviewer-map').length > 1
+    : tabs.length > 1
+  const tabRow = useRef<HTMLDivElement>(null)
+  const [visibleViewLimit, setVisibleViewLimit] = useState(1)
+  // Observe only the available row width; individual tabs are not measured.
+  useLayoutEffect(() => {
+    const row = tabRow.current
+    if (row === null || !hasEntryActions) return
+    const updateLimit = (): void => {
+      setVisibleViewLimit(Math.max(1, Math.floor((row.clientWidth - 48) / 120)))
+    }
+    updateLimit()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(updateLimit)
+    observer.observe(row)
+    return () => { observer.disconnect() }
+  }, [showTabs, hasEntryActions])
+  const { visibleTabs, moreTabs } = useMemo(() => {
+    // Synapse blank chrome keeps Chat and Map outside More truncation.
+    if (hideChrome) {
+      const mapTabs = tabs.filter(tab => tab.id === 'chat' || tab.id === 'deepviewer-map')
+      return { visibleTabs: mapTabs, moreTabs: tabs.filter(() => false) }
+    }
+    const preferred = [
+      ...tabs.filter(tab => tab.id === FIXED_VIEW_ID),
+      ...tabs.filter(tab => tab.id !== FIXED_VIEW_ID && !unpinned.includes(tab.id)),
+    ]
+    const shown = hasEntryActions ? preferred.slice(0, visibleViewLimit) : preferred
+    const visibleIds = new Set(shown.map(tab => tab.id))
+    return { visibleTabs: shown, moreTabs: tabs.filter(tab => !visibleIds.has(tab.id)) }
+  }, [tabs, unpinned, hasEntryActions, visibleViewLimit, hideChrome])

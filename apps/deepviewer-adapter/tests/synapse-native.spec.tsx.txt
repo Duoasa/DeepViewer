@@ -87,7 +87,9 @@ it('DeepViewer map native blank session shows its view and docks the composer wh
 it('DeepViewer map native blank header offers Chat and Map tabs without statistics or trajectory', () => {
   const header = render(<ConversationSessionHeader {...({ sessionId: 'blank', hideChrome: true,
     useSessions: (selector: any) => selector({ byId: {} }), useConversationViews: (selector: any) => selector([{ id: 'chat', label: 'Chat' }, { id: 'trajectory', label: 'Trajectory' }, { id: 'deepviewer-map', label: 'Map' }]),
-    useStore: (selector: any) => selector({ view: 'deepviewer-map' }), selectView: vi.fn(), open: vi.fn(), t: (key: string) => key, renderSlot: () => null } as any)} />)
+    useStore: (selector: any) => selector({ view: 'deepviewer-map' }), selectView: vi.fn(), open: vi.fn(), setPinned: vi.fn(),
+    useEntryPins: (selector: any) => selector([]), useEntryActions: (selector: any) => selector(false),
+    t: (key: string) => key, renderSlot: () => null } as any)} />)
   expect(header.getAllByRole('tab').map(tab => tab.textContent)).toEqual(['Chat', 'Map'])
   expect(header.getByRole('tab', { name: 'Map' }).getAttribute('aria-selected')).toBe('true')
   expect(header.container.querySelector('[data-deepviewer-session-statistics]')).toBeNull()

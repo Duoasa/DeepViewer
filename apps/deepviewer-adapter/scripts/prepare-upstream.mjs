@@ -6,8 +6,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { contracts } from '../compatibility/contracts.mjs'
 
-export const harnessVersion = '0.2.1-rc.2'
-export const harnessCommit = '687f282e8625c6b8d11ff58211a90524be2e4317'
+export const harnessVersion = '0.2.1-rc.5'
+export const harnessCommit = 'b830ec950faba0a46dda564be3e2d854afed94f1'
 export const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 export const upstreamRoot = resolve(projectRoot, 'upstream/deepseek-harness')
 

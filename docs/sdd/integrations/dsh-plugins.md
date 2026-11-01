@@ -14,20 +14,20 @@
 
 ## 当前登记
 
-DV-0035 在现有前端与原生外壳边界内升级至固定 DSH 0.2.1-rc.2 / `687f282e8625c6b8d11ff58211a90524be2e4317`。
-DV-0036 在同一内核上原生集成 Figma 并发布 0.7.3。Active 模块由应用构建与原生组合负责，仍按 PC 检查，不列为用户安装插件。最新完整 PC 证据见 [DV-0036](../specs/DV-0036-designer-figma-native/verification.md)。
+DV-0037 把内核固定到 DSH 0.2.1-rc.5 / `b830ec950faba0a46dda564be3e2d854afed94f1`，保留现有前端，并接入上游 More 菜单。Figma 仍是 0.2.1；其 peer 范围不含 rc.5，原生 staging 的 semver 检查会失败，本轮不放宽。
+DV-0036 的 0.7.3 发布记录仍描述当时的 rc.2 集成。Active 模块由应用构建与原生组合负责，仍按 PC 检查，不列为用户安装插件。本次内核证据见 [DV-0037](../specs/DV-0037-dsh-021-rc5/verification.md)。
 
 | ID | 插件/内置模块 | 固定版本 | 状态 | 最近验证内核 | 最近结论 | 证据 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DSH `0.2.1-rc.2` | 应用内置；配置保留，真实账户 Pending Manual | [DV-0035](../specs/DV-0035-dsh-021-rc2/verification.md) |
+| `DVP-0001` | [`dsh-plugin-subscriptions`](https://github.com/V1ki/dsh-plugin-subscriptions) | `0.3.1` | `Active` | DSH `0.2.1-rc.5` | 应用内置；peer 改写到 rc.5。真实账户 Pending Manual | [DV-0037](../specs/DV-0037-dsh-021-rc5/verification.md) |
 | `DVP-0002` | `@deepviewer/dsh-plugin-preview` | `0.1.0` | `Disabled` | DSH `0.1.5-rc.2` | 历史源码保留；原生 documentpreview/browser 承接，不参与当前 staging | [DV-0017](../specs/DV-0017-dsh-015-arm64-development/spec.md) |
 | `DVP-0003` | `@deepviewer/dsh-plugin-reasoning` | `0.1.0` | `Removed` | DSH `0.1.5-rc.2` | 旧挂载退休，由 DVP-0006 承接；旧配置与报告保留，隔离迁移通过 | [DV-0033](../specs/DV-0033-scoder-native-rebase/verification.md) |
 | `DVP-0004` | [`dsh-better-sidebar`](https://github.com/omdsh-dev/DSH-better-sidebar) | `0.19.1` | `Removed` | DSH `0.1.5-rc.2` | 旧挂载退休，使用 DSH 原生右侧工作台；保留派生代码许可证 | [DV-0033](../specs/DV-0033-scoder-native-rebase/spec.md) |
 | `DVP-0005` | [`dsh-codex-taskboard`](https://github.com/chuspeeism/dashi-taskboard) | Taskboard `1.1.24` / bridge `1.0.0`, commit `1528a8eb31466829ca5a9fd436f4dfd285694a74` | `Removed` | DSH `0.1.5-rc.2` | 不再参与构建或内核升级检查 | [DV-0026](../specs/DV-0026-native-taskboard/spec.md) |
-| `DVP-0006` | `@deepviewer/dsh-plugin-model-capabilities` | `1.0.2` | `Active` | DSH `0.2.1-rc.2` | 应用内置；模型扫描/兼容修复/配置恢复与 v2 报告迁移自动检查通过，真实 API Pending Manual | [DV-0035](../specs/DV-0035-dsh-021-rc2/verification.md) |
-| `DVP-0007` | `@deepviewer/adapter` | `0.7.3` | `Active` | DSH `0.2.1-rc.2` | 应用内置；167 项可校验契约与原生/Synapse 自动回归通过，维护者已确认升级界面正常；其余交互 Pending Manual | [DV-0035](../specs/DV-0035-dsh-021-rc2/verification.md) |
+| `DVP-0006` | `@deepviewer/dsh-plugin-model-capabilities` | `1.0.2` | `Active` | DSH `0.2.1-rc.5` | 应用内置；peer 与 shrinkwrap 对齐 rc.5。真实 API Pending Manual | [DV-0037](../specs/DV-0037-dsh-021-rc5/verification.md) |
+| `DVP-0007` | `@deepviewer/adapter` | `0.7.3` | `Active` | DSH `0.2.1-rc.5` | 应用内置；契约改到 rc.5。界面交互 Pending Manual | [DV-0037](../specs/DV-0037-dsh-021-rc5/verification.md) |
 
-| `DVP-0008` | [DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) | `0.2.1` / `ffc4d3a1c59d8c9e53261e4e9d8a5e8e6e174412` | `Active` | DSH `0.2.1-rc.2` | Native Host tools and private companion; real Figma acceptance Pending Manual | [DV-0036](../specs/DV-0036-designer-figma-native/verification.md) |
+| `DVP-0008` | [DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) | `0.2.1` / `ffc4d3a1c59d8c9e53261e4e9d8a5e8e6e174412` | `Active` | DSH `0.2.1-rc.2` | 仍固定 0.2.1。peer 不含 rc.5，rc.5 staging 会报 Incompatible Figma dependency；不放宽检查。真实 Figma Pending Manual | [DV-0036](../specs/DV-0036-designer-figma-native/verification.md) |
 
 ### 当前原生组合与恢复边界
 
