@@ -10,7 +10,7 @@ Date: 2026-11-01
 | AC | 状态 | 证据 |
 | --- | --- | --- |
 | AC-001 | Pass | `node apps/deepviewer-desktop/scripts/smoke-native-contract-source.mjs`：167 条契约在干净 rc.5 上应用两次，幂等，Agent loop 未改 |
-| AC-002 | Pass（自动） | 补丁后 `pnpm --dir upstream/deepseek-harness run typecheck`：5/5。`build-native-desktop.mjs --core-only` 的内核门禁 9/9。补丁后的 `ConversationSession.tsx` 只有一处 `const { visibleTabs`。header placement 3 项、Synapse seams 6 项、Synapse client 11 项通过 |
+| AC-002 | Pass（自动） | 补丁后 `pnpm --dir upstream/deepseek-harness run typecheck`：5/5。`build-native-desktop.mjs --core-only` 的内核门禁 9/9。补丁后的 `ConversationSession.tsx` 只有一处 `const { visibleTabs`。header placement 3 项、Synapse seams 7 项、Synapse client 11 项通过 |
 | AC-003 | Pass | `smoke:ui-regression`：5 个文件、239 项，含上游 sidebar-styles 与 panel-list |
 | AC-004 | Partial | 下表。真实账户、真实 Figma 和界面交互 Pending Manual |
 | AC-005 | Pass | `build-native-desktop.mjs --core-only` 打印 `Staged native dsh-to-figma@0.3.1`。`smoke-figma.mjs`：74 项插件测试通过，native 结果 `localTools: 18`、`actualDsh: 0.2.1-rc.5`。staged 树含 `assets/companion/FEATHER-LICENSE`。semver 检查未放宽 |
@@ -27,8 +27,8 @@ Date: 2026-11-01
 - `node apps/deepviewer-desktop/scripts/smoke-model-capabilities-host.mjs`：通过。
 - `pnpm desktop:smoke`：18 个文件中 17 个通过；122 项里 110 通过、1 跳过、11 失败。失败全部来自 Linux 缺少 `/usr/bin/shlock`，见下方平台差异。
 - `node apps/deepviewer-desktop/scripts/smoke-native-ui-regression.mjs`：239 通过。
-- `node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs`：3 通过，38 跳过。800px 行宽的可见 tab 预算：上游整行 6，对半拆开 2，统计按内容宽度后 tab 簇 6。
-- `pnpm --filter @deepviewer/desktop smoke:synapse`：host 7 通过。client 在 adapter 尚未 stage 时失败；core build stage 之后重跑 11 通过。seams 6 通过。canvas 在 Linux 失败，见下方。
+- `node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs`：3 通过，38 跳过。800px 行且统计内容宽度为 0 时，tab 预算与上游整行相同，都是 6；有统计内容时还要减去该宽度。对半拆开时是 2。
+- `pnpm --filter @deepviewer/desktop smoke:synapse`：host 7 通过。client 在 adapter 尚未 stage 时失败；core build stage 之后重跑 11 通过。seams 7 通过。canvas 在 Linux 失败，见下方。
 - `pnpm --filter @deepviewer/desktop smoke:contracts`：76 通过。
 - `node --test --test-timeout=15000 apps/dsh-plugin-model-capabilities/test/*.test.mjs`：52 通过。
 - `node apps/dsh-plugin-model-capabilities/scripts/smoke-runtime.mjs`：插件 stage 到上游后通过，4 个 pi-ai payload，0 次网络。
@@ -42,7 +42,7 @@ Date: 2026-11-01
 
 - 已安装的 Electron 44.7.0 二进制：`ELECTRON_RUN_AS_NODE=1 electron -p process.versions.node` 得到 Node 24.21.0。
 - `scripts/primary-runtime/lock.json` 的独立 Node 是 24.21.0。`apps/desktop/scripts/node-bin/node` 设置 `ELECTRON_RUN_AS_NODE` 后执行 `$DSH_DESKTOP_NODE_EXECUTABLE`。
-- `smoke-native-host.mjs` 用 `process.execPath` 启动 Host。仓库根 engines 是 `>=24.0.0`。CI 的 `node-version` 是 24，本次未改 workflow。
+- `smoke-native-host.mjs` 用 `process.execPath` 启动 Host。仓库根 engines 是 `>=24.0.0`。CI 的 `node-version` 是 24，并且检出 `b830ec950faba0a46dda564be3e2d854afed94f1`。
 - 内核与 model-capabilities 的 engines 都是 `^22.19.0 || >=24.0.0`。`resolveHarnessLaunch` 会拒绝不满足该范围的 Electron Node。
 
 ## Active 模块
@@ -68,6 +68,5 @@ Date: 2026-11-01
 
 ## 未完成
 
-- `.github/workflows/ci.yml` 仍检出 rc.2。需要另一位维护者把 ref 改成 `b830ec950faba0a46dda564be3e2d854afed94f1`。
-- 应用版本、发布记录、根 README、`upstream/README.md` 和 `apps/deepviewer-adapter/README.md` 未改。
 - 界面、真实账户和真实 Figma 保持 Pending Manual。规格保持 Implementing。
+- CI 已检出 `b830ec950faba0a46dda564be3e2d854afed94f1`。应用版本是 0.8.0，`previewRelease` 是 `0.8.0-preview.1`，`buildNumber` 是 93。README 与发布记录已更新。DSH-to-Figma vendor 是 0.3.1。

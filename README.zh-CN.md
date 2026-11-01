@@ -62,7 +62,7 @@ DeepViewer 是针对设计师优化的开源专用 Agent 工作台，基于
 
 ## 原生 DSH-to-Figma
 
-当前源码内置 [DSH-to-Figma 0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1)，这是兼容 DSH 0.2.1-rc.4 与 rc.5 的 GitHub 预发布。
+当前源码内置 [DSH-to-Figma 0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1)，这是 GitHub 预发布，其 peer 范围包含 0.2.1-rc.5。
 
 [DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) 将 Agent 接入 Figma 原生
 Plugin API，可读取设计上下文，创建和编辑画板、文本、自动布局、组件与变量，获取截图并导出素材。

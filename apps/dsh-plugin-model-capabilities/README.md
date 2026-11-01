@@ -17,7 +17,7 @@ Catalog and `/models` claims are hints. They never substitute for a working requ
 
 ## Compatibility and installation
 
-- DSH **0.1.7-rc.2**, Cordis **4.0.4**, Web client; `llm-pi-ai` model settings.
+- DSH **0.2.1-rc.5**, Cordis **4.0.5**, Web client; `llm-pi-ai` model settings.
 - Node **22.19+ or 24+** as constrained by `package.json`.
 - `openai-completions` and `openai-responses` providers with saved credentials.
 - Remote endpoints require HTTPS; HTTP is allowed only for localhost / loopback. Redirects are refused.

@@ -64,7 +64,7 @@ See the [0.7.3 release record](docs/sdd/releases/v0.7.3.md) for package verifica
 
 ## Native DSH-to-Figma
 
-This source bundles [DSH-to-Figma 0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1), a GitHub prerelease compatible with DSH 0.2.1-rc.4 and rc.5.
+This source bundles [DSH-to-Figma 0.3.1](https://github.com/Duoasa/DSH-to-Figma/releases/tag/v0.3.1), a GitHub prerelease whose peer range includes 0.2.1-rc.5.
 
 [DSH-to-Figma](https://github.com/Duoasa/DSH-to-Figma) connects the agent to Figma's
 native Plugin API. Read design context, create and edit frames, text, auto layout,

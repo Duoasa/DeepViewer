@@ -20,17 +20,10 @@ const statisticsFlex = flexDeclaration('.headerCenter')
 if (tabsFlex !== '1 1 0' || statisticsFlex !== '0 1 auto') {
   throw new Error(`Navigation flex must leave the remaining width to tabs: tabs=${tabsFlex}, statistics=${statisticsFlex}`)
 }
-const visibleBudget = width => Math.max(1, Math.floor((width - 48) / 120))
-const rowWidth = 800
-const gap = 16
-const statisticsContent = 0
-const upstreamTabs = visibleBudget(rowWidth)
-const halfSplitTabs = visibleBudget((rowWidth - gap) / 2)
-const contentSizedStatisticsTabs = visibleBudget(rowWidth - gap - statisticsContent)
-if (contentSizedStatisticsTabs !== upstreamTabs) {
-  throw new Error(`800px tab budget ${contentSizedStatisticsTabs} does not match upstream ${upstreamTabs}`)
-}
-console.info(JSON.stringify({ tabBudgetAt800: { upstream: upstreamTabs, halfSplit: halfSplitTabs, contentSizedStatistics: contentSizedStatisticsTabs } }))
+// D-108: floor((clientWidth - 48) / 120) matches upstream's full-row count only
+// when the statistics content width is 0. Real statistics consume their own
+// width, so subtract that before applying the formula. A zero-width comparison
+// is an identity and is not asserted here.
 const fixture = resolve(root, 'packages/client/ui-conversation/tests/deepviewer-header-smoke.client.spec.tsx')
 const tests = `
 it('DeepViewer statistics share the view navigation row outside the tablist', () => {

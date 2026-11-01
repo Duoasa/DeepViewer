@@ -1,6 +1,6 @@
 # 模型能力插件 1.0.1：构建、安装与迁移
 
-本版包名为 `@deepviewer/dsh-plugin-model-capabilities`，适配 DSH `0.1.7-rc.2` / Cordis `4.0.4`。DeepViewer 开发版已将它作为原生集成，替换旧 reasoning 插件，无需重复安装。下列安装命令用于其他兼容 DSH 环境；未发布到公共 npm。
+本版包名为 `@deepviewer/dsh-plugin-model-capabilities`，适配 DSH `0.2.1-rc.5` / Cordis `4.0.5`。DeepViewer 开发版已将它作为原生集成，替换旧 reasoning 插件，无需重复安装。下列安装命令用于其他兼容 DSH 环境；未发布到公共 npm。
 
 ## 安装本地包（推荐）
 
