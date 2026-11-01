@@ -210,7 +210,7 @@
     "id": "deepviewer-statistics-navigation-style",
     "file": "packages/client/ui-conversation/src/client/skeleton/ConversationRoot.module.css",
     "before": ".tabs {",
-    "after": ".navigationRow {\n  grid-column: 1 / -1;\n  display: flex;\n  align-items: stretch;\n  gap: 16px;\n  min-width: 0;\n  margin-top: 10px;\n}\n\n.navigationRow .tabs {\n  flex: 1 1 0;\n  width: auto;\n  min-width: 0;\n  margin-top: 0;\n}\n\n.headerCenter {\n  display: flex;\n  flex: 1;\n  justify-content: center;\n  align-items: flex-start;\n  min-width: 0;\n  padding-bottom: 9px;\n  -webkit-app-region: no-drag;\n}\n\n.headerCenter > * {\n  min-width: 0;\n  max-width: 100%;\n}\n\n.tabs {"
+    "after": ".navigationRow {\n  grid-column: 1 / -1;\n  display: flex;\n  align-items: stretch;\n  gap: 16px;\n  min-width: 0;\n  margin-top: 10px;\n}\n\n.navigationRow .tabs {\n  flex: 1 1 0;\n  width: auto;\n  min-width: 0;\n  margin-top: 0;\n}\n\n.headerCenter {\n  display: flex;\n  flex: 0 1 auto;\n  justify-content: center;\n  align-items: flex-start;\n  min-width: 0;\n  padding-bottom: 9px;\n  -webkit-app-region: no-drag;\n}\n\n.headerCenter > * {\n  min-width: 0;\n  max-width: 100%;\n}\n\n.tabs {"
   },
   {
     "id": "deepviewer-window-safe-minimum",

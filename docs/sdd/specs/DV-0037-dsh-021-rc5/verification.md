@@ -25,7 +25,7 @@ Date: 2026-11-01
 - `node apps/deepviewer-desktop/scripts/build-native-desktop.mjs --core-only`：内核 9/9，adapter 与 model-capabilities 构建完成，subscriptions 记为 `DSH 0.2.1-rc.5`，随后 Figma peer 失败，进程退出码 1。
 - `pnpm desktop:smoke`：18 个文件中 17 个通过；122 项里 110 通过、1 跳过、11 失败。失败全部来自 Linux 缺少 `/usr/bin/shlock`，见下方平台差异。
 - `node apps/deepviewer-desktop/scripts/smoke-native-ui-regression.mjs`：239 通过。
-- `node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs`：3 通过，38 跳过。
+- `node apps/deepviewer-desktop/scripts/smoke-native-header-placement.mjs`：3 通过，38 跳过。800px 行宽的可见 tab 预算：上游整行 6，对半拆开 2，统计按内容宽度后 tab 簇 6。
 - `pnpm --filter @deepviewer/desktop smoke:synapse`：host 7 通过。client 在 adapter 尚未 stage 时失败；core build stage 之后重跑 11 通过。seams 6 通过。canvas 在 Linux 失败，见下方。
 - `pnpm --filter @deepviewer/desktop smoke:contracts`：76 通过。
 - `node --test --test-timeout=15000 apps/dsh-plugin-model-capabilities/test/*.test.mjs`：52 通过。

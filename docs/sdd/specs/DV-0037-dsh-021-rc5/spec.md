@@ -43,7 +43,7 @@ DVP-0002 保持 Disabled。DVP-0003、DVP-0004、DVP-0005 保持 Removed。
 - D-105: subscriptions 0.3.1 的 DSH peer 改写目标改为 `0.2.1-rc.5`。既有 Cordis peer 改写仍写成 `4.0.4`；rc.5 与 rc.2 一样携带 Cordis 4.0.5。本次不改这条既有改写。
 - D-106: `apps/deepviewer-desktop/upstream-overrides/chat-mode/patches.json` 只被 `sync-chat-mode.mjs` 引用，当前原生构建不调用它。本次不改。
 - D-107: rc.4 的 `conversation.chat.reasoning.body` `rawText` 变更不改 DeepViewer。已移除的 reasoning 插件和 model-capabilities 都不渲染该插槽。
-- D-108: 导航行里的 tab 簇使用 `flex: 1 1 0; width: auto; min-width: 0`，抵消上游 `.tabs { width: 100% }`，让统计与 More 宽度预算同时存在。统计在剩余空间内居中。
+- D-108: 导航行是 flex，间距 16px。`.navigationRow .tabs` 使用 `flex: 1 1 0; width: auto; min-width: 0`，占据统计内容宽度之外的剩余宽度，供 `floor((clientWidth - 48) / 120)` 使用。`.headerCenter` 使用 `flex: 0 1 auto`，宽度等于统计内容，内容在该盒子内居中。不再把行宽对半拆开。800px 行且统计内容宽度为 0 时，tab 簇为 784px，可见预算是 6，与上游整行 800px 的 6 个相同；对半拆开时同一公式只有 2 个。
 - D-109: Figma 0.2.1 的 peer 范围不含 rc.5。等待 DSH-to-Figma 0.3.1。不放宽 `stage-figma.mjs`，也不把 `assets/companion` 加进白名单。`DEEPVIEWER_DISABLE_FIGMA` 只影响运行时加载，不跳过 staging。
 - D-110: rc.5 使用 `Promise.withResolvers`（Node 22 起）。当前没有路径把内核跑在 Node 20 上，因此不改 engines，也不新增 `.nvmrc`。Electron 44.7.0 内置 Node 24.21.0；primary-runtime 锁定 Node 24.21.0；`node-bin` 转调 Electron；根 `engines.node` 已是 `>=24.0.0`；内核与 model-capabilities 为 `^22.19.0 || >=24`；CI 使用 Node 24。`resolveHarnessLaunch` 会拒绝不满足该范围的 Electron Node。
 

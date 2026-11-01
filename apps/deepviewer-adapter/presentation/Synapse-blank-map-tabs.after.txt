@@ -20,7 +20,7 @@
     // Synapse blank chrome keeps Chat and Map outside More truncation.
     if (hideChrome) {
       const mapTabs = tabs.filter(tab => tab.id === 'chat' || tab.id === 'deepviewer-map')
-      return { visibleTabs: mapTabs, moreTabs: tabs.filter(() => false) }
+      return { visibleTabs: mapTabs, moreTabs: [] as typeof tabs }
     }
     const preferred = [
       ...tabs.filter(tab => tab.id === FIXED_VIEW_ID),
